@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Myrealap Wishing Star Catching Game</title>
     <style>
@@ -48,6 +47,27 @@
         .loading-screen.hide {
             opacity: 0;
             pointer-events: none;
+        }
+
+        .loading-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background-image: url('images/loading-bg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .loading-bg.show {
+            opacity: 0.4;
         }
 
         .quote-container {
@@ -128,6 +148,7 @@
             50% { opacity: 1; }
         }
 
+        /* All buttons use sprite format: 1000x250 image, 500x250 each half */
         .go-button {
             width: 110.5px;
             height: 66px;
@@ -208,7 +229,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000000;
+            background: #dbccd3;
             z-index: 9998;
             display: flex;
             align-items: center;
@@ -224,39 +245,70 @@
             pointer-events: auto;
         }
 
+        .landing-sparkle-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .landing-bg-sparkle {
+            position: absolute;
+            background-image: url('images/sparkle_b.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            animation: landingBgSparkleFade 3.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes landingBgSparkleFade {
+            0% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+            20% { opacity: 0.5; transform: scale(1.2) rotate(90deg); }
+            50% { opacity: 0.2; transform: scale(0.8) rotate(180deg); }
+            80% { opacity: 0.5; transform: scale(1.1) rotate(270deg); }
+            100% { opacity: 0; transform: scale(0.3) rotate(360deg); }
+        }
+
         .landing-image {
-    max-width: 100%;
-    max-height: 90%;
+            max-width: 100%;
+            max-height: 90%;
             object-fit: contain;
             pointer-events: none;
+            position: relative;
+            z-index: 1;
         }
 
         .play-button {
             position: absolute;
-            bottom: 8%;
-            top: 20%;
+            top: 50%;
             left: 50%;
             transform: translateX(-50%);
+            width: 250px;
+            height: 125px;
+            background-image: url('images/play_landing.png');
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-size: 500px 125px;
             cursor: pointer;
             border: none;
-            background: none;
-            padding: 10px;
+            background-color: transparent;
+            z-index: 2;
             transition: transform 0.3s ease;
-            z-index: 10;
         }
 
         .play-button:hover {
-            transform: translateX(-50%) scale(1.1);
+            background-position: -250px 0;
+            transform: translateX(-50%) scale(1.05);
         }
 
         .play-button:focus {
             outline: none;
-        }
-
-        .play-button img {
-            width: 80px;
-            height: auto;
-            pointer-events: none;
         }
 
         /* ==================== HELP/GUIDE SCREEN ==================== */
@@ -266,7 +318,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000000;
+            background: #8f2937;
             z-index: 9997;
             display: flex;
             align-items: center;
@@ -282,38 +334,179 @@
             pointer-events: auto;
         }
 
+        .help-sparkle-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .help-bg-sparkle {
+            position: absolute;
+            background-image: url('images/sparkle_b.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            animation: helpBgSparkleFade 3.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes helpBgSparkleFade {
+            0% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+            20% { opacity: 0.5; transform: scale(1.2) rotate(90deg); }
+            50% { opacity: 0.2; transform: scale(0.8) rotate(180deg); }
+            80% { opacity: 0.5; transform: scale(1.1) rotate(270deg); }
+            100% { opacity: 0; transform: scale(0.3) rotate(360deg); }
+        }
+
         .help-image {
             max-width: 100%;
             max-height: 90%;
             object-fit: contain;
             pointer-events: none;
+            position: relative;
+            z-index: 1;
         }
 
         .help-play-button {
             position: absolute;
-            bottom: 8%;
-            left: 50%;
+            top: 57%;
+            left: 45%;
             transform: translateX(-50%);
+            width: 170px;
+            height: 85px;
+            background-image: url('images/play_help.png');
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-size: 340px 85px;
             cursor: pointer;
             border: none;
-            background: none;
-            padding: 10px;
+            background-color: transparent;
+            z-index: 2;
             transition: transform 0.3s ease;
-            z-index: 10;
         }
 
         .help-play-button:hover {
-            transform: translateX(-50%) scale(1.1);
+            background-position: -170px 0;
+            transform: translateX(-50%) scale(1.05);
         }
 
         .help-play-button:focus {
             outline: none;
         }
 
-        .help-play-button img {
-            width: 80px;
-            height: auto;
+        /* ==================== IN-GAME HELP OVERLAY ==================== */
+        .game-help-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9995;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
             pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .game-help-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .game-help-sparkle-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .game-help-bg-sparkle {
+            position: absolute;
+            background-image: url('images/sparkle_b.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            animation: helpBgSparkleFade 3.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .game-help-image {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+            pointer-events: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-help-close-btn {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 170px;
+            height: 85px;
+            background-image: url('images/play_help.png');
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-size: 340px 85px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            z-index: 2;
+            transition: transform 0.3s ease;
+        }
+
+        .game-help-close-btn:hover {
+            background-position: -170px 0;
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .game-help-close-btn:focus {
+            outline: none;
+        }
+
+        /* Help button on game screen */
+        .help-btn-game {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            background-image: url('images/help_btn.png');
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-size: 300px 150px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            z-index: 15;
+            transition: transform 0.3s ease;
+        }
+
+        .help-btn-game:hover {
+            background-position: -150px 0;
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .help-btn-game:focus {
+            outline: none;
         }
 
         /* ==================== GAME SCREEN ==================== */
@@ -441,33 +634,39 @@
             pointer-events: auto;
         }
 
+        .finish-image {
+            max-width: 80%;
+            max-height: 50%;
+            object-fit: contain;
+            pointer-events: none;
+            margin-bottom: 20px;
+        }
+
         .finish-score {
             color: #ffd700;
             font-family: 'ALGER', serif;
-            font-size: 42px;
+            font-size: 36px;
             margin-bottom: 20px;
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
         }
 
         .wallpaper-container {
             display: flex;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 40px;
+            margin-bottom: 25px;
         }
 
         .wallpaper-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .wallpaper-thumb {
-            width: 200px;
-            height: 267px;
+            width: 240px;
+            height: 180px;
             object-fit: cover;
-            border: 2px solid #333;
-            border-radius: 8px;
             transition: transform 0.3s ease, border-color 0.3s ease;
         }
 
@@ -477,36 +676,48 @@
         }
 
         .download-btn {
-            width: 40px;
-            height: 40px;
+            width: 170px;
+            height: 85px;
+            background-image: url('images/download.png');
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-size: 340px 85px;
             cursor: pointer;
+            border: none;
+            background-color: transparent;
             transition: transform 0.3s ease;
         }
 
         .download-btn:hover {
-            transform: scale(1.2);
+            background-position: -170px 0;
+            transform: scale(1.05);
+        }
+
+        .download-btn:focus {
+            outline: none;
         }
 
         .try-again-btn {
+            width: 250px;
+            height: 125px;
+            background-image: url('images/try-again.png');
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-size: 500px 125px;
             cursor: pointer;
             border: none;
-            background: none;
-            padding: 10px;
+            background-color: transparent;
             transition: transform 0.3s ease;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
         .try-again-btn:hover {
-            transform: scale(1.1);
+            background-position: -250px 0;
+            transform: scale(1.05);
         }
 
         .try-again-btn:focus {
             outline: none;
-        }
-
-        .try-again-btn img {
-            width: 200px;
-            height: auto;
         }
 
         /* ==================== MOUSE TRAIL SPARKLES ==================== */
@@ -611,18 +822,54 @@
             .custom-cursor { display: none !important; }
             .go-button {
                 width: 150px;
-                height: 45px;
-                background-size: 150px 45px;
+                height: 75px;
+                background-size: 300px 75px;
             }
-            .go-button:hover { background-position: -75px 0; }
+            .go-button:hover { background-position: -150px 0; }
+            .play-button {
+                width: 150px;
+                height: 75px;
+                background-size: 300px 75px;
+            }
+            .play-button:hover { background-position: -150px 0; }
+            .help-play-button {
+                width: 130px;
+                height: 65px;
+                background-size: 260px 65px;
+            }
+            .help-play-button:hover { background-position: -130px 0; }
+            .game-help-close-btn {
+                width: 130px;
+                height: 65px;
+                background-size: 260px 65px;
+            }
+            .game-help-close-btn:hover { background-position: -130px 0; }
+            .help-btn-game {
+                width: 140px;
+                height: 70px;
+                background-size: 280px 70px;
+            }
+            .help-btn-game:hover { background-position: -140px 0; }
+            .download-btn {
+                width: 130px;
+                height: 65px;
+                background-size: 260px 65px;
+            }
+            .download-btn:hover { background-position: -130px 0; }
+            .try-again-btn {
+                width: 150px;
+                height: 75px;
+                background-size: 300px 75px;
+            }
+            .try-again-btn:hover { background-position: -150px 0; }
             .landing-image, .help-image { max-width: 90%; max-height: 60%; }
             .quote-bg { width: 100%; height: 150px; }
             .quote-text { font-size: 16px; }
             .loading-percentage { font-size: 24px; }
             .wallpaper-thumb { width: 120px; height: 160px; }
-            .wallpaper-container { gap: 15px; }
-            .finish-score { font-size: 28px; }
-            .try-again-btn img { width: 140px; }
+            .wallpaper-container { gap: 20px; }
+            .finish-score { font-size: 24px; }
+            .finish-image { max-width: 90%; }
         }
     </style>
 </head>
@@ -632,7 +879,9 @@
     <div class="touch-sparkle-container" id="touchSparkleContainer"></div>
     <div class="global-sparkle-container" id="globalSparkleContainer"></div>
 
+    <!-- LOADING SCREEN -->
     <div class="loading-screen" id="loadingScreen">
+        <div class="loading-bg" id="loadingBg"></div>
         <div class="quote-container">
             <div class="quote-bg"></div>
             <div class="quote-text" id="quoteText">" loading... "</div>
@@ -645,43 +894,52 @@
         <button class="go-button" id="goButton"></button>
     </div>
 
+    <!-- LANDING PAGE -->
     <div class="landing-page" id="landingPage">
+        <div class="landing-sparkle-bg" id="landingSparkleBg"></div>
         <img class="landing-image" src="images/landing.png" alt="Myrealap Stars">
-        <button class="play-button" id="playButton">
-            <img src="images/play.png" alt="Play">
-        </button>
+        <button class="play-button" id="playButton"></button>
     </div>
 
+    <!-- HELP SCREEN (pre-game) -->
     <div class="help-screen" id="helpScreen">
+        <div class="help-sparkle-bg" id="helpSparkleBg"></div>
         <img class="help-image" src="images/help.png" alt="Help Guide">
-        <button class="help-play-button" id="helpPlayButton">
-            <img src="images/play.png" alt="Start Game">
-        </button>
+        <button class="help-play-button" id="helpPlayButton"></button>
     </div>
 
+    <!-- GAME SCREEN -->
     <div class="game-screen" id="gameScreen">
         <div class="game-sparkle-bg" id="gameSparkleBg"></div>
         <canvas id="gameCanvas"></canvas>
+        <button class="help-btn-game" id="helpBtnGame"></button>
         <div class="score-display" id="scoreDisplay">Score: 0</div>
         <div class="timer-display" id="timerDisplay">Time: 60</div>
         <div class="bonus-text" id="bonusText">🌟 BONUS ROUND! 🌟</div>
     </div>
 
+    <!-- IN-GAME HELP OVERLAY -->
+    <div class="game-help-overlay" id="gameHelpOverlay">
+        <div class="game-help-sparkle-bg" id="gameHelpSparkleBg"></div>
+        <img class="game-help-image" src="images/help.png" alt="Help Guide">
+        <button class="game-help-close-btn" id="gameHelpCloseBtn"></button>
+    </div>
+
+    <!-- FINISH SCREEN -->
     <div class="finish-screen" id="finishScreen">
+        <img class="finish-image" src="images/end.png" alt="Game Over">
         <div class="finish-score" id="finishScore">You caught 0 stars!</div>
         <div class="wallpaper-container">
             <div class="wallpaper-item">
                 <img class="wallpaper-thumb" src="images/wallpaper1-thumb.jpg" alt="Wallpaper 1">
-                <img class="download-btn" src="images/download.png" alt="Download" onclick="downloadWallpaper('images/wallpaper1.jpg')">
+                <button class="download-btn" onclick="downloadWallpaper('images/wallpaper1.jpg')"></button>
             </div>
             <div class="wallpaper-item">
                 <img class="wallpaper-thumb" src="images/wallpaper2-thumb.jpg" alt="Wallpaper 2">
-                <img class="download-btn" src="images/download.png" alt="Download" onclick="downloadWallpaper('images/wallpaper2.jpg')">
+                <button class="download-btn" onclick="downloadWallpaper('images/wallpaper2.jpg')"></button>
             </div>
         </div>
-        <button class="try-again-btn" id="tryAgainBtn">
-            <img src="images/try-again.png" alt="Try Again">
-        </button>
+        <button class="try-again-btn" id="tryAgainBtn"></button>
     </div>
 
     <script>
@@ -807,10 +1065,8 @@
                 sparkle.style.width = size + 'px';
                 sparkle.style.height = size + 'px';
                 container.appendChild(sparkle);
-
                 sparklesCreated++;
                 if (sparklesCreated >= totalSparkles) {
-                    // All sparkles created, wait for animation then callback
                     setTimeout(() => {
                         container.innerHTML = '';
                         if (callback) callback();
@@ -818,7 +1074,6 @@
                 }
             }
 
-            // Burst sparkles rapidly
             for (let i = 0; i < totalSparkles; i++) {
                 setTimeout(createBurstSparkle, i * 25);
             }
@@ -877,30 +1132,53 @@
         let landingMusicBuffer = null;
         const clickSound = new Audio("sounds/click.mp3");
         clickSound.volume = 0.5;
+        const hoverSound = new Audio("sounds/hover.mp3");
+        hoverSound.volume = 0.3;
 
         function playClickSound() {
             clickSound.currentTime = 0;
             clickSound.play().catch(() => {});
         }
 
+        function playHoverSound() {
+            hoverSound.currentTime = 0;
+            hoverSound.play().catch(() => {});
+        }
+
         function initAudioContext() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            } else if (audioContext.state === 'suspended') {
-                audioContext.resume();
             }
+            // Always try to resume
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    console.log('🎵 AudioContext resumed!');
+                });
+            }
+            console.log('🎵 AudioContext state:', audioContext.state);
         }
 
         function loadLandingMusic() {
             fetch('music/music_game.mp3')
                 .then(response => response.arrayBuffer())
-                .then(arrayBuffer => { landingMusicBuffer = arrayBuffer; })
+                .then(arrayBuffer => { 
+                    landingMusicBuffer = arrayBuffer;
+                    console.log('🎵 Landing music loaded!');
+                })
                 .catch(error => console.log('Error loading music:', error));
         }
 
         function playLandingMusic() {
-            if (!audioContext || !landingMusicBuffer) return;
+            if (!audioContext) {
+                console.log('❌ No AudioContext!');
+                return;
+            }
+            if (!landingMusicBuffer) {
+                console.log('❌ No music buffer!');
+                return;
+            }
             if (landingMusic) { try { landingMusic.stop(); } catch(e) {} }
+            
             audioContext.decodeAudioData(landingMusicBuffer.slice(0))
                 .then(buffer => {
                     landingMusic = audioContext.createBufferSource();
@@ -911,15 +1189,33 @@
                     landingMusic.connect(gainNode);
                     gainNode.connect(audioContext.destination);
                     landingMusic.start(0);
+                    console.log('🎵 Landing music playing!');
                 })
                 .catch(err => console.log('Decode error:', err));
         }
 
         function stopLandingMusic() {
-            if (landingMusic) { try { landingMusic.stop(); landingMusic = null; } catch(e) {} }
+            if (landingMusic) { 
+                try { 
+                    landingMusic.stop(); 
+                    landingMusic = null;
+                    console.log('🎵 Music stopped');
+                } catch(e) {} 
+            }
         }
 
+        // Load music immediately
         loadLandingMusic();
+
+        // ==================== HOVER SOUNDS ON ALL BUTTONS ====================
+        function addHoverSoundToButtons() {
+            const allButtons = document.querySelectorAll('button');
+            allButtons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    playHoverSound();
+                });
+            });
+        }
 
         // ==================== FILE LOADING ====================
         const filesToLoad = [
@@ -930,9 +1226,13 @@
             "images/go.png",
             "images/help.png",
             "images/landing.png",
-            "images/play.png",
+            "images/play_landing.png",
+            "images/play_help.png",
+            "images/loading-bg.png",
             "images/try-again.png",
             "images/download.png",
+            "images/end.png",
+            "images/help_btn.png",
         ];
 
         const allFiles = [...filesToLoad];
@@ -966,15 +1266,21 @@
             await Promise.all(loadPromises);
             loadedCount = totalFiles;
             updateLoadingPercent();
+            // Add hover sounds after DOM is ready
+            addHoverSoundToButtons();
             setTimeout(() => replacePercentWithGoButton(), 300);
         }
 
         function replacePercentWithGoButton() {
             const percentEl = document.getElementById('loadingPercent');
             const goBtn = document.getElementById('goButton');
+            const loadingBg = document.getElementById('loadingBg');
+            
             percentEl.classList.add('fade-out');
+            
             setTimeout(() => {
                 percentEl.style.display = 'none';
+                loadingBg.classList.add('show');
                 goBtn.classList.add('show');
             }, 600);
         }
@@ -987,9 +1293,12 @@
             const goButton = document.getElementById('goButton');
             goButton.classList.add('clicked');
             
-            // Trigger sparkle burst then transition
             triggerGlobalSparkleBurst(() => {
-                playLandingMusic();
+                // Play music after AudioContext is confirmed working
+                setTimeout(() => {
+                    playLandingMusic();
+                }, 200);
+                
                 const loadingScreen = document.getElementById('loadingScreen');
                 const loadingActionArea = document.getElementById('loadingActionArea');
                 loadingScreen.classList.add('hide');
@@ -998,11 +1307,110 @@
             });
         }
 
+        // ==================== LANDING PAGE SPARKLES ====================
+        const LANDING_SPARKLE_COUNT = 80;
+        const LANDING_SPARKLE_INTERVAL = 60;
+        const LANDING_SPARKLE_SIZE_MIN = 75;
+        const LANDING_SPARKLE_SIZE_MAX = 100;
+
+        let landingSparkleInterval = null;
+
+        function createLandingBgSparkle() {
+            const container = document.getElementById('landingSparkleBg');
+            const sparkle = document.createElement('div');
+            sparkle.className = 'landing-bg-sparkle';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.animationDelay = Math.random() * 3.5 + 's';
+            const size = Math.random() * (LANDING_SPARKLE_SIZE_MAX - LANDING_SPARKLE_SIZE_MIN) + LANDING_SPARKLE_SIZE_MIN;
+            sparkle.style.width = size + 'px';
+            sparkle.style.height = size + 'px';
+            container.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 3500);
+        }
+
+        function startLandingSparkles() {
+            for (let i = 0; i < LANDING_SPARKLE_COUNT; i++) {
+                setTimeout(() => createLandingBgSparkle(), i * 50);
+            }
+            landingSparkleInterval = setInterval(createLandingBgSparkle, LANDING_SPARKLE_INTERVAL);
+        }
+
+        function stopLandingSparkles() {
+            if (landingSparkleInterval) clearInterval(landingSparkleInterval);
+            document.getElementById('landingSparkleBg').innerHTML = '';
+        }
+
+        // ==================== HELP PAGE SPARKLES ====================
+        const HELP_SPARKLE_COUNT = 80;
+        const HELP_SPARKLE_INTERVAL = 60;
+        const HELP_SPARKLE_SIZE_MIN = 75;
+        const HELP_SPARKLE_SIZE_MAX = 100;
+
+        let helpSparkleInterval = null;
+
+        function createHelpBgSparkle() {
+            const container = document.getElementById('helpSparkleBg');
+            const sparkle = document.createElement('div');
+            sparkle.className = 'help-bg-sparkle';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.animationDelay = Math.random() * 3.5 + 's';
+            const size = Math.random() * (HELP_SPARKLE_SIZE_MAX - HELP_SPARKLE_SIZE_MIN) + HELP_SPARKLE_SIZE_MIN;
+            sparkle.style.width = size + 'px';
+            sparkle.style.height = size + 'px';
+            container.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 3500);
+        }
+
+        function startHelpSparkles() {
+            for (let i = 0; i < HELP_SPARKLE_COUNT; i++) {
+                setTimeout(() => createHelpBgSparkle(), i * 50);
+            }
+            helpSparkleInterval = setInterval(createHelpBgSparkle, HELP_SPARKLE_INTERVAL);
+        }
+
+        function stopHelpSparkles() {
+            if (helpSparkleInterval) clearInterval(helpSparkleInterval);
+            document.getElementById('helpSparkleBg').innerHTML = '';
+        }
+
+        // ==================== GAME HELP OVERLAY SPARKLES ====================
+        let gameHelpSparkleInterval = null;
+
+        function createGameHelpBgSparkle() {
+            const container = document.getElementById('gameHelpSparkleBg');
+            const sparkle = document.createElement('div');
+            sparkle.className = 'game-help-bg-sparkle';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.animationDelay = Math.random() * 3.5 + 's';
+            const size = Math.random() * (HELP_SPARKLE_SIZE_MAX - HELP_SPARKLE_SIZE_MIN) + HELP_SPARKLE_SIZE_MIN;
+            sparkle.style.width = size + 'px';
+            sparkle.style.height = size + 'px';
+            container.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 3500);
+        }
+
+        function startGameHelpSparkles() {
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => createGameHelpBgSparkle(), i * 50);
+            }
+            gameHelpSparkleInterval = setInterval(createGameHelpBgSparkle, HELP_SPARKLE_INTERVAL);
+        }
+
+        function stopGameHelpSparkles() {
+            if (gameHelpSparkleInterval) clearInterval(gameHelpSparkleInterval);
+            document.getElementById('gameHelpSparkleBg').innerHTML = '';
+        }
+
         function showLandingPage() {
             document.getElementById('landingPage').classList.add('show');
+            startLandingSparkles();
         }
 
         function hideLandingPage() {
+            stopLandingSparkles();
             document.getElementById('landingPage').classList.remove('show');
             setTimeout(() => showHelpScreen(), 800);
         }
@@ -1017,9 +1425,11 @@
 
         function showHelpScreen() {
             document.getElementById('helpScreen').classList.add('show');
+            startHelpSparkles();
         }
 
         function hideHelpScreen() {
+            stopHelpSparkles();
             document.getElementById('helpScreen').classList.remove('show');
             setTimeout(() => startGame(), 800);
         }
@@ -1067,27 +1477,32 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         let gameRunning = false;
+        let gamePaused = false;
         let score = 0;
-        let timeLeft = 60; // 1 minute
+        let timeLeft = 60;
         let gameStars = [];
         let bonusSparkles = [];
         let floatingTexts = [];
         let gameLoopId = null;
         let gameTimerInterval = null;
-        let bonusRound = false;
         let bonusRoundActive = false;
+        let spawnDirection = 'right'; // 'right' or 'left' or 'both'
 
-        // Settings
-        const STAR_SPAWN_RATE = 0.5;
-        const MAX_STARS = 500;
-        const STAR_SPEED_X_MIN = 5;
-        const STAR_SPEED_X_MAX = 3.0;
-        const STAR_SPEED_Y_MIN = 2.0;
-        const STAR_SPEED_Y_MAX = 4.0;
+        // Spawn settings
+        const STAR_SET_SIZE = 3; // 3 sparkles per set
+        const STAR_SET_ROWS = 5; // 5 rows in a set
+        const STAR_SPAWN_INTERVAL = 800; // ms between sets
+        const STAR_SPEED_X = 2.5;
+        const STAR_SPEED_Y_MIN = 1.5;
+        const STAR_SPEED_Y_MAX = 3.0;
 
-        const BONUS_SPAWN_RATE = 1.0;
-        const MAX_BONUS_SPARKLES = 1000;
-        const BONUS_SPEED = 3;
+        const BONUS_SET_SIZE = 4; // 4 sparkles per set
+        const BONUS_SET_ROWS = 5; // 5 rows
+        const BONUS_SPAWN_INTERVAL = 500;
+        const BONUS_SPEED = 3.5;
+
+        let starSpawnTimeout = null;
+        let bonusSpawnTimeout = null;
 
         const sparkleImageA = new Image();
         sparkleImageA.src = 'images/sparkle_a.png';
@@ -1099,9 +1514,9 @@
         }
 
         const starTypes = [
-            { size: 20, points: 10, color: '#4488ff', name: 'small' },
-            { size: 35, points: 25, color: '#ff4444', name: 'medium' },
-            { size: 55, points: 50, color: '#ffd700', name: 'large' }
+            { size: 20, points: 10, color: '#4488ff' },
+            { size: 35, points: 25, color: '#ff4444' },
+            { size: 55, points: 50, color: '#ffd700' }
         ];
 
         const bonusTypes = [
@@ -1115,55 +1530,91 @@
             canvas.height = window.innerHeight;
         }
 
-        function createStar() {
-            const type = starTypes[Math.floor(Math.random() * starTypes.length)];
-            const startX = canvas.width + type.size + Math.random() * 100;
-            const startY = -type.size - Math.random() * (canvas.height * 0.3);
-            return {
-                x: startX,
-                y: startY,
-                size: type.size,
-                points: type.points,
-                color: type.color,
-                speedX: -(Math.random() * (STAR_SPEED_X_MAX - STAR_SPEED_X_MIN) + STAR_SPEED_X_MIN),
-                speedY: Math.random() * (STAR_SPEED_Y_MAX - STAR_SPEED_Y_MIN) + STAR_SPEED_Y_MIN,
-                sparkles: [],
-                sparkleTimer: 0,
-                rotation: Math.random() * 360,
-                rotationSpeed: (Math.random() - 0.5) * 2,
-                isBonus: false,
-                img: getRandomSparkleImageObj()
-            };
+        function createStarSet(fromRight) {
+            const stars = [];
+            const startX = fromRight ? canvas.width + 50 : -50;
+            
+            for (let row = 0; row < STAR_SET_ROWS; row++) {
+                const type = starTypes[Math.floor(Math.random() * starTypes.length)];
+                const y = Math.random() * canvas.height * 0.8 + canvas.height * 0.1;
+                
+                stars.push({
+                    x: startX + (Math.random() - 0.5) * 80,
+                    y: y + (Math.random() - 0.5) * 60,
+                    size: type.size,
+                    points: type.points,
+                    color: type.color,
+                    speedX: fromRight ? -(STAR_SPEED_X + Math.random()) : (STAR_SPEED_X + Math.random()),
+                    speedY: (Math.random() - 0.5) * (STAR_SPEED_Y_MAX - STAR_SPEED_Y_MIN) + STAR_SPEED_Y_MIN,
+                    sparkles: [],
+                    sparkleTimer: 0,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 2,
+                    isBonus: false,
+                    img: getRandomSparkleImageObj()
+                });
+            }
+            return stars;
         }
 
-        function createBonusSparkle(fromLeft) {
-            const type = bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
-            const startX = fromLeft ? -type.size : canvas.width + type.size;
-            const startY = Math.random() * canvas.height;
-            return {
-                x: startX,
-                y: startY,
-                size: type.size,
-                points: type.points,
-                color: type.color,
-                speedX: fromLeft ? BONUS_SPEED : -BONUS_SPEED,
-                speedY: (Math.random() - 0.5) * 2,
-                sparkles: [],
-                sparkleTimer: 0,
-                rotation: Math.random() * 360,
-                rotationSpeed: (Math.random() - 0.5) * 3,
-                isBonus: true,
-                img: getRandomSparkleImageObj()
-            };
+        function createBonusSet(fromRight) {
+            const stars = [];
+            const startX = fromRight ? canvas.width + 50 : -50;
+            
+            for (let row = 0; row < BONUS_SET_ROWS; row++) {
+                const type = bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
+                const y = Math.random() * canvas.height * 0.8 + canvas.height * 0.1;
+                
+                stars.push({
+                    x: startX + (Math.random() - 0.5) * 100,
+                    y: y + (Math.random() - 0.5) * 80,
+                    size: type.size,
+                    points: type.points,
+                    color: type.color,
+                    speedX: fromRight ? -(BONUS_SPEED + Math.random()) : (BONUS_SPEED + Math.random()),
+                    speedY: (Math.random() - 0.5) * 2.5,
+                    sparkles: [],
+                    sparkleTimer: 0,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 3,
+                    isBonus: true,
+                    img: getRandomSparkleImageObj()
+                });
+            }
+            return stars;
+        }
+
+        function spawnStarSet() {
+            if (!gameRunning || gamePaused || bonusRoundActive) return;
+            
+            const fromRight = spawnDirection === 'right' || (spawnDirection === 'both' && Math.random() < 0.5);
+            const newStars = createStarSet(fromRight);
+            gameStars.push(...newStars);
+            
+            // Alternate direction
+            if (spawnDirection === 'both') {
+                // Keep 'both'
+            } else {
+                spawnDirection = spawnDirection === 'right' ? 'left' : 'right';
+            }
+            
+            starSpawnTimeout = setTimeout(spawnStarSet, STAR_SPAWN_INTERVAL);
+        }
+
+        function spawnBonusSet() {
+            if (!gameRunning || gamePaused || !bonusRoundActive) return;
+            
+            const fromRight = Math.random() < 0.5;
+            const newStars = createBonusSet(fromRight);
+            bonusSparkles.push(...newStars);
+            
+            bonusSpawnTimeout = setTimeout(spawnBonusSet, BONUS_SPAWN_INTERVAL);
         }
 
         function createFloatingText(x, y, points) {
             return {
-                x: x,
-                y: y,
-                text: '+' + points,
-                life: 1,
-                color: points >= 100 ? '#00ff88' : points >= 50 ? '#ffd700' : '#ff69b4'
+                x, y, text: '+' + points, life: 1,
+                color: points >= 100 ? '#00ff88' : points >= 50 ? '#ffd700' : points >= 25 ? '#ff4444' : '#4488ff'
             };
         }
 
@@ -1171,17 +1622,13 @@
             const sparkle = {
                 x: star.x + (Math.random() - 0.5) * star.size * 0.8,
                 y: star.y + (Math.random() - 0.5) * star.size * 0.8,
-                size: Math.random() * 10 + 4,
-                life: 1,
-                rotation: Math.random() * 360,
-                img: star.img
+                size: Math.random() * 10 + 4, life: 1, rotation: Math.random() * 360, img: star.img
             };
             star.sparkles.push(sparkle);
             if (star.sparkles.length > 12) star.sparkles.shift();
         }
 
         function drawSparkleStar(star) {
-            // Trail sparkles
             star.sparkles.forEach((sparkle) => {
                 ctx.save();
                 ctx.globalAlpha = sparkle.life * 0.5;
@@ -1190,15 +1637,11 @@
                 ctx.drawImage(sparkle.img, -sparkle.size / 2, -sparkle.size / 2, sparkle.size, sparkle.size);
                 ctx.restore();
             });
-
-            // Glow
             ctx.save();
             ctx.globalAlpha = 0.3;
             ctx.translate(star.x, star.y);
             ctx.drawImage(star.img, -star.size * 1.5, -star.size * 1.5, star.size * 3, star.size * 3);
             ctx.restore();
-
-            // Main star
             ctx.save();
             ctx.globalAlpha = 1;
             ctx.translate(star.x, star.y);
@@ -1222,16 +1665,6 @@
             if (!gameRunning) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Spawn regular stars
-            if (!bonusRoundActive && Math.random() < STAR_SPAWN_RATE && gameStars.length < MAX_STARS) {
-                gameStars.push(createStar());
-            }
-
-            // Spawn bonus sparkles
-            if (bonusRoundActive && Math.random() < BONUS_SPAWN_RATE && bonusSparkles.length < MAX_BONUS_SPARKLES) {
-                bonusSparkles.push(createBonusSparkle(Math.random() < 0.5));
-            }
-
             // Update regular stars
             gameStars = gameStars.filter(star => {
                 star.x += star.speedX;
@@ -1242,7 +1675,7 @@
                 star.sparkles.forEach(s => s.life -= 0.04);
                 star.sparkles = star.sparkles.filter(s => s.life > 0);
                 drawSparkleStar(star);
-                if (star.y > canvas.height + star.size * 2 || star.x < -star.size * 2) return false;
+                if (star.y > canvas.height + star.size * 2 || star.x < -star.size * 2 || star.x > canvas.width + star.size * 2) return false;
                 return true;
             });
 
@@ -1267,7 +1700,7 @@
                 ctx.save();
                 ctx.globalAlpha = ft.life;
                 ctx.fillStyle = ft.color;
-                ctx.font = 'bold 24px ALGER, serif';
+                ctx.font = 'bold 20px ALGER, serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(ft.text, ft.x, ft.y);
                 ctx.restore();
@@ -1277,18 +1710,16 @@
             gameLoopId = requestAnimationFrame(gameLoop);
         }
 
-        // Click handler for collecting stars
-        canvas.addEventListener('click', (e) => {
-            if (!gameRunning) return;
-            const clickX = e.clientX;
-            const clickY = e.clientY;
+        function handleStarClick(clickX, clickY) {
             let collected = false;
-
+            
             // Check regular stars
             for (let i = gameStars.length - 1; i >= 0; i--) {
                 if (isClickOnStar(gameStars[i], clickX, clickY)) {
                     score += gameStars[i].points;
                     document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
+                    // Show floating text for ALL stars
+                    floatingTexts.push(createFloatingText(gameStars[i].x, gameStars[i].y, gameStars[i].points));
                     playCollectSound(gameStars[i].points);
                     gameStars.splice(i, 1);
                     collected = true;
@@ -1303,53 +1734,31 @@
                         score += bonusSparkles[i].points;
                         document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
                         floatingTexts.push(createFloatingText(bonusSparkles[i].x, bonusSparkles[i].y, bonusSparkles[i].points));
-                        playCollectSound(bonusSparkles[i].points > 50 ? 3 : 2);
+                        playCollectSound(bonusSparkles[i].points);
                         bonusSparkles.splice(i, 1);
                         break;
                     }
                 }
             }
+        }
+
+        canvas.addEventListener('click', (e) => {
+            if (!gameRunning || gamePaused) return;
+            handleStarClick(e.clientX, e.clientY);
         });
 
-        // Touch handler
         canvas.addEventListener('touchstart', (e) => {
-            if (!gameRunning) return;
+            if (!gameRunning || gamePaused) return;
             e.preventDefault();
             const touch = e.touches[0];
-            const clickX = touch.clientX;
-            const clickY = touch.clientY;
-            let collected = false;
-
-            for (let i = gameStars.length - 1; i >= 0; i--) {
-                if (isClickOnStar(gameStars[i], clickX, clickY)) {
-                    score += gameStars[i].points;
-                    document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
-                    playCollectSound(gameStars[i].points);
-                    gameStars.splice(i, 1);
-                    collected = true;
-                    break;
-                }
-            }
-
-            if (!collected) {
-                for (let i = bonusSparkles.length - 1; i >= 0; i--) {
-                    if (isClickOnStar(bonusSparkles[i], clickX, clickY)) {
-                        score += bonusSparkles[i].points;
-                        document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
-                        floatingTexts.push(createFloatingText(bonusSparkles[i].x, bonusSparkles[i].y, bonusSparkles[i].points));
-                        playCollectSound(bonusSparkles[i].points > 50 ? 3 : 2);
-                        bonusSparkles.splice(i, 1);
-                        break;
-                    }
-                }
-            }
+            handleStarClick(touch.clientX, touch.clientY);
         });
 
         function playCollectSound(points) {
             if (!audioContext) return;
             const osc = audioContext.createOscillator();
             const gain = audioContext.createGain();
-            const freq = points >= 100 ? 1200 : points >= 50 ? 880 : points >= 3 ? 660 : 440;
+            const freq = points >= 100 ? 1200 : points >= 50 ? 880 : points >= 25 ? 660 : 440;
             osc.type = 'sine';
             osc.frequency.value = freq;
             gain.gain.value = 0.15;
@@ -1363,38 +1772,46 @@
         function startGame() {
             resizeCanvas();
             document.getElementById('gameScreen').classList.add('show');
-            
             score = 0;
             timeLeft = 60;
             gameStars = [];
             bonusSparkles = [];
             floatingTexts = [];
-            bonusRound = false;
             bonusRoundActive = false;
-            
+            spawnDirection = 'right';
+            gamePaused = false;
             document.getElementById('scoreDisplay').textContent = 'Score: 0';
             document.getElementById('timerDisplay').textContent = 'Time: 60';
-            
             startGameBgSparkles();
             gameRunning = true;
+            
+            // Start spawning star sets
+            spawnStarSet();
+            
             gameLoopId = requestAnimationFrame(gameLoop);
             
             gameTimerInterval = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timerDisplay').textContent = 'Time: ' + timeLeft;
                 
-                // Bonus round at 30 seconds (last 30 seconds)
-                if (timeLeft === 30 && !bonusRound) {
-                    bonusRound = true;
+                // Bonus round from 30s to 10s
+                if (timeLeft === 30) {
                     bonusRoundActive = true;
+                    spawnDirection = 'both';
+                    spawnBonusSet();
                     const bonusText = document.getElementById('bonusText');
                     bonusText.classList.add('show');
                     setTimeout(() => bonusText.classList.remove('show'), 2000);
                 }
                 
-                if (timeLeft <= 0) {
-                    endGame();
+                // End bonus round at 10s
+                if (timeLeft === 10 && bonusRoundActive) {
+                    bonusRoundActive = false;
+                    spawnDirection = 'right';
+                    if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
                 }
+                
+                if (timeLeft <= 0) endGame();
             }, 1000);
         }
 
@@ -1403,12 +1820,10 @@
             bonusRoundActive = false;
             clearInterval(gameTimerInterval);
             if (gameLoopId) cancelAnimationFrame(gameLoopId);
+            if (starSpawnTimeout) clearTimeout(starSpawnTimeout);
+            if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
             stopGameBgSparkles();
-            
-            // Hide game screen
             document.getElementById('gameScreen').classList.remove('show');
-            
-            // Show finish screen
             document.getElementById('finishScore').textContent = 'You caught ' + score + ' stars!';
             document.getElementById('finishScreen').classList.add('show');
         }
@@ -1425,7 +1840,24 @@
         function handleTryAgain() {
             playClickSound();
             document.getElementById('finishScreen').classList.remove('show');
-            setTimeout(() => startGame(), 500);
+            setTimeout(() => {
+                showLandingPage();
+                playLandingMusic();
+            }, 500);
+        }
+
+        // ==================== IN-GAME HELP ====================
+        function showGameHelp() {
+            if (!gameRunning) return;
+            gamePaused = true;
+            document.getElementById('gameHelpOverlay').classList.add('show');
+            startGameHelpSparkles();
+        }
+
+        function hideGameHelp() {
+            gamePaused = false;
+            stopGameHelpSparkles();
+            document.getElementById('gameHelpOverlay').classList.remove('show');
         }
 
         // ==================== EVENT LISTENERS ====================
@@ -1448,6 +1880,9 @@
         });
 
         document.getElementById('tryAgainBtn').addEventListener('click', handleTryAgain);
+
+        document.getElementById('helpBtnGame').addEventListener('click', showGameHelp);
+        document.getElementById('gameHelpCloseBtn').addEventListener('click', hideGameHelp);
 
         window.addEventListener('resize', () => {
             if (gameRunning) resizeCanvas();
