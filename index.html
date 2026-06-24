@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Myrealap Wishing Star Catching Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            font-family: 'ChaletRegular', Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @font-face {
+            font-family: 'ALGER';
+            src: url('fonts/ALGER.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* ==================== LOADING SCREEN ==================== */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease;
+            flex-direction: column;
+        }
+
+        .loading-screen.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .quote-container {
+            position: relative;
+            text-align: center;
+            padding: 40px;
+            max-width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quote-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 920px;
+            height: 220px;
+            background-image: url('images/quote-bg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .quote-text {
+            position: relative;
+            color: white;
+            font-size: 20px;
+            letter-spacing: 2px;
+            font-family: 'ChaletRegular', Arial, sans-serif;
+            line-height: 1.6;
+            font-style: italic;
+            z-index: 1;
+        }
+
+        .quote-author {
+            position: relative;
+            color: #888;
+            font-size: 12px;
+            margin-top: 20px;
+            letter-spacing: 1px;
+            z-index: 1;
+        }
+
+        .loading-action-area {
+            position: fixed;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-percentage {
+            color: #ffffff;
+            font-size: 28px;
+            font-family: 'ALGER', serif;
+            letter-spacing: 3px;
+            animation: loadingPulse 1.5s ease-in-out infinite;
+            transition: opacity 0.6s ease;
+            position: absolute;
+        }
+
+        .loading-percentage.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .go-button {
+            width: 110.5px;
+            height: 66px;
+            background-image: url('images/go.png');
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-size: 221px 66px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+            position: absolute;
+        }
+
+        .go-button.show {
+            opacity: 1;
+            pointer-events: auto;
+            animation: goPulse 1.5s ease-in-out infinite;
+        }
+
+        .go-button:hover {
+            background-position: -110.5px 0;
+        }
+
+        .go-button:focus {
+            outline: none;
+        }
+
+        .go-button.clicked {
+            animation: goFadeOut 0.5s ease forwards;
+            pointer-events: none;
+        }
+
+        @keyframes goPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        @keyframes goFadeOut {
+            to { opacity: 0; transform: scale(0.5); }
+        }
+
+        /* ==================== GLOBAL SPARKLE BURST ==================== */
+        .global-sparkle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100000;
+            overflow: hidden;
+        }
+
+        .global-sparkle {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            animation: globalSparkleFade 1.2s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes globalSparkleFade {
+            0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+            20% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+            80% { opacity: 0.6; transform: scale(0.8) rotate(360deg); }
+            100% { opacity: 0; transform: scale(0.1) rotate(540deg); }
+        }
+
+        /* ==================== LANDING PAGE ==================== */
+        .landing-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        .landing-page.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .landing-image {
+    max-width: 100%;
+    max-height: 90%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .play-button {
+            position: absolute;
+            bottom: 8%;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 10px;
+            transition: transform 0.3s ease;
+            z-index: 10;
+        }
+
+        .play-button:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .play-button:focus {
+            outline: none;
+        }
+
+        .play-button img {
+            width: 80px;
+            height: auto;
+            pointer-events: none;
+        }
+
+        /* ==================== HELP/GUIDE SCREEN ==================== */
+        .help-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 9997;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        .help-screen.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .help-image {
+            max-width: 100%;
+            max-height: 90%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .help-play-button {
+            position: absolute;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 10px;
+            transition: transform 0.3s ease;
+            z-index: 10;
+        }
+
+        .help-play-button:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .help-play-button:focus {
+            outline: none;
+        }
+
+        .help-play-button img {
+            width: 80px;
+            height: auto;
+            pointer-events: none;
+        }
+
+        /* ==================== GAME SCREEN ==================== */
+        .game-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 9996;
+            display: none;
+        }
+
+        .game-screen.show {
+            display: block;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        .game-sparkle-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .game-bg-sparkle {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            animation: gameBgSparkleFade 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gameBgSparkleFade {
+            0% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+            20% { opacity: 0.6; transform: scale(1) rotate(90deg); }
+            50% { opacity: 0.3; transform: scale(0.7) rotate(180deg); }
+            80% { opacity: 0.6; transform: scale(1) rotate(270deg); }
+            100% { opacity: 0; transform: scale(0.3) rotate(360deg); }
+        }
+
+        .score-display {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #ffffff;
+            font-family: 'ALGER', serif;
+            font-size: 32px;
+            z-index: 10;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            color: #ffffff;
+            font-family: 'ALGER', serif;
+            font-size: 32px;
+            z-index: 10;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .bonus-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffd700;
+            font-family: 'ALGER', serif;
+            font-size: 36px;
+            z-index: 10;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .bonus-text.show {
+            opacity: 1;
+            animation: bonusPulse 0.5s ease-in-out;
+        }
+
+        @keyframes bonusPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* ==================== FINISH SCREEN ==================== */
+        .finish-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 9995;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        .finish-screen.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .finish-score {
+            color: #ffd700;
+            font-family: 'ALGER', serif;
+            font-size: 42px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        .wallpaper-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .wallpaper-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wallpaper-thumb {
+            width: 200px;
+            height: 267px;
+            object-fit: cover;
+            border: 2px solid #333;
+            border-radius: 8px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .wallpaper-thumb:hover {
+            transform: scale(1.05);
+            border-color: #ffd700;
+        }
+
+        .download-btn {
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .try-again-btn {
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 10px;
+            transition: transform 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .try-again-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .try-again-btn:focus {
+            outline: none;
+        }
+
+        .try-again-btn img {
+            width: 200px;
+            height: auto;
+        }
+
+        /* ==================== MOUSE TRAIL SPARKLES ==================== */
+        .mouse-trail-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99999997;
+            overflow: hidden;
+        }
+
+        .mouse-sparkle {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            animation: mouseSparkleFade 0.8s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes mouseSparkleFade {
+            0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+            30% { opacity: 1; transform: scale(1) rotate(180deg); }
+            70% { opacity: 0.6; transform: scale(0.7) rotate(360deg); }
+            100% { opacity: 0; transform: scale(0.1) rotate(540deg); }
+        }
+
+        /* ==================== CUSTOM CURSOR ==================== */
+        .custom-cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 99999999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.05s ease, filter 0.3s ease;
+        }
+
+        .custom-cursor::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/sparkle.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: cursorSpin 1.5s linear infinite, cursorGlow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes cursorSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes cursorGlow {
+            0% { opacity: 0.7; filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); }
+            50% { opacity: 1; filter: drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 4px #ff3366); }
+            100% { opacity: 0.7; filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); }
+        }
+
+        .touch-sparkle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99999998;
+            overflow: hidden;
+        }
+
+        .touch-sparkle {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            animation: touchSparkleFade 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes touchSparkleFade {
+            0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+            30% { opacity: 1; transform: scale(1) rotate(180deg); }
+            70% { opacity: 0.6; transform: scale(0.7) rotate(360deg); }
+            100% { opacity: 0; transform: scale(0.1) rotate(540deg); }
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            * { cursor: none !important; }
+        }
+
+        @media (max-width: 768px) {
+            * { cursor: auto !important; }
+            .custom-cursor { display: none !important; }
+            .go-button {
+                width: 150px;
+                height: 45px;
+                background-size: 150px 45px;
+            }
+            .go-button:hover { background-position: -75px 0; }
+            .landing-image, .help-image { max-width: 90%; max-height: 60%; }
+            .quote-bg { width: 100%; height: 150px; }
+            .quote-text { font-size: 16px; }
+            .loading-percentage { font-size: 24px; }
+            .wallpaper-thumb { width: 120px; height: 160px; }
+            .wallpaper-container { gap: 15px; }
+            .finish-score { font-size: 28px; }
+            .try-again-btn img { width: 140px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mouse-trail-container" id="mouseTrailContainer"></div>
+    <div class="touch-sparkle-container" id="touchSparkleContainer"></div>
+    <div class="global-sparkle-container" id="globalSparkleContainer"></div>
+
+    <div class="loading-screen" id="loadingScreen">
+        <div class="quote-container">
+            <div class="quote-bg"></div>
+            <div class="quote-text" id="quoteText">" loading... "</div>
+            <div class="quote-author" id="quoteAuthor">— myrealap</div>
+        </div>
+    </div>
+
+    <div class="loading-action-area" id="loadingActionArea">
+        <div class="loading-percentage" id="loadingPercent">0%</div>
+        <button class="go-button" id="goButton"></button>
+    </div>
+
+    <div class="landing-page" id="landingPage">
+        <img class="landing-image" src="images/landing.png" alt="Myrealap Stars">
+        <button class="play-button" id="playButton">
+            <img src="images/play.png" alt="Play">
+        </button>
+    </div>
+
+    <div class="help-screen" id="helpScreen">
+        <img class="help-image" src="images/help.png" alt="Help Guide">
+        <button class="help-play-button" id="helpPlayButton">
+            <img src="images/play.png" alt="Start Game">
+        </button>
+    </div>
+
+    <div class="game-screen" id="gameScreen">
+        <div class="game-sparkle-bg" id="gameSparkleBg"></div>
+        <canvas id="gameCanvas"></canvas>
+        <div class="score-display" id="scoreDisplay">Score: 0</div>
+        <div class="timer-display" id="timerDisplay">Time: 60</div>
+        <div class="bonus-text" id="bonusText">🌟 BONUS ROUND! 🌟</div>
+    </div>
+
+    <div class="finish-screen" id="finishScreen">
+        <div class="finish-score" id="finishScore">You caught 0 stars!</div>
+        <div class="wallpaper-container">
+            <div class="wallpaper-item">
+                <img class="wallpaper-thumb" src="images/wallpaper1-thumb.jpg" alt="Wallpaper 1">
+                <img class="download-btn" src="images/download.png" alt="Download" onclick="downloadWallpaper('images/wallpaper1.jpg')">
+            </div>
+            <div class="wallpaper-item">
+                <img class="wallpaper-thumb" src="images/wallpaper2-thumb.jpg" alt="Wallpaper 2">
+                <img class="download-btn" src="images/download.png" alt="Download" onclick="downloadWallpaper('images/wallpaper2.jpg')">
+            </div>
+        </div>
+        <button class="try-again-btn" id="tryAgainBtn">
+            <img src="images/try-again.png" alt="Try Again">
+        </button>
+    </div>
+
+    <script>
+        // ==================== QUOTES ====================
+        const quotes = [
+            { text: "Love & Imagination can change the world!", author: "Myrealap" },
+            { text: "What makes you different, Makes you special", author: "Myrealap" },
+            { text: "Your braver than you think", author: "Myrealap" },
+            { text: "There is always hope", author: "Myrealap" },
+            { text: "Trust your true self", author: "Myrealap" },
+            { text: "The most beautiful thing you can be, is your self", author: "Myrealap" },
+            { text: "Live your dream", author: "Myrealap" },
+            { text: "Music is the poetry of the air", author: "Richter" },
+            { text: "Where words fail, music speaks", author: "Hans Christian Andersen" },
+            { text: "Art washes away from the soul the dust of everyday life", author: "Picasso" },
+            { text: "The only truth is music", author: "Kerouac" },
+            { text: "Life is like a beautiful melody, only the lyrics are messed up", author: "myrealap" }
+        ];
+
+        function showRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const quote = quotes[randomIndex];
+            document.getElementById('quoteText').textContent = `" ${quote.text} "`;
+            document.getElementById('quoteAuthor').textContent = `— ${quote.author}`;
+        }
+        showRandomQuote();
+
+        // ==================== DEVICE DETECTION ====================
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        // ==================== DUAL SPARKLE IMAGES ====================
+        const sparkleImages = ['images/sparkle_a.png', 'images/sparkle_b.png'];
+        function getRandomSparkleImage() {
+            return sparkleImages[Math.floor(Math.random() * sparkleImages.length)];
+        }
+
+        // ==================== MOUSE SPARKLES ====================
+        const MOUSE_SPARKLE_INTERVAL = 15;
+        const MOUSE_SPARKLE_SIZE_MIN = 8;
+        const MOUSE_SPARKLE_SIZE_MAX = 25;
+        let lastMouseX = window.innerWidth / 2;
+        let lastMouseY = window.innerHeight / 2;
+        let continuousSparkleInterval = null;
+
+        function addMouseSparkle(x, y) {
+            const container = document.getElementById('mouseTrailContainer');
+            const sparkle = document.createElement('div');
+            sparkle.className = 'mouse-sparkle';
+            sparkle.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
+            const offsetX = (Math.random() - 0.5) * 20;
+            const offsetY = (Math.random() - 0.5) * 20;
+            sparkle.style.left = (x + offsetX) + 'px';
+            sparkle.style.top = (y + offsetY) + 'px';
+            sparkle.style.animationDelay = Math.random() * 0.1 + 's';
+            const size = Math.random() * (MOUSE_SPARKLE_SIZE_MAX - MOUSE_SPARKLE_SIZE_MIN) + MOUSE_SPARKLE_SIZE_MIN;
+            sparkle.style.width = size + 'px';
+            sparkle.style.height = size + 'px';
+            container.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 800);
+        }
+
+        function startMouseTrail() {
+            if (isTouchDevice) return;
+            let lastTime = 0;
+            document.addEventListener('mousemove', (e) => {
+                const now = Date.now();
+                if (now - lastTime > MOUSE_SPARKLE_INTERVAL) {
+                    lastTime = now;
+                    addMouseSparkle(e.clientX, e.clientY);
+                }
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+            continuousSparkleInterval = setInterval(() => {
+                addMouseSparkle(lastMouseX, lastMouseY);
+            }, MOUSE_SPARKLE_INTERVAL);
+        }
+
+        function addTouchSparkle(x, y) {
+            const container = document.getElementById('touchSparkleContainer');
+            const sparkle = document.createElement('div');
+            sparkle.className = 'touch-sparkle';
+            sparkle.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
+            const offsetX = (Math.random() - 0.5) * 30;
+            const offsetY = (Math.random() - 0.5) * 30;
+            sparkle.style.left = (x + offsetX) + 'px';
+            sparkle.style.top = (y + offsetY) + 'px';
+            const size = Math.random() * 25 + 15;
+            sparkle.style.width = size + 'px';
+            sparkle.style.height = size + 'px';
+            container.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 600);
+        }
+
+        function startTouchSparkles() {
+            if (!isTouchDevice) return;
+            document.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                addTouchSparkle(touch.clientX, touch.clientY);
+            });
+            document.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => addTouchSparkle(touch.clientX, touch.clientY), i * 50);
+                }
+            });
+        }
+
+        // ==================== GLOBAL SPARKLE BURST ====================
+        function triggerGlobalSparkleBurst(callback) {
+            const container = document.getElementById('globalSparkleContainer');
+            const totalSparkles = 40;
+            let sparklesCreated = 0;
+
+            function createBurstSparkle() {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'global-sparkle';
+                sparkle.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
+                sparkle.style.left = Math.random() * window.innerWidth + 'px';
+                sparkle.style.top = Math.random() * window.innerHeight + 'px';
+                sparkle.style.animationDelay = Math.random() * 0.3 + 's';
+                const size = Math.random() * 40 + 20;
+                sparkle.style.width = size + 'px';
+                sparkle.style.height = size + 'px';
+                container.appendChild(sparkle);
+
+                sparklesCreated++;
+                if (sparklesCreated >= totalSparkles) {
+                    // All sparkles created, wait for animation then callback
+                    setTimeout(() => {
+                        container.innerHTML = '';
+                        if (callback) callback();
+                    }, 1500);
+                }
+            }
+
+            // Burst sparkles rapidly
+            for (let i = 0; i < totalSparkles; i++) {
+                setTimeout(createBurstSparkle, i * 25);
+            }
+        }
+
+        // ==================== CUSTOM CURSOR ====================
+        let customCursor = null;
+        let cursorColor = '#ffffff';
+
+        function setupCustomCursor() {
+            if (isTouchDevice) return;
+            customCursor = document.createElement('div');
+            customCursor.className = 'custom-cursor';
+            document.body.appendChild(customCursor);
+            let mouseX = 0, mouseY = 0;
+            let cursorX = 0, cursorY = 0;
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            function animateCursor() {
+                cursorX += (mouseX - cursorX) * 0.3;
+                cursorY += (mouseY - cursorY) * 0.3;
+                if (customCursor) {
+                    customCursor.style.left = cursorX + 'px';
+                    customCursor.style.top = cursorY + 'px';
+                }
+                requestAnimationFrame(animateCursor);
+            }
+            animateCursor();
+            document.addEventListener('mouseleave', () => {
+                if (customCursor) customCursor.style.opacity = '0';
+            });
+            document.addEventListener('mouseenter', () => {
+                if (customCursor) customCursor.style.opacity = '1';
+            });
+        }
+
+        function updateCursorColor(color) {
+            cursorColor = color;
+            if (customCursor) {
+                customCursor.style.filter = `drop-shadow(0 0 8px ${color}) drop-shadow(0 0 4px ${color})`;
+            }
+        }
+
+        if (isTouchDevice) {
+            startTouchSparkles();
+        } else {
+            startMouseTrail();
+            setupCustomCursor();
+        }
+
+        // ==================== AUDIO SYSTEM ====================
+        let audioContext = null;
+        let landingMusic = null;
+        let landingMusicBuffer = null;
+        const clickSound = new Audio("sounds/click.mp3");
+        clickSound.volume = 0.5;
+
+        function playClickSound() {
+            clickSound.currentTime = 0;
+            clickSound.play().catch(() => {});
+        }
+
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } else if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        function loadLandingMusic() {
+            fetch('music/music_game.mp3')
+                .then(response => response.arrayBuffer())
+                .then(arrayBuffer => { landingMusicBuffer = arrayBuffer; })
+                .catch(error => console.log('Error loading music:', error));
+        }
+
+        function playLandingMusic() {
+            if (!audioContext || !landingMusicBuffer) return;
+            if (landingMusic) { try { landingMusic.stop(); } catch(e) {} }
+            audioContext.decodeAudioData(landingMusicBuffer.slice(0))
+                .then(buffer => {
+                    landingMusic = audioContext.createBufferSource();
+                    landingMusic.buffer = buffer;
+                    landingMusic.loop = true;
+                    const gainNode = audioContext.createGain();
+                    gainNode.gain.value = 0.7;
+                    landingMusic.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    landingMusic.start(0);
+                })
+                .catch(err => console.log('Decode error:', err));
+        }
+
+        function stopLandingMusic() {
+            if (landingMusic) { try { landingMusic.stop(); landingMusic = null; } catch(e) {} }
+        }
+
+        loadLandingMusic();
+
+        // ==================== FILE LOADING ====================
+        const filesToLoad = [
+            "images/quote-bg.png",
+            "images/sparkle.png",
+            "images/sparkle_a.png",
+            "images/sparkle_b.png",
+            "images/go.png",
+            "images/help.png",
+            "images/landing.png",
+            "images/play.png",
+            "images/try-again.png",
+            "images/download.png",
+        ];
+
+        const allFiles = [...filesToLoad];
+        let loadedCount = 0;
+        const totalFiles = allFiles.length;
+        const loadingPercentElement = document.getElementById('loadingPercent');
+
+        function updateLoadingPercent() {
+            const percent = Math.floor((loadedCount / totalFiles) * 100);
+            loadingPercentElement.textContent = percent + '%';
+        }
+
+        function loadFile(src) {
+            return new Promise((resolve) => {
+                const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src);
+                if (isImage) {
+                    const img = new Image();
+                    img.onload = () => { loadedCount++; updateLoadingPercent(); resolve(); };
+                    img.onerror = () => { loadedCount++; updateLoadingPercent(); resolve(); };
+                    img.src = src;
+                } else {
+                    fetch(src).then(() => { loadedCount++; updateLoadingPercent(); resolve(); })
+                        .catch(() => { loadedCount++; updateLoadingPercent(); resolve(); });
+                }
+            });
+        }
+
+        async function preloadAllAssets() {
+            updateLoadingPercent();
+            const loadPromises = allFiles.map(file => loadFile(file));
+            await Promise.all(loadPromises);
+            loadedCount = totalFiles;
+            updateLoadingPercent();
+            setTimeout(() => replacePercentWithGoButton(), 300);
+        }
+
+        function replacePercentWithGoButton() {
+            const percentEl = document.getElementById('loadingPercent');
+            const goBtn = document.getElementById('goButton');
+            percentEl.classList.add('fade-out');
+            setTimeout(() => {
+                percentEl.style.display = 'none';
+                goBtn.classList.add('show');
+            }, 600);
+        }
+
+        function handleGoButtonClick(e) {
+            e.preventDefault();
+            initAudioContext();
+            playClickSound();
+            
+            const goButton = document.getElementById('goButton');
+            goButton.classList.add('clicked');
+            
+            // Trigger sparkle burst then transition
+            triggerGlobalSparkleBurst(() => {
+                playLandingMusic();
+                const loadingScreen = document.getElementById('loadingScreen');
+                const loadingActionArea = document.getElementById('loadingActionArea');
+                loadingScreen.classList.add('hide');
+                loadingActionArea.style.display = 'none';
+                setTimeout(() => showLandingPage(), 800);
+            });
+        }
+
+        function showLandingPage() {
+            document.getElementById('landingPage').classList.add('show');
+        }
+
+        function hideLandingPage() {
+            document.getElementById('landingPage').classList.remove('show');
+            setTimeout(() => showHelpScreen(), 800);
+        }
+
+        function handlePlayButtonClick(e) {
+            e.preventDefault();
+            playClickSound();
+            triggerGlobalSparkleBurst(() => {
+                hideLandingPage();
+            });
+        }
+
+        function showHelpScreen() {
+            document.getElementById('helpScreen').classList.add('show');
+        }
+
+        function hideHelpScreen() {
+            document.getElementById('helpScreen').classList.remove('show');
+            setTimeout(() => startGame(), 800);
+        }
+
+        function handleHelpPlayClick(e) {
+            e.preventDefault();
+            playClickSound();
+            stopLandingMusic();
+            triggerGlobalSparkleBurst(() => {
+                hideHelpScreen();
+            });
+        }
+
+        // ==================== GAME BACKGROUND SPARKLES ====================
+        let gameBgSparkleInterval = null;
+
+        function createGameBgSparkle() {
+            const container = document.getElementById('gameSparkleBg');
+            const sparkle = document.createElement('div');
+            sparkle.className = 'game-bg-sparkle';
+            sparkle.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.animationDelay = Math.random() * 3 + 's';
+            const size = Math.random() * 20 + 10;
+            sparkle.style.width = size + 'px';
+            sparkle.style.height = size + 'px';
+            container.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 3000);
+        }
+
+        function startGameBgSparkles() {
+            for (let i = 0; i < 80; i++) {
+                setTimeout(() => createGameBgSparkle(), i * 40);
+            }
+            gameBgSparkleInterval = setInterval(createGameBgSparkle, 60);
+        }
+
+        function stopGameBgSparkles() {
+            if (gameBgSparkleInterval) clearInterval(gameBgSparkleInterval);
+            document.getElementById('gameSparkleBg').innerHTML = '';
+        }
+
+        // ==================== GAME LOGIC ====================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let gameRunning = false;
+        let score = 0;
+        let timeLeft = 60; // 1 minute
+        let gameStars = [];
+        let bonusSparkles = [];
+        let floatingTexts = [];
+        let gameLoopId = null;
+        let gameTimerInterval = null;
+        let bonusRound = false;
+        let bonusRoundActive = false;
+
+        // Settings
+        const STAR_SPAWN_RATE = 0.5;
+        const MAX_STARS = 500;
+        const STAR_SPEED_X_MIN = 5;
+        const STAR_SPEED_X_MAX = 3.0;
+        const STAR_SPEED_Y_MIN = 2.0;
+        const STAR_SPEED_Y_MAX = 4.0;
+
+        const BONUS_SPAWN_RATE = 1.0;
+        const MAX_BONUS_SPARKLES = 1000;
+        const BONUS_SPEED = 3;
+
+        const sparkleImageA = new Image();
+        sparkleImageA.src = 'images/sparkle_a.png';
+        const sparkleImageB = new Image();
+        sparkleImageB.src = 'images/sparkle_b.png';
+
+        function getRandomSparkleImageObj() {
+            return Math.random() < 0.5 ? sparkleImageA : sparkleImageB;
+        }
+
+        const starTypes = [
+            { size: 20, points: 10, color: '#4488ff', name: 'small' },
+            { size: 35, points: 25, color: '#ff4444', name: 'medium' },
+            { size: 55, points: 50, color: '#ffd700', name: 'large' }
+        ];
+
+        const bonusTypes = [
+            { size: 25, points: 20, color: '#ff69b4' },
+            { size: 35, points: 50, color: '#ffd700' },
+            { size: 50, points: 100, color: '#00ff88' }
+        ];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createStar() {
+            const type = starTypes[Math.floor(Math.random() * starTypes.length)];
+            const startX = canvas.width + type.size + Math.random() * 100;
+            const startY = -type.size - Math.random() * (canvas.height * 0.3);
+            return {
+                x: startX,
+                y: startY,
+                size: type.size,
+                points: type.points,
+                color: type.color,
+                speedX: -(Math.random() * (STAR_SPEED_X_MAX - STAR_SPEED_X_MIN) + STAR_SPEED_X_MIN),
+                speedY: Math.random() * (STAR_SPEED_Y_MAX - STAR_SPEED_Y_MIN) + STAR_SPEED_Y_MIN,
+                sparkles: [],
+                sparkleTimer: 0,
+                rotation: Math.random() * 360,
+                rotationSpeed: (Math.random() - 0.5) * 2,
+                isBonus: false,
+                img: getRandomSparkleImageObj()
+            };
+        }
+
+        function createBonusSparkle(fromLeft) {
+            const type = bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
+            const startX = fromLeft ? -type.size : canvas.width + type.size;
+            const startY = Math.random() * canvas.height;
+            return {
+                x: startX,
+                y: startY,
+                size: type.size,
+                points: type.points,
+                color: type.color,
+                speedX: fromLeft ? BONUS_SPEED : -BONUS_SPEED,
+                speedY: (Math.random() - 0.5) * 2,
+                sparkles: [],
+                sparkleTimer: 0,
+                rotation: Math.random() * 360,
+                rotationSpeed: (Math.random() - 0.5) * 3,
+                isBonus: true,
+                img: getRandomSparkleImageObj()
+            };
+        }
+
+        function createFloatingText(x, y, points) {
+            return {
+                x: x,
+                y: y,
+                text: '+' + points,
+                life: 1,
+                color: points >= 100 ? '#00ff88' : points >= 50 ? '#ffd700' : '#ff69b4'
+            };
+        }
+
+        function addStarTrailSparkle(star) {
+            const sparkle = {
+                x: star.x + (Math.random() - 0.5) * star.size * 0.8,
+                y: star.y + (Math.random() - 0.5) * star.size * 0.8,
+                size: Math.random() * 10 + 4,
+                life: 1,
+                rotation: Math.random() * 360,
+                img: star.img
+            };
+            star.sparkles.push(sparkle);
+            if (star.sparkles.length > 12) star.sparkles.shift();
+        }
+
+        function drawSparkleStar(star) {
+            // Trail sparkles
+            star.sparkles.forEach((sparkle) => {
+                ctx.save();
+                ctx.globalAlpha = sparkle.life * 0.5;
+                ctx.translate(sparkle.x, sparkle.y);
+                ctx.rotate(sparkle.rotation * Math.PI / 180);
+                ctx.drawImage(sparkle.img, -sparkle.size / 2, -sparkle.size / 2, sparkle.size, sparkle.size);
+                ctx.restore();
+            });
+
+            // Glow
+            ctx.save();
+            ctx.globalAlpha = 0.3;
+            ctx.translate(star.x, star.y);
+            ctx.drawImage(star.img, -star.size * 1.5, -star.size * 1.5, star.size * 3, star.size * 3);
+            ctx.restore();
+
+            // Main star
+            ctx.save();
+            ctx.globalAlpha = 1;
+            ctx.translate(star.x, star.y);
+            ctx.rotate(star.rotation * Math.PI / 180);
+            ctx.drawImage(star.img, -star.size / 2, -star.size / 2, star.size, star.size);
+            ctx.globalCompositeOperation = 'source-atop';
+            ctx.fillStyle = star.color;
+            ctx.globalAlpha = 0.5;
+            ctx.fillRect(-star.size / 2, -star.size / 2, star.size, star.size);
+            ctx.restore();
+        }
+
+        function isClickOnStar(star, clickX, clickY) {
+            const dx = clickX - star.x;
+            const dy = clickY - star.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < star.size;
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Spawn regular stars
+            if (!bonusRoundActive && Math.random() < STAR_SPAWN_RATE && gameStars.length < MAX_STARS) {
+                gameStars.push(createStar());
+            }
+
+            // Spawn bonus sparkles
+            if (bonusRoundActive && Math.random() < BONUS_SPAWN_RATE && bonusSparkles.length < MAX_BONUS_SPARKLES) {
+                bonusSparkles.push(createBonusSparkle(Math.random() < 0.5));
+            }
+
+            // Update regular stars
+            gameStars = gameStars.filter(star => {
+                star.x += star.speedX;
+                star.y += star.speedY;
+                star.rotation += star.rotationSpeed;
+                star.sparkleTimer++;
+                if (star.sparkleTimer % 3 === 0) addStarTrailSparkle(star);
+                star.sparkles.forEach(s => s.life -= 0.04);
+                star.sparkles = star.sparkles.filter(s => s.life > 0);
+                drawSparkleStar(star);
+                if (star.y > canvas.height + star.size * 2 || star.x < -star.size * 2) return false;
+                return true;
+            });
+
+            // Update bonus sparkles
+            bonusSparkles = bonusSparkles.filter(bs => {
+                bs.x += bs.speedX;
+                bs.y += bs.speedY;
+                bs.rotation += bs.rotationSpeed;
+                bs.sparkleTimer++;
+                if (bs.sparkleTimer % 2 === 0) addStarTrailSparkle(bs);
+                bs.sparkles.forEach(s => s.life -= 0.05);
+                bs.sparkles = bs.sparkles.filter(s => s.life > 0);
+                drawSparkleStar(bs);
+                if (bs.y > canvas.height + bs.size || bs.y < -bs.size || bs.x > canvas.width + bs.size || bs.x < -bs.size) return false;
+                return true;
+            });
+
+            // Update floating texts
+            floatingTexts = floatingTexts.filter(ft => {
+                ft.y -= 1.5;
+                ft.life -= 0.02;
+                ctx.save();
+                ctx.globalAlpha = ft.life;
+                ctx.fillStyle = ft.color;
+                ctx.font = 'bold 24px ALGER, serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.restore();
+                return ft.life > 0;
+            });
+
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+
+        // Click handler for collecting stars
+        canvas.addEventListener('click', (e) => {
+            if (!gameRunning) return;
+            const clickX = e.clientX;
+            const clickY = e.clientY;
+            let collected = false;
+
+            // Check regular stars
+            for (let i = gameStars.length - 1; i >= 0; i--) {
+                if (isClickOnStar(gameStars[i], clickX, clickY)) {
+                    score += gameStars[i].points;
+                    document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
+                    playCollectSound(gameStars[i].points);
+                    gameStars.splice(i, 1);
+                    collected = true;
+                    break;
+                }
+            }
+
+            // Check bonus sparkles
+            if (!collected) {
+                for (let i = bonusSparkles.length - 1; i >= 0; i--) {
+                    if (isClickOnStar(bonusSparkles[i], clickX, clickY)) {
+                        score += bonusSparkles[i].points;
+                        document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
+                        floatingTexts.push(createFloatingText(bonusSparkles[i].x, bonusSparkles[i].y, bonusSparkles[i].points));
+                        playCollectSound(bonusSparkles[i].points > 50 ? 3 : 2);
+                        bonusSparkles.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        });
+
+        // Touch handler
+        canvas.addEventListener('touchstart', (e) => {
+            if (!gameRunning) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const clickX = touch.clientX;
+            const clickY = touch.clientY;
+            let collected = false;
+
+            for (let i = gameStars.length - 1; i >= 0; i--) {
+                if (isClickOnStar(gameStars[i], clickX, clickY)) {
+                    score += gameStars[i].points;
+                    document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
+                    playCollectSound(gameStars[i].points);
+                    gameStars.splice(i, 1);
+                    collected = true;
+                    break;
+                }
+            }
+
+            if (!collected) {
+                for (let i = bonusSparkles.length - 1; i >= 0; i--) {
+                    if (isClickOnStar(bonusSparkles[i], clickX, clickY)) {
+                        score += bonusSparkles[i].points;
+                        document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
+                        floatingTexts.push(createFloatingText(bonusSparkles[i].x, bonusSparkles[i].y, bonusSparkles[i].points));
+                        playCollectSound(bonusSparkles[i].points > 50 ? 3 : 2);
+                        bonusSparkles.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        });
+
+        function playCollectSound(points) {
+            if (!audioContext) return;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const freq = points >= 100 ? 1200 : points >= 50 ? 880 : points >= 3 ? 660 : 440;
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.value = 0.15;
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.25);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.25);
+        }
+
+        function startGame() {
+            resizeCanvas();
+            document.getElementById('gameScreen').classList.add('show');
+            
+            score = 0;
+            timeLeft = 60;
+            gameStars = [];
+            bonusSparkles = [];
+            floatingTexts = [];
+            bonusRound = false;
+            bonusRoundActive = false;
+            
+            document.getElementById('scoreDisplay').textContent = 'Score: 0';
+            document.getElementById('timerDisplay').textContent = 'Time: 60';
+            
+            startGameBgSparkles();
+            gameRunning = true;
+            gameLoopId = requestAnimationFrame(gameLoop);
+            
+            gameTimerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerDisplay').textContent = 'Time: ' + timeLeft;
+                
+                // Bonus round at 30 seconds (last 30 seconds)
+                if (timeLeft === 30 && !bonusRound) {
+                    bonusRound = true;
+                    bonusRoundActive = true;
+                    const bonusText = document.getElementById('bonusText');
+                    bonusText.classList.add('show');
+                    setTimeout(() => bonusText.classList.remove('show'), 2000);
+                }
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameRunning = false;
+            bonusRoundActive = false;
+            clearInterval(gameTimerInterval);
+            if (gameLoopId) cancelAnimationFrame(gameLoopId);
+            stopGameBgSparkles();
+            
+            // Hide game screen
+            document.getElementById('gameScreen').classList.remove('show');
+            
+            // Show finish screen
+            document.getElementById('finishScore').textContent = 'You caught ' + score + ' stars!';
+            document.getElementById('finishScreen').classList.add('show');
+        }
+
+        function downloadWallpaper(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = url.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function handleTryAgain() {
+            playClickSound();
+            document.getElementById('finishScreen').classList.remove('show');
+            setTimeout(() => startGame(), 500);
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('goButton').addEventListener('click', handleGoButtonClick);
+        document.getElementById('goButton').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            handleGoButtonClick(e);
+        });
+        
+        document.getElementById('playButton').addEventListener('click', handlePlayButtonClick);
+        document.getElementById('playButton').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            handlePlayButtonClick(e);
+        });
+
+        document.getElementById('helpPlayButton').addEventListener('click', handleHelpPlayClick);
+        document.getElementById('helpPlayButton').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            handleHelpPlayClick(e);
+        });
+
+        document.getElementById('tryAgainBtn').addEventListener('click', handleTryAgain);
+
+        window.addEventListener('resize', () => {
+            if (gameRunning) resizeCanvas();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            preloadAllAssets();
+        });
+    </script>
+</body>
+</html>
