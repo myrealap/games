@@ -148,7 +148,6 @@
             50% { opacity: 1; }
         }
 
-        /* All buttons use sprite format: 1000x250 image, 500x250 each half */
         .go-button {
             width: 110.5px;
             height: 66px;
@@ -408,7 +407,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 9995;
+            z-index: 99995;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -481,7 +480,6 @@
             outline: none;
         }
 
-        /* Help button on game screen */
         .help-btn-game {
             position: absolute;
             top: 15px;
@@ -661,6 +659,7 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
+            position: relative;
         }
 
         .wallpaper-thumb {
@@ -670,9 +669,29 @@
             transition: transform 0.3s ease, border-color 0.3s ease;
         }
 
-        .wallpaper-thumb:hover {
-            transform: scale(1.05);
-            border-color: #ffd700;
+        /* Locked wallpaper overlay */
+        .wallpaper-lock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 240px;
+            height: 180px;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .wallpaper-lock-overlay img {
+            width: 60px;
+            height: 60px;
+            opacity: 0.8;
+        }
+
+        .wallpaper-lock-overlay.unlocked {
+            opacity: 0;
         }
 
         .download-btn {
@@ -685,7 +704,7 @@
             cursor: pointer;
             border: none;
             background-color: transparent;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
         }
 
         .download-btn:hover {
@@ -695,6 +714,17 @@
 
         .download-btn:focus {
             outline: none;
+        }
+
+        .download-btn.locked {
+            filter: brightness(0.4);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .download-btn.locked:hover {
+            background-position: 0 0;
+            transform: none;
         }
 
         .try-again-btn {
@@ -820,53 +850,27 @@
         @media (max-width: 768px) {
             * { cursor: auto !important; }
             .custom-cursor { display: none !important; }
-            .go-button {
-                width: 150px;
-                height: 75px;
-                background-size: 300px 75px;
-            }
+            .go-button { width: 150px; height: 75px; background-size: 300px 75px; }
             .go-button:hover { background-position: -150px 0; }
-            .play-button {
-                width: 150px;
-                height: 75px;
-                background-size: 300px 75px;
-            }
+            .play-button { width: 150px; height: 75px; background-size: 300px 75px; }
             .play-button:hover { background-position: -150px 0; }
-            .help-play-button {
-                width: 130px;
-                height: 65px;
-                background-size: 260px 65px;
-            }
+            .help-play-button { width: 130px; height: 65px; background-size: 260px 65px; }
             .help-play-button:hover { background-position: -130px 0; }
-            .game-help-close-btn {
-                width: 130px;
-                height: 65px;
-                background-size: 260px 65px;
-            }
+            .game-help-close-btn { width: 130px; height: 65px; background-size: 260px 65px; }
             .game-help-close-btn:hover { background-position: -130px 0; }
-            .help-btn-game {
-                width: 140px;
-                height: 70px;
-                background-size: 280px 70px;
-            }
-            .help-btn-game:hover { background-position: -140px 0; }
-            .download-btn {
-                width: 130px;
-                height: 65px;
-                background-size: 260px 65px;
-            }
+            .help-btn-game { width: 100px; height: 100px; background-size: 200px 100px; }
+            .help-btn-game:hover { background-position: -100px 0; }
+            .download-btn { width: 130px; height: 65px; background-size: 260px 65px; }
             .download-btn:hover { background-position: -130px 0; }
-            .try-again-btn {
-                width: 150px;
-                height: 75px;
-                background-size: 300px 75px;
-            }
+            .try-again-btn { width: 150px; height: 75px; background-size: 300px 75px; }
             .try-again-btn:hover { background-position: -150px 0; }
             .landing-image, .help-image { max-width: 90%; max-height: 60%; }
             .quote-bg { width: 100%; height: 150px; }
             .quote-text { font-size: 16px; }
             .loading-percentage { font-size: 24px; }
             .wallpaper-thumb { width: 120px; height: 160px; }
+            .wallpaper-lock-overlay { width: 120px; height: 160px; }
+            .wallpaper-lock-overlay img { width: 40px; height: 40px; }
             .wallpaper-container { gap: 20px; }
             .finish-score { font-size: 24px; }
             .finish-image { max-width: 90%; }
@@ -930,13 +934,21 @@
         <img class="finish-image" src="images/end.png" alt="Game Over">
         <div class="finish-score" id="finishScore">You caught 0 stars!</div>
         <div class="wallpaper-container">
-            <div class="wallpaper-item">
+            <!-- Wallpaper 1 - unlocks at 3000 -->
+            <div class="wallpaper-item" id="wallpaperItem1">
                 <img class="wallpaper-thumb" src="images/wallpaper1-thumb.jpg" alt="Wallpaper 1">
-                <button class="download-btn" onclick="downloadWallpaper('images/wallpaper1.jpg')"></button>
+                <div class="wallpaper-lock-overlay" id="lockOverlay1">
+                    <img src="images/lock.png" alt="Locked">
+                </div>
+                <button class="download-btn locked" id="downloadBtn1" onclick="downloadWallpaper('images/wallpaper1.jpg')"></button>
             </div>
-            <div class="wallpaper-item">
+            <!-- Wallpaper 2 - unlocks at 5000 -->
+            <div class="wallpaper-item" id="wallpaperItem2">
                 <img class="wallpaper-thumb" src="images/wallpaper2-thumb.jpg" alt="Wallpaper 2">
-                <button class="download-btn" onclick="downloadWallpaper('images/wallpaper2.jpg')"></button>
+                <div class="wallpaper-lock-overlay" id="lockOverlay2">
+                    <img src="images/lock.png" alt="Locked">
+                </div>
+                <button class="download-btn locked" id="downloadBtn2" onclick="downloadWallpaper('images/wallpaper2.jpg')"></button>
             </div>
         </div>
         <button class="try-again-btn" id="tryAgainBtn"></button>
@@ -1053,7 +1065,6 @@
             const container = document.getElementById('globalSparkleContainer');
             const totalSparkles = 40;
             let sparklesCreated = 0;
-
             function createBurstSparkle() {
                 const sparkle = document.createElement('div');
                 sparkle.className = 'global-sparkle';
@@ -1073,7 +1084,6 @@
                     }, 1500);
                 }
             }
-
             for (let i = 0; i < totalSparkles; i++) {
                 setTimeout(createBurstSparkle, i * 25);
             }
@@ -1082,7 +1092,6 @@
         // ==================== CUSTOM CURSOR ====================
         let customCursor = null;
         let cursorColor = '#ffffff';
-
         function setupCustomCursor() {
             if (isTouchDevice) return;
             customCursor = document.createElement('div');
@@ -1104,27 +1113,16 @@
                 requestAnimationFrame(animateCursor);
             }
             animateCursor();
-            document.addEventListener('mouseleave', () => {
-                if (customCursor) customCursor.style.opacity = '0';
-            });
-            document.addEventListener('mouseenter', () => {
-                if (customCursor) customCursor.style.opacity = '1';
-            });
+            document.addEventListener('mouseleave', () => { if (customCursor) customCursor.style.opacity = '0'; });
+            document.addEventListener('mouseenter', () => { if (customCursor) customCursor.style.opacity = '1'; });
         }
-
         function updateCursorColor(color) {
             cursorColor = color;
             if (customCursor) {
                 customCursor.style.filter = `drop-shadow(0 0 8px ${color}) drop-shadow(0 0 4px ${color})`;
             }
         }
-
-        if (isTouchDevice) {
-            startTouchSparkles();
-        } else {
-            startMouseTrail();
-            setupCustomCursor();
-        }
+        if (isTouchDevice) { startTouchSparkles(); } else { startMouseTrail(); setupCustomCursor(); }
 
         // ==================== AUDIO SYSTEM ====================
         let audioContext = null;
@@ -1134,51 +1132,32 @@
         clickSound.volume = 0.5;
         const hoverSound = new Audio("sounds/hover.mp3");
         hoverSound.volume = 0.3;
+        const appearSound = new Audio("sounds/appear.mp3");
+        appearSound.volume = 0.6;
 
-        function playClickSound() {
-            clickSound.currentTime = 0;
-            clickSound.play().catch(() => {});
-        }
-
-        function playHoverSound() {
-            hoverSound.currentTime = 0;
-            hoverSound.play().catch(() => {});
-        }
+        function playClickSound() { clickSound.currentTime = 0; clickSound.play().catch(() => {}); }
+        function playHoverSound() { hoverSound.currentTime = 0; hoverSound.play().catch(() => {}); }
+        function playAppearSound() { appearSound.currentTime = 0; appearSound.play().catch(() => {}); }
 
         function initAudioContext() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
-            // Always try to resume
             if (audioContext.state === 'suspended') {
-                audioContext.resume().then(() => {
-                    console.log('🎵 AudioContext resumed!');
-                });
+                audioContext.resume().then(() => console.log('🎵 AudioContext resumed!'));
             }
-            console.log('🎵 AudioContext state:', audioContext.state);
         }
 
         function loadLandingMusic() {
             fetch('music/music_game.mp3')
                 .then(response => response.arrayBuffer())
-                .then(arrayBuffer => { 
-                    landingMusicBuffer = arrayBuffer;
-                    console.log('🎵 Landing music loaded!');
-                })
+                .then(arrayBuffer => { landingMusicBuffer = arrayBuffer; })
                 .catch(error => console.log('Error loading music:', error));
         }
 
         function playLandingMusic() {
-            if (!audioContext) {
-                console.log('❌ No AudioContext!');
-                return;
-            }
-            if (!landingMusicBuffer) {
-                console.log('❌ No music buffer!');
-                return;
-            }
+            if (!audioContext || !landingMusicBuffer) return;
             if (landingMusic) { try { landingMusic.stop(); } catch(e) {} }
-            
             audioContext.decodeAudioData(landingMusicBuffer.slice(0))
                 .then(buffer => {
                     landingMusic = audioContext.createBufferSource();
@@ -1189,52 +1168,30 @@
                     landingMusic.connect(gainNode);
                     gainNode.connect(audioContext.destination);
                     landingMusic.start(0);
-                    console.log('🎵 Landing music playing!');
                 })
                 .catch(err => console.log('Decode error:', err));
         }
 
         function stopLandingMusic() {
-            if (landingMusic) { 
-                try { 
-                    landingMusic.stop(); 
-                    landingMusic = null;
-                    console.log('🎵 Music stopped');
-                } catch(e) {} 
-            }
+            if (landingMusic) { try { landingMusic.stop(); landingMusic = null; } catch(e) {} }
         }
 
-        // Load music immediately
         loadLandingMusic();
 
-        // ==================== HOVER SOUNDS ON ALL BUTTONS ====================
         function addHoverSoundToButtons() {
             const allButtons = document.querySelectorAll('button');
             allButtons.forEach(btn => {
-                btn.addEventListener('mouseenter', () => {
-                    playHoverSound();
-                });
+                btn.addEventListener('mouseenter', () => playHoverSound());
             });
         }
 
         // ==================== FILE LOADING ====================
         const filesToLoad = [
-            "images/quote-bg.png",
-            "images/sparkle.png",
-            "images/sparkle_a.png",
-            "images/sparkle_b.png",
-            "images/go.png",
-            "images/help.png",
-            "images/landing.png",
-            "images/play_landing.png",
-            "images/play_help.png",
-            "images/loading-bg.png",
-            "images/try-again.png",
-            "images/download.png",
-            "images/end.png",
-            "images/help_btn.png",
+            "images/quote-bg.png","images/sparkle.png","images/sparkle_a.png","images/sparkle_b.png",
+            "images/go.png","images/help.png","images/landing.png","images/play_landing.png",
+            "images/play_help.png","images/loading-bg.png","images/try-again.png","images/download.png",
+            "images/end.png","images/help_btn.png","images/lock.png",
         ];
-
         const allFiles = [...filesToLoad];
         let loadedCount = 0;
         const totalFiles = allFiles.length;
@@ -1266,7 +1223,6 @@
             await Promise.all(loadPromises);
             loadedCount = totalFiles;
             updateLoadingPercent();
-            // Add hover sounds after DOM is ready
             addHoverSoundToButtons();
             setTimeout(() => replacePercentWithGoButton(), 300);
         }
@@ -1275,9 +1231,7 @@
             const percentEl = document.getElementById('loadingPercent');
             const goBtn = document.getElementById('goButton');
             const loadingBg = document.getElementById('loadingBg');
-            
             percentEl.classList.add('fade-out');
-            
             setTimeout(() => {
                 percentEl.style.display = 'none';
                 loadingBg.classList.add('show');
@@ -1289,21 +1243,15 @@
             e.preventDefault();
             initAudioContext();
             playClickSound();
-            
             const goButton = document.getElementById('goButton');
             goButton.classList.add('clicked');
-            
             triggerGlobalSparkleBurst(() => {
-                // Play music after AudioContext is confirmed working
-                setTimeout(() => {
-                    playLandingMusic();
-                }, 200);
-                
+                setTimeout(() => playLandingMusic(), 200);
                 const loadingScreen = document.getElementById('loadingScreen');
                 const loadingActionArea = document.getElementById('loadingActionArea');
                 loadingScreen.classList.add('hide');
                 loadingActionArea.style.display = 'none';
-                setTimeout(() => showLandingPage(), 800);
+                setTimeout(() => { showLandingPage(); }, 800);
             });
         }
 
@@ -1312,7 +1260,6 @@
         const LANDING_SPARKLE_INTERVAL = 60;
         const LANDING_SPARKLE_SIZE_MIN = 75;
         const LANDING_SPARKLE_SIZE_MAX = 100;
-
         let landingSparkleInterval = null;
 
         function createLandingBgSparkle() {
@@ -1328,14 +1275,10 @@
             container.appendChild(sparkle);
             setTimeout(() => sparkle.remove(), 3500);
         }
-
         function startLandingSparkles() {
-            for (let i = 0; i < LANDING_SPARKLE_COUNT; i++) {
-                setTimeout(() => createLandingBgSparkle(), i * 50);
-            }
+            for (let i = 0; i < LANDING_SPARKLE_COUNT; i++) setTimeout(() => createLandingBgSparkle(), i * 50);
             landingSparkleInterval = setInterval(createLandingBgSparkle, LANDING_SPARKLE_INTERVAL);
         }
-
         function stopLandingSparkles() {
             if (landingSparkleInterval) clearInterval(landingSparkleInterval);
             document.getElementById('landingSparkleBg').innerHTML = '';
@@ -1346,7 +1289,6 @@
         const HELP_SPARKLE_INTERVAL = 60;
         const HELP_SPARKLE_SIZE_MIN = 75;
         const HELP_SPARKLE_SIZE_MAX = 100;
-
         let helpSparkleInterval = null;
 
         function createHelpBgSparkle() {
@@ -1362,14 +1304,10 @@
             container.appendChild(sparkle);
             setTimeout(() => sparkle.remove(), 3500);
         }
-
         function startHelpSparkles() {
-            for (let i = 0; i < HELP_SPARKLE_COUNT; i++) {
-                setTimeout(() => createHelpBgSparkle(), i * 50);
-            }
+            for (let i = 0; i < HELP_SPARKLE_COUNT; i++) setTimeout(() => createHelpBgSparkle(), i * 50);
             helpSparkleInterval = setInterval(createHelpBgSparkle, HELP_SPARKLE_INTERVAL);
         }
-
         function stopHelpSparkles() {
             if (helpSparkleInterval) clearInterval(helpSparkleInterval);
             document.getElementById('helpSparkleBg').innerHTML = '';
@@ -1377,7 +1315,6 @@
 
         // ==================== GAME HELP OVERLAY SPARKLES ====================
         let gameHelpSparkleInterval = null;
-
         function createGameHelpBgSparkle() {
             const container = document.getElementById('gameHelpSparkleBg');
             const sparkle = document.createElement('div');
@@ -1391,61 +1328,50 @@
             container.appendChild(sparkle);
             setTimeout(() => sparkle.remove(), 3500);
         }
-
         function startGameHelpSparkles() {
-            for (let i = 0; i < 60; i++) {
-                setTimeout(() => createGameHelpBgSparkle(), i * 50);
-            }
+            for (let i = 0; i < 60; i++) setTimeout(() => createGameHelpBgSparkle(), i * 50);
             gameHelpSparkleInterval = setInterval(createGameHelpBgSparkle, HELP_SPARKLE_INTERVAL);
         }
-
         function stopGameHelpSparkles() {
             if (gameHelpSparkleInterval) clearInterval(gameHelpSparkleInterval);
             document.getElementById('gameHelpSparkleBg').innerHTML = '';
         }
 
+        // ==================== SCREEN TRANSITIONS WITH APPEAR SOUND ====================
         function showLandingPage() {
             document.getElementById('landingPage').classList.add('show');
             startLandingSparkles();
+            playAppearSound();
         }
-
         function hideLandingPage() {
             stopLandingSparkles();
             document.getElementById('landingPage').classList.remove('show');
             setTimeout(() => showHelpScreen(), 800);
         }
-
         function handlePlayButtonClick(e) {
             e.preventDefault();
             playClickSound();
-            triggerGlobalSparkleBurst(() => {
-                hideLandingPage();
-            });
+            triggerGlobalSparkleBurst(() => { hideLandingPage(); });
         }
-
         function showHelpScreen() {
             document.getElementById('helpScreen').classList.add('show');
             startHelpSparkles();
+            playAppearSound();
         }
-
         function hideHelpScreen() {
             stopHelpSparkles();
             document.getElementById('helpScreen').classList.remove('show');
             setTimeout(() => startGame(), 800);
         }
-
         function handleHelpPlayClick(e) {
             e.preventDefault();
             playClickSound();
             stopLandingMusic();
-            triggerGlobalSparkleBurst(() => {
-                hideHelpScreen();
-            });
+            triggerGlobalSparkleBurst(() => { hideHelpScreen(); });
         }
 
         // ==================== GAME BACKGROUND SPARKLES ====================
         let gameBgSparkleInterval = null;
-
         function createGameBgSparkle() {
             const container = document.getElementById('gameSparkleBg');
             const sparkle = document.createElement('div');
@@ -1460,14 +1386,10 @@
             container.appendChild(sparkle);
             setTimeout(() => sparkle.remove(), 3000);
         }
-
         function startGameBgSparkles() {
-            for (let i = 0; i < 80; i++) {
-                setTimeout(() => createGameBgSparkle(), i * 40);
-            }
+            for (let i = 0; i < 80; i++) setTimeout(() => createGameBgSparkle(), i * 40);
             gameBgSparkleInterval = setInterval(createGameBgSparkle, 60);
         }
-
         function stopGameBgSparkles() {
             if (gameBgSparkleInterval) clearInterval(gameBgSparkleInterval);
             document.getElementById('gameSparkleBg').innerHTML = '';
@@ -1486,18 +1408,25 @@
         let gameLoopId = null;
         let gameTimerInterval = null;
         let bonusRoundActive = false;
-        let spawnDirection = 'right'; // 'right' or 'left' or 'both'
+        let spawnDirection = 'right';
 
-        // Spawn settings
-        const STAR_SET_SIZE = 3; // 3 sparkles per set
-        const STAR_SET_ROWS = 5; // 5 rows in a set
-        const STAR_SPAWN_INTERVAL = 800; // ms between sets
+        // ===== ADJUST STAR TRAIL SETTINGS HERE =====
+        const TRAIL_SPARKLE_SIZE_MIN = 6;   // Min trail sparkle size (was 4)
+        const TRAIL_SPARKLE_SIZE_MAX = 16;  // Max trail sparkle size (was 10)
+        const TRAIL_MAX_COUNT = 20;         // Max trail sparkles per star (was 12)
+        const TRAIL_SPAWN_RATE = 2;         // Spawn trail every X frames (was 3, lower=more)
+        const TRAIL_LIFE_DECREASE = 0.03;   // How fast trail fades (was 0.04, lower=longer)
+        // ===========================================
+
+        const STAR_SET_SIZE = 3;
+        const STAR_SET_ROWS = 5;
+        const STAR_SPAWN_INTERVAL = 800;
         const STAR_SPEED_X = 2.5;
         const STAR_SPEED_Y_MIN = 1.5;
         const STAR_SPEED_Y_MAX = 3.0;
 
-        const BONUS_SET_SIZE = 4; // 4 sparkles per set
-        const BONUS_SET_ROWS = 5; // 5 rows
+        const BONUS_SET_SIZE = 4;
+        const BONUS_SET_ROWS = 5;
         const BONUS_SPAWN_INTERVAL = 500;
         const BONUS_SPEED = 3.5;
 
@@ -1533,25 +1462,17 @@
         function createStarSet(fromRight) {
             const stars = [];
             const startX = fromRight ? canvas.width + 50 : -50;
-            
             for (let row = 0; row < STAR_SET_ROWS; row++) {
                 const type = starTypes[Math.floor(Math.random() * starTypes.length)];
                 const y = Math.random() * canvas.height * 0.8 + canvas.height * 0.1;
-                
                 stars.push({
                     x: startX + (Math.random() - 0.5) * 80,
                     y: y + (Math.random() - 0.5) * 60,
-                    size: type.size,
-                    points: type.points,
-                    color: type.color,
+                    size: type.size, points: type.points, color: type.color,
                     speedX: fromRight ? -(STAR_SPEED_X + Math.random()) : (STAR_SPEED_X + Math.random()),
                     speedY: (Math.random() - 0.5) * (STAR_SPEED_Y_MAX - STAR_SPEED_Y_MIN) + STAR_SPEED_Y_MIN,
-                    sparkles: [],
-                    sparkleTimer: 0,
-                    rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 2,
-                    isBonus: false,
-                    img: getRandomSparkleImageObj()
+                    sparkles: [], sparkleTimer: 0, rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 2, isBonus: false, img: getRandomSparkleImageObj()
                 });
             }
             return stars;
@@ -1560,25 +1481,17 @@
         function createBonusSet(fromRight) {
             const stars = [];
             const startX = fromRight ? canvas.width + 50 : -50;
-            
             for (let row = 0; row < BONUS_SET_ROWS; row++) {
                 const type = bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
                 const y = Math.random() * canvas.height * 0.8 + canvas.height * 0.1;
-                
                 stars.push({
                     x: startX + (Math.random() - 0.5) * 100,
                     y: y + (Math.random() - 0.5) * 80,
-                    size: type.size,
-                    points: type.points,
-                    color: type.color,
+                    size: type.size, points: type.points, color: type.color,
                     speedX: fromRight ? -(BONUS_SPEED + Math.random()) : (BONUS_SPEED + Math.random()),
                     speedY: (Math.random() - 0.5) * 2.5,
-                    sparkles: [],
-                    sparkleTimer: 0,
-                    rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 3,
-                    isBonus: true,
-                    img: getRandomSparkleImageObj()
+                    sparkles: [], sparkleTimer: 0, rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 3, isBonus: true, img: getRandomSparkleImageObj()
                 });
             }
             return stars;
@@ -1586,28 +1499,18 @@
 
         function spawnStarSet() {
             if (!gameRunning || gamePaused || bonusRoundActive) return;
-            
             const fromRight = spawnDirection === 'right' || (spawnDirection === 'both' && Math.random() < 0.5);
             const newStars = createStarSet(fromRight);
             gameStars.push(...newStars);
-            
-            // Alternate direction
-            if (spawnDirection === 'both') {
-                // Keep 'both'
-            } else {
-                spawnDirection = spawnDirection === 'right' ? 'left' : 'right';
-            }
-            
+            if (spawnDirection !== 'both') spawnDirection = spawnDirection === 'right' ? 'left' : 'right';
             starSpawnTimeout = setTimeout(spawnStarSet, STAR_SPAWN_INTERVAL);
         }
 
         function spawnBonusSet() {
             if (!gameRunning || gamePaused || !bonusRoundActive) return;
-            
             const fromRight = Math.random() < 0.5;
             const newStars = createBonusSet(fromRight);
             bonusSparkles.push(...newStars);
-            
             bonusSpawnTimeout = setTimeout(spawnBonusSet, BONUS_SPAWN_INTERVAL);
         }
 
@@ -1622,10 +1525,11 @@
             const sparkle = {
                 x: star.x + (Math.random() - 0.5) * star.size * 0.8,
                 y: star.y + (Math.random() - 0.5) * star.size * 0.8,
-                size: Math.random() * 10 + 4, life: 1, rotation: Math.random() * 360, img: star.img
+                size: Math.random() * (TRAIL_SPARKLE_SIZE_MAX - TRAIL_SPARKLE_SIZE_MIN) + TRAIL_SPARKLE_SIZE_MIN,
+                life: 1, rotation: Math.random() * 360, img: star.img
             };
             star.sparkles.push(sparkle);
-            if (star.sparkles.length > 12) star.sparkles.shift();
+            if (star.sparkles.length > TRAIL_MAX_COUNT) star.sparkles.shift();
         }
 
         function drawSparkleStar(star) {
@@ -1665,35 +1569,32 @@
             if (!gameRunning) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Update regular stars
             gameStars = gameStars.filter(star => {
                 star.x += star.speedX;
                 star.y += star.speedY;
                 star.rotation += star.rotationSpeed;
                 star.sparkleTimer++;
-                if (star.sparkleTimer % 3 === 0) addStarTrailSparkle(star);
-                star.sparkles.forEach(s => s.life -= 0.04);
+                if (star.sparkleTimer % TRAIL_SPAWN_RATE === 0) addStarTrailSparkle(star);
+                star.sparkles.forEach(s => s.life -= TRAIL_LIFE_DECREASE);
                 star.sparkles = star.sparkles.filter(s => s.life > 0);
                 drawSparkleStar(star);
                 if (star.y > canvas.height + star.size * 2 || star.x < -star.size * 2 || star.x > canvas.width + star.size * 2) return false;
                 return true;
             });
 
-            // Update bonus sparkles
             bonusSparkles = bonusSparkles.filter(bs => {
                 bs.x += bs.speedX;
                 bs.y += bs.speedY;
                 bs.rotation += bs.rotationSpeed;
                 bs.sparkleTimer++;
-                if (bs.sparkleTimer % 2 === 0) addStarTrailSparkle(bs);
-                bs.sparkles.forEach(s => s.life -= 0.05);
+                if (bs.sparkleTimer % TRAIL_SPAWN_RATE === 0) addStarTrailSparkle(bs);
+                bs.sparkles.forEach(s => s.life -= TRAIL_LIFE_DECREASE);
                 bs.sparkles = bs.sparkles.filter(s => s.life > 0);
                 drawSparkleStar(bs);
                 if (bs.y > canvas.height + bs.size || bs.y < -bs.size || bs.x > canvas.width + bs.size || bs.x < -bs.size) return false;
                 return true;
             });
 
-            // Update floating texts
             floatingTexts = floatingTexts.filter(ft => {
                 ft.y -= 1.5;
                 ft.life -= 0.02;
@@ -1712,13 +1613,10 @@
 
         function handleStarClick(clickX, clickY) {
             let collected = false;
-            
-            // Check regular stars
             for (let i = gameStars.length - 1; i >= 0; i--) {
                 if (isClickOnStar(gameStars[i], clickX, clickY)) {
                     score += gameStars[i].points;
                     document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
-                    // Show floating text for ALL stars
                     floatingTexts.push(createFloatingText(gameStars[i].x, gameStars[i].y, gameStars[i].points));
                     playCollectSound(gameStars[i].points);
                     gameStars.splice(i, 1);
@@ -1726,8 +1624,6 @@
                     break;
                 }
             }
-
-            // Check bonus sparkles
             if (!collected) {
                 for (let i = bonusSparkles.length - 1; i >= 0; i--) {
                     if (isClickOnStar(bonusSparkles[i], clickX, clickY)) {
@@ -1784,17 +1680,13 @@
             document.getElementById('timerDisplay').textContent = 'Time: 60';
             startGameBgSparkles();
             gameRunning = true;
-            
-            // Start spawning star sets
             spawnStarSet();
-            
             gameLoopId = requestAnimationFrame(gameLoop);
+            playAppearSound();
             
             gameTimerInterval = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timerDisplay').textContent = 'Time: ' + timeLeft;
-                
-                // Bonus round from 30s to 10s
                 if (timeLeft === 30) {
                     bonusRoundActive = true;
                     spawnDirection = 'both';
@@ -1803,14 +1695,11 @@
                     bonusText.classList.add('show');
                     setTimeout(() => bonusText.classList.remove('show'), 2000);
                 }
-                
-                // End bonus round at 10s
                 if (timeLeft === 10 && bonusRoundActive) {
                     bonusRoundActive = false;
                     spawnDirection = 'right';
                     if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
                 }
-                
                 if (timeLeft <= 0) endGame();
             }, 1000);
         }
@@ -1824,11 +1713,33 @@
             if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
             stopGameBgSparkles();
             document.getElementById('gameScreen').classList.remove('show');
+            
+            // Update finish screen with unlocks
+            updateWallpaperUnlocks();
+            
             document.getElementById('finishScore').textContent = 'You caught ' + score + ' stars!';
             document.getElementById('finishScreen').classList.add('show');
+            playAppearSound();
+        }
+
+        function updateWallpaperUnlocks() {
+            // Wallpaper 1 unlocks at 3000
+            if (score >= 3000) {
+                document.getElementById('lockOverlay1').classList.add('unlocked');
+                document.getElementById('downloadBtn1').classList.remove('locked');
+            }
+            // Wallpaper 2 unlocks at 5000
+            if (score >= 5000) {
+                document.getElementById('lockOverlay2').classList.add('unlocked');
+                document.getElementById('downloadBtn2').classList.remove('locked');
+            }
         }
 
         function downloadWallpaper(url) {
+            // Check if unlocked
+            if (url.includes('wallpaper1') && score < 3000) return;
+            if (url.includes('wallpaper2') && score < 5000) return;
+            
             const link = document.createElement('a');
             link.href = url;
             link.download = url.split('/').pop();
@@ -1839,10 +1750,17 @@
 
         function handleTryAgain() {
             playClickSound();
+            // Reset wallpaper locks
+            document.getElementById('lockOverlay1').classList.remove('unlocked');
+            document.getElementById('downloadBtn1').classList.add('locked');
+            document.getElementById('lockOverlay2').classList.remove('unlocked');
+            document.getElementById('downloadBtn2').classList.add('locked');
+            
             document.getElementById('finishScreen').classList.remove('show');
             setTimeout(() => {
                 showLandingPage();
                 playLandingMusic();
+                playAppearSound();
             }, 500);
         }
 
@@ -1852,6 +1770,7 @@
             gamePaused = true;
             document.getElementById('gameHelpOverlay').classList.add('show');
             startGameHelpSparkles();
+            playAppearSound();
         }
 
         function hideGameHelp() {
@@ -1862,35 +1781,17 @@
 
         // ==================== EVENT LISTENERS ====================
         document.getElementById('goButton').addEventListener('click', handleGoButtonClick);
-        document.getElementById('goButton').addEventListener('touchend', function(e) {
-            e.preventDefault();
-            handleGoButtonClick(e);
-        });
-        
+        document.getElementById('goButton').addEventListener('touchend', function(e) { e.preventDefault(); handleGoButtonClick(e); });
         document.getElementById('playButton').addEventListener('click', handlePlayButtonClick);
-        document.getElementById('playButton').addEventListener('touchend', function(e) {
-            e.preventDefault();
-            handlePlayButtonClick(e);
-        });
-
+        document.getElementById('playButton').addEventListener('touchend', function(e) { e.preventDefault(); handlePlayButtonClick(e); });
         document.getElementById('helpPlayButton').addEventListener('click', handleHelpPlayClick);
-        document.getElementById('helpPlayButton').addEventListener('touchend', function(e) {
-            e.preventDefault();
-            handleHelpPlayClick(e);
-        });
-
+        document.getElementById('helpPlayButton').addEventListener('touchend', function(e) { e.preventDefault(); handleHelpPlayClick(e); });
         document.getElementById('tryAgainBtn').addEventListener('click', handleTryAgain);
-
         document.getElementById('helpBtnGame').addEventListener('click', showGameHelp);
         document.getElementById('gameHelpCloseBtn').addEventListener('click', hideGameHelp);
 
-        window.addEventListener('resize', () => {
-            if (gameRunning) resizeCanvas();
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            preloadAllAssets();
-        });
+        window.addEventListener('resize', () => { if (gameRunning) resizeCanvas(); });
+        window.addEventListener('DOMContentLoaded', () => { preloadAllAssets(); });
     </script>
 </body>
 </html>
