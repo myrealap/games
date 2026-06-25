@@ -1177,8 +1177,12 @@
             if (landingMusic) { try { landingMusic.stop(); landingMusic = null; } catch(e) {} }
         }
 
+        
+
+        loadLandingMusic();
+
         function addHoverSoundToButtons() {
-    const allButtons = document.querySelectorAll('button');
+            const allButtons = document.querySelectorAll('button');
             allButtons.forEach(btn => {
                 btn.addEventListener('mouseenter', () => playHoverSound());
             });
