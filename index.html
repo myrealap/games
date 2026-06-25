@@ -683,6 +683,7 @@
             .wallpaper-container { gap: 20px; }
             .finish-score { font-size: 24px; }
             .finish-image { max-width: 90%; }
+            .galaxy-bg {width: 200%; }
             .game-help-image { max-width: 120%; max-height: 100%; }
             .score-display { font-size: 22px; top: 15px; right: 15px; }
             .timer-display { font-size: 22px; top: 15px; left: 15px; }
@@ -931,6 +932,7 @@
             endHigh: new Audio("sounds/appear4.mp3"),
             endLow: new Audio("sounds/appear5.mp3")
         };
+        appearSounds.help.volume = 0.9;
         Object.values(appearSounds).forEach(s => s.volume = 0.6);
         
         // Custom star click sounds
