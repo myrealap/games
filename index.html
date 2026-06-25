@@ -1165,7 +1165,7 @@
                     landingMusic.buffer = buffer;
                     landingMusic.loop = true;
                     const gainNode = audioContext.createGain();
-                    gainNode.gain.value = 0.7;
+                    gainNode.gain.value = 0.9;
                     landingMusic.connect(gainNode);
                     gainNode.connect(audioContext.destination);
                     landingMusic.start(0);
@@ -1177,9 +1177,7 @@
             if (landingMusic) { try { landingMusic.stop(); landingMusic = null; } catch(e) {} }
         }
 
-        loadLandingMusic();
-
-        function addHoverSoundToButtons() {
+        loadLandingM {
             const allButtons = document.querySelectorAll('button');
             allButtons.forEach(btn => {
                 btn.addEventListener('mouseenter', () => playHoverSound());
