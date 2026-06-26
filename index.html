@@ -292,15 +292,15 @@
 
         .help-play-button {
             position: absolute; top: 57%; left: 45%; transform: translateX(-50%);
-            width: 170px; height: 85px;
+            width: 250px; height: 125px;
             background-image: url('images/play_help.png');
             background-repeat: no-repeat; background-position: 0 0;
-            background-size: 340px 85px;
+            background-size: 500px 125px;
             cursor: pointer; border: none; background-color: transparent;
             z-index: 2; transition: transform 0.3s ease;
         }
 
-        .help-play-button:hover { background-position: -170px 0; transform: translateX(-50%) scale(1.05); }
+        .help-play-button:hover { background-position: -250px 0; transform: translateX(-50%) scale(1.05); }
         .help-play-button:focus { outline: none; }
 
         /* ==================== IN-GAME HELP OVERLAY ==================== */
@@ -328,11 +328,11 @@
         .game-help-image { max-width: 80%; max-height: 80%; object-fit: contain; pointer-events: none; position: relative; z-index: 1; }
 
         .game-help-close-btn {
-            position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%);
-            width: 170px; height: 85px;
+            position: absolute; top: 57%; left: 45%; transform: translateX(-50%);
+            width: 250px; height: 125px;
             background-image: url('images/play_help.png');
             background-repeat: no-repeat; background-position: 0 0;
-            background-size: 340px 85px;
+            background-size: 500px 125px;
             cursor: pointer; border: none; background-color: transparent;
             z-index: 2; transition: transform 0.3s ease;
         }
@@ -378,7 +378,7 @@
         }
 
         .galaxy-bg.scrolling {
-            animation: galaxyScroll 3s ease-in-out forwards;
+            animation: galaxyScroll 5s ease-in-out forwards;
         }
 
         @keyframes galaxyScroll {
@@ -468,7 +468,7 @@
 
         .bonus-text {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: #ffd700; font-family: 'ALGER', serif; font-size: 36px;
+            color: #ffffff; font-family: 'ALGER', serif; font-size: 36px;
             z-index: 10; text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
             opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
         }
@@ -491,7 +491,7 @@
         /* ==================== FINISH SCREEN ==================== */
         .finish-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000000; z-index: 9995;
+            background: #e0efee; z-index: 9995;
             display: flex; align-items: center; justify-content: center; flex-direction: column;
             opacity: 0; pointer-events: none; transition: opacity 0.8s ease;
         }
@@ -518,15 +518,15 @@
             100% { opacity: 0; transform: scale(0.3) rotate(360deg); }
         }
 
-        .finish-image { max-width: 80%; max-height: 40%; object-fit: contain; pointer-events: none; margin-bottom: 15px; position: relative; z-index: 1; }
+        .finish-image { max-width: 100%; max-height: 90%; object-fit: contain; pointer-events: none; position: relative; z-index: 1; }
 
         .finish-score {
-            color: #ffd700; font-family: 'ALGER', serif; font-size: 36px;
-            margin-bottom: 20px; text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
-            position: relative; z-index: 1;
+            color: #000000; font-family: 'ALGER', serif; font-size: 36px;
+            margin-bottom: 250px; text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+            position: absolute; z-index: 1;
         }
 
-        .wallpaper-container { display: flex; gap: 40px; margin-bottom: 20px; position: relative; z-index: 1; }
+        .wallpaper-container { display: flex; gap: 40px; margin-bottom: -80px; position: absolute; z-index: 1; }
 
         .wallpaper-item { display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
 
@@ -552,10 +552,10 @@
         .wallpaper-lock-overlay.unlocked { opacity: 0; }
 
         .download-btn {
-            width: 170px; height: 85px;
+            width: 170px; height: 60px;
             background-image: url('images/download.png');
             background-repeat: no-repeat; background-position: 0 0;
-            background-size: 340px 85px;
+            background-size: 340px 60px;
             cursor: pointer; border: none; background-color: transparent;
             transition: transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
         }
@@ -571,8 +571,9 @@
             background-repeat: no-repeat; background-position: 0 0;
             background-size: 500px 125px;
             cursor: pointer; border: none; background-color: transparent;
-            transition: transform 0.3s ease; margin-top: 5px;
-            position: relative; z-index: 1;
+            transition: transform 0.3s ease; 
+            margin-top: 370px;
+            position: absolute; z-index: 1;
         }
 
         .try-again-btn:hover { background-position: -250px 0; transform: scale(1.05); }
@@ -680,9 +681,9 @@
             .wallpaper-lock-overlay { width: 160px; height: 120px; }
             .wallpaper-lock-overlay img { width: 35px; height: 35px; }
             .wallpaper-lock-text { font-size: 11px; }
-            .wallpaper-container { gap: 20px; }
-            .finish-score { font-size: 24px; }
-            .finish-image { max-width: 90%; }
+            .wallpaper-container { gap: 20px; transform: scale(0.7);  /* 👈 THIS ONE LINE shrinks everything! 0.7 = 70% size */ transform-origin: center center;  /* Keeps it centered */ margin-bottom: -20px;}
+            .finish-score { font-size: 24px; margin-bottom: 150px; }
+            .finish-image { max-width: 200%; }
             .galaxy-bg {width: 200%; }
             .game-help-image { max-width: 120%; max-height: 100%; }
             .score-display { font-size: 22px; top: 15px; right: 15px; }
@@ -735,7 +736,7 @@
         <button class="help-btn-game" id="helpBtnGame"></button>
         <div class="score-display" id="scoreDisplay">Score: 0</div>
         <div class="timer-display" id="timerDisplay">Time: 60</div>
-        <div class="bonus-text" id="bonusText">🌟 BONUS ROUND! 🌟</div>
+        <div class="bonus-text" id="bonusText">BONUS ROUND!</div>
     </div>
 
     <!-- IN-GAME HELP OVERLAY -->
@@ -1443,7 +1444,7 @@
             spawnDirection = 'both';
             spawnBonusSet();
             const bonusText = document.getElementById('bonusText');
-            bonusText.textContent = '🌟 BONUS ROUND! 🌟';
+            bonusText.textContent = 'BONUS ROUND!';
             bonusText.classList.add('show');
             playAppearSound('bonus');
             setTimeout(() => bonusText.classList.remove('show'), 2000);
@@ -1453,7 +1454,7 @@
             spawnDirection = 'right';
             if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
             const bonusText = document.getElementById('bonusText');
-            bonusText.textContent = '✨ Bonus Finished! ✨';
+            bonusText.textContent = 'Bonus Finished!';
             bonusText.classList.add('show');
             setTimeout(() => bonusText.classList.remove('show'), 2000);
         }
