@@ -665,13 +665,15 @@
             .play-button:hover { background-position: -75px 0; }
             .help-play-button { width: 75px; height: 37.5px; background-size: 150px 37.5px; top: 52%; }
             .help-play-button:hover { background-position: -75px 0; }
-            .game-help-close-btn { width: 130px; height: 65px; background-size: 260px 65px; }
+            .game-help-close-btn { width: 130px; height: 65px; background-size: 260px 65px; top: 62%;
+        left: 50%; }
             .game-help-close-btn:hover { background-position: -130px 0; }
+            .bonus-text { font-size: 24px; white-space: nowrap;  /* Keep on one line */ width: 100%; text-align: center; }
             .help-btn-game { width: 100px; height: 100px; background-size: 200px 100px; }
             .help-btn-game:hover { background-position: -100px 0; }
-            .download-btn { width: 130px; height: 65px; background-size: 260px 65px; }
+            .download-btn { width: 130px; height: 45px; background-size: 260px 45px; }
             .download-btn:hover { background-position: -130px 0; }
-            .try-again-btn { width: 150px; height: 75px; background-size: 300px 75px; }
+            .try-again-btn { width: 150px; height: 75px; background-size: 300px 75px; top: 17%; }
             .try-again-btn:hover { background-position: -150px 0; }
             .landing-image, .help-image { max-width: 120%; max-height: 60%; }
             .quote-bg { width: 100%; height: 150px; }
@@ -681,8 +683,8 @@
             .wallpaper-lock-overlay { width: 160px; height: 120px; }
             .wallpaper-lock-overlay img { width: 35px; height: 35px; }
             .wallpaper-lock-text { font-size: 11px; }
-            .wallpaper-container { gap: 20px; transform: scale(0.7);  /* 👈 THIS ONE LINE shrinks everything! 0.7 = 70% size */ transform-origin: center center;  /* Keeps it centered */ margin-bottom: -20px;}
-            .finish-score { font-size: 24px; margin-bottom: 150px; }
+            .wallpaper-container { gap: 20px; transform: scale(0.7);  /* 👈 THIS ONE LINE shrinks everything! 0.7 = 70% size */ transform-origin: center center;  /* Keeps it centered */ margin-bottom: -45px;}
+            .finish-score { font-size: 24px; margin-bottom: 118px; }
             .finish-image { max-width: 200%; }
             .galaxy-bg {width: 200%; }
             .game-help-image { max-width: 120%; max-height: 100%; }
@@ -748,8 +750,8 @@
 
     <!-- FINISH SCREEN -->
     <div class="finish-screen" id="finishScreen">
-        <div class="finish-sparkle-bg" id="finishSparkleBg"></div>
-        <img class="finish-image" src="images/end.png" alt="Game Over">
+    <div class="finish-sparkle-bg" id="finishSparkleBg"></div>
+    <img class="finish-image" id="finishImage" src="images/end.png" alt="Game Over">
         <div class="finish-score" id="finishScore">You caught 0 stars!</div>
         <div class="wallpaper-container">
             <div class="wallpaper-item" id="wallpaperItem1">
@@ -933,8 +935,13 @@
             endHigh: new Audio("sounds/appear4.mp3"),
             endLow: new Audio("sounds/appear5.mp3")
         };
-        appearSounds.help.volume = 0.9;
-        Object.values(appearSounds).forEach(s => s.volume = 0.6);
+        // Individual volume settings for each appear sound
+appearSounds.landing.volume = 0.6;   // appear.mp3 - Landing page
+appearSounds.help.volume = 0.9;      // appear1.mp3 - Help screen (your setting)
+appearSounds.game.volume = 0.6;      // appear2.mp3 - Game start
+appearSounds.bonus.volume = 0.6;     // appear3.mp3 - Bonus round
+appearSounds.endHigh.volume = 0.6;   // appear4.mp3 - End high score
+appearSounds.endLow.volume = 0.9;    // appear5.mp3 - End low score (make louder)
         
         // Custom star click sounds
         const starClickSounds = {
@@ -996,12 +1003,19 @@
         }
 
         // ==================== FILE LOADING ====================
-        const filesToLoad = [
-            "images/quote-bg.png","images/sparkle.png","images/sparkle_a.png","images/sparkle_b.png",
-            "images/Go.png","images/help.png","images/landing.png","images/play_landing.png",
-            "images/play_help.png","images/loading-bg.png","images/try-again.png","images/download.png",
-            "images/end.png","images/help_btn.png","images/lock.png","images/galaxy.jpg",
-        ];
+// Add audio files to the loading list
+const filesToLoad = [
+    "images/quote-bg.png","images/sparkle.png","images/sparkle_a.png","images/sparkle_b.png",
+    "images/Go.png","images/help.png","images/landing.png","images/play_landing.png",
+    "images/play_help.png","images/loading-bg.png","images/try-again.png","images/download.png",
+    "images/end.png","images/help_btn.png","images/lock.png","images/galaxy.jpg",
+    // Audio files - must be loaded before 100%
+    "sounds/click.mp3","sounds/hover.mp3",
+    "sounds/appear.mp3","sounds/appear1.mp3","sounds/appear2.mp3",
+    "sounds/appear3.mp3","sounds/appear4.mp3","sounds/appear5.mp3",
+    "sounds/star_click_small.mp3","sounds/star_click_medium.mp3","sounds/star_click_large.mp3",
+    "music/music_game.mp3",
+];
         const allFiles = [...filesToLoad];
         let loadedCount = 0;
         const totalFiles = allFiles.length;
@@ -1013,19 +1027,28 @@
         }
 
         function loadFile(src) {
-            return new Promise((resolve) => {
-                const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src);
-                if (isImage) {
-                    const img = new Image();
-                    img.onload = () => { loadedCount++; updateLoadingPercent(); resolve(); };
-                    img.onerror = () => { loadedCount++; updateLoadingPercent(); resolve(); };
-                    img.src = src;
-                } else {
-                    fetch(src).then(() => { loadedCount++; updateLoadingPercent(); resolve(); })
-                        .catch(() => { loadedCount++; updateLoadingPercent(); resolve(); });
-                }
-            });
+    return new Promise((resolve) => {
+        const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src);
+        const isAudio = /\.(mp3|wav|ogg|m4a)$/i.test(src);
+        
+        if (isImage) {
+            const img = new Image();
+            img.onload = () => { loadedCount++; updateLoadingPercent(); resolve(); };
+            img.onerror = () => { loadedCount++; updateLoadingPercent(); resolve(); };
+            img.src = src;
+        } else if (isAudio) {
+            const audio = new Audio();
+            audio.preload = 'auto';
+            audio.oncanplaythrough = () => { loadedCount++; updateLoadingPercent(); resolve(); };
+            audio.onerror = () => { loadedCount++; updateLoadingPercent(); resolve(); };
+            audio.src = src;
+            audio.load();
+        } else {
+            fetch(src).then(() => { loadedCount++; updateLoadingPercent(); resolve(); })
+                .catch(() => { loadedCount++; updateLoadingPercent(); resolve(); });
         }
+    });
+}
 
         async function preloadAllAssets() {
             updateLoadingPercent();
@@ -1450,14 +1473,17 @@
             setTimeout(() => bonusText.classList.remove('show'), 2000);
         }
         if (timeLeft === 10 && bonusRoundActive) {
-            bonusRoundActive = false;
-            spawnDirection = 'right';
-            if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
-            const bonusText = document.getElementById('bonusText');
-            bonusText.textContent = 'Bonus Finished!';
-            bonusText.classList.add('show');
-            setTimeout(() => bonusText.classList.remove('show'), 2000);
-        }
+    bonusRoundActive = false;
+    spawnDirection = 'right';
+    if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
+    // RESTART normal star spawning
+    if (starSpawnTimeout) clearTimeout(starSpawnTimeout);
+    spawnStarSet();  // 👈 ADD THIS LINE - restart normal stars
+    const bonusText = document.getElementById('bonusText');
+    bonusText.textContent = 'Bonus Finished!';
+    bonusText.classList.add('show');
+    setTimeout(() => bonusText.classList.remove('show'), 2000);
+}
         if (timeLeft <= 0) endGame();
     }, 1000);
 }
@@ -1487,27 +1513,33 @@
         }
 
         function endGame() {
-            gameRunning = false;
-            bonusRoundActive = false;
-            clearInterval(gameTimerInterval);
-            if (gameLoopId) cancelAnimationFrame(gameLoopId);
-            if (starSpawnTimeout) clearTimeout(starSpawnTimeout);
-            if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
-            stopGameBgSparkles();
-            document.getElementById('gameScreen').classList.remove('show');
-            
-            updateWallpaperUnlocks();
-            document.getElementById('finishScore').textContent = 'You caught ' + score + ' stars!';
-            
-            whiteFadeTransition(() => {
-                document.getElementById('finishScreen').classList.add('show');
-                finishSparkleInterval = startSparkles('finishSparkleBg', 'finish-bg-sparkle', 100);
-                // Choose appear sound based on score
-                if (score >= 3000) playAppearSound('endHigh');
-                else if (score < 1000) playAppearSound('endLow');
-                else playAppearSound('endHigh');
-            });
-        }
+    gameRunning = false;
+    bonusRoundActive = false;
+    clearInterval(gameTimerInterval);
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
+    if (starSpawnTimeout) clearTimeout(starSpawnTimeout);
+    if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
+    stopGameBgSparkles();
+    document.getElementById('gameScreen').classList.remove('show');
+    
+    updateWallpaperUnlocks();
+    document.getElementById('finishScore').textContent = 'You caught ' + score + ' stars!';
+    
+    // Choose end image based on score
+    if (score >= 1000) {
+        document.getElementById('finishImage').src = 'images/endhigh.png';
+    } else {
+        document.getElementById('finishImage').src = 'images/endlow.png';
+    }
+    
+    whiteFadeTransition(() => {
+        document.getElementById('finishScreen').classList.add('show');
+        finishSparkleInterval = startSparkles('finishSparkleBg', 'finish-bg-sparkle', 100);
+        if (score >= 3000) playAppearSound('endHigh');
+        else if (score < 1000) playAppearSound('endLow');
+        else playAppearSound('endHigh');
+    });
+}
 
         function updateWallpaperUnlocks() {
             if (score >= 1000) {
@@ -1521,15 +1553,22 @@
         }
 
         function downloadWallpaper(url) {
-            if (url.includes('wallpaper1') && score < 1000) return;
-            if (url.includes('wallpaper2') && score < 3000) return;
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = url.split('/').pop();
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+    if (url.includes('wallpaper1') && score < 1000) return;
+    if (url.includes('wallpaper2') && score < 3000) return;
+    
+    if (isTouchDevice || isMobile) {
+        // Mobile: force download
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = url.split('/').pop();
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        // Desktop: open in new tab
+        window.open(url, '_blank');
+    }
+}
 
         function handleTryAgain() {
             playClickSound();
