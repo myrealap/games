@@ -601,74 +601,73 @@
     }
 
     // ========== CAROUSEL SYSTEM ==========
-    class ImageCarousel {
-      constructor(containerId, startIndex) {
-        this.container = document.getElementById(containerId);
-        this.stack = this.container.querySelector('.carousel-stack');
-        this.currentIndex = startIndex || 1;
-        this.images = [];
-        this.totalImages = 9;
-        this.interval = null;
-        this.isRunning = false;
-        this.usedImages = new Set();
-        this.init();
-      }
+class ImageCarousel {
+  constructor(containerId, startIndex) {
+    this.container = document.getElementById(containerId);
+    this.stack = this.container.querySelector('.carousel-stack');
+    this.currentIndex = startIndex || 0; // CHANGE: use startIndex
+    this.images = [];
+    this.totalImages = 9;
+    this.interval = null;
+    this.isRunning = false;
+    this.usedImages = new Set();
+    this.init();
+  }
 
-      init() {
-        // Pre-create all image elements but keep them hidden
-        for (let i = 1; i <= this.totalImages; i++) {
-          const img = document.createElement('img');
-          img.className = 'carousel-image';
-          img.src = `images/landing/${i}.png`;
-          img.alt = `Model ${i}`;
-          this.stack.appendChild(img);
-          this.images.push(img);
-        }
-        // Start with first image
-        this.showImage(0);
-        // Start cycling
-        this.start();
-      }
-
-      showImage(index) {
-        // Hide all
-        this.images.forEach(img => img.classList.remove('show'));
-        // Show target
-        if (this.images[index]) {
-          this.images[index].classList.add('show');
-        }
-      }
-
-      getNextIndex() {
-        // Simple sequential cycling
-        return (this.currentIndex + 1) % this.totalImages;
-      }
-
-      next() {
-        const nextIdx = this.getNextIndex();
-        this.showImage(nextIdx);
-        this.currentIndex = nextIdx;
-      }
-
-      start() {
-        if (this.isRunning) return;
-        this.isRunning = true;
-        this.interval = setInterval(() => this.next(), 2500); // change every 2.5s
-      }
-
-      stop() {
-        this.isRunning = false;
-        if (this.interval) {
-          clearInterval(this.interval);
-          this.interval = null;
-        }
-      }
-
-      // For syncing left and right to avoid same image
-      getCurrentIndex() {
-        return this.currentIndex;
-      }
+  init() {
+    // Pre-create all image elements but keep them hidden
+    for (let i = 1; i <= this.totalImages; i++) {
+      const img = document.createElement('img');
+      img.className = 'carousel-image';
+      img.src = `images/landing/${i}.png`;
+      img.alt = `Model ${i}`;
+      this.stack.appendChild(img);
+      this.images.push(img);
     }
+    // CHANGE: Use currentIndex instead of always 0
+    this.showImage(this.currentIndex);
+    // Start cycling
+    this.start();
+  }
+
+  showImage(index) {
+    // Hide all
+    this.images.forEach(img => img.classList.remove('show'));
+    // Show target
+    if (this.images[index]) {
+      this.images[index].classList.add('show');
+    }
+  }
+
+  getNextIndex() {
+    // Simple sequential cycling
+    return (this.currentIndex + 1) % this.totalImages;
+  }
+
+  next() {
+    const nextIdx = this.getNextIndex();
+    this.showImage(nextIdx);
+    this.currentIndex = nextIdx;
+  }
+
+  start() {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    this.interval = setInterval(() => this.next(), 2500);
+  }
+
+  stop() {
+    this.isRunning = false;
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  }
+
+  getCurrentIndex() {
+    return this.currentIndex;
+  }
+}
 
     // ========== SCREEN TRANSITIONS ==========
     let landingCarousel, helpCarousel;
