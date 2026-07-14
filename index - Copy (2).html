@@ -226,10 +226,9 @@
       top: 50%; left: 50%; transform: translateX(-50%);
     }
     .play-button:hover { background-position: -250px 0; transform: translateX(-50%) scale(1.05); }
-
     .help-play-button {
       background-image: url('images/play_help.png');
-      top: 58%; left: 50%; transform: translateX(-50%);
+      top: 50%; left: 50%; transform: translateX(-50%);
     }
     .help-play-button:hover { background-position: -250px 0; transform: translateX(-50%) scale(1.05); }
 
@@ -247,9 +246,9 @@
       position: absolute;
       object-fit: contain;
     }
-    .help-extra-images .horse { bottom: 10%; right: 5%; height: 70%; }
-    .help-extra-images .cock { bottom: 10%; left: 11%; height: 50%; }
-    .help-extra-images .model { top: 35%; left: 83%; transform: translateX(-50%); height: 60%; }
+    .help-extra-images .horse { bottom: 10%; left: 5%; height: 40%; }
+    .help-extra-images .cock { bottom: 10%; right: 5%; height: 40%; }
+    .help-extra-images .model { top: 15%; left: 50%; transform: translateX(-50%); height: 60%; }
 
     .carousel-container {
       position: absolute; top: 50%; transform: translateY(-50%);
@@ -298,11 +297,11 @@
 
     .select-box {
       background: rgba(255,255,255,0.1);
-      padding: 100% 100%;
+      padding: 10% 12%;
       text-align: center;
       background-image: url(images/quote-bg.png);
       z-index: 9999;
-      background-size: unset;
+      background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
     }
@@ -310,59 +309,29 @@
       color: #fff;
       font-family: 'ALGER', serif;
       font-size: 32px;
+      margin-bottom: 30px;
       letter-spacing: 2px;
     }
     .select-options {
-      justify-content: center;display: flex;
-    transform: scale(0.7);
+      display: flex; gap: 30px; justify-content: center;
     }
-    .select-btn {
-  width: 250px;
-  height: 250px;
-  background-repeat: no-repeat;
-  background-position: 0 0;
-  background-size: 500px 250px;
-  cursor: pointer;
-  border: none;
-  background-color: transparent;
-  transition: transform 0.3s ease;
-  margin: 0 auto;
-    display: block;
-}
-
-.select-btn:hover {
-  background-position: -250px 0;
-  transform: scale(1.05);
-}
-
-.select-btn.mermaid {
-  background-image: url('images/mermaid_icon.png');
-}
-
-.select-btn.boy {
-  background-image: url('images/human_icon.png');
-}
-
-.select-btn.fairy {
-  background-image: url('images/fairy_icon.png');
-}
-
-.select-option {
-  cursor: pointer;
-  transition: transform 0.3s ease;
-  text-align: center;
-}
-
-.select-option:hover {
-  transform: scale(1.05);
-}
-
-.select-option p {
-  color: #fff;
-  font-family: 'ALGER', serif;
-  font-size: 180%;
-  letter-spacing: 1px;
-}
+    .select-option {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      text-align: center;
+    }
+    .select-option:hover { transform: scale(1.1); }
+    .select-option img {
+      width: 120px; height: 120px;
+      object-fit: contain;
+    }
+    .select-option p {
+      color: #fff;
+      margin-top: 10px;
+      font-family: 'ALGER', serif;
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
 
     /* Model display */
     .model-display {
@@ -404,7 +373,7 @@
     .game-help-overlay.show { opacity: 1; pointer-events: auto; }
     .game-help-image { max-width: 80%; max-height: 80%; object-fit: contain; position: relative; z-index: 1; }
     .game-help-close-btn {
-      position: absolute; bottom: 30%; left: 50%; transform: translateX(-50%);
+      position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%);
       width: 250px; height: 125px;
       background-image: url('images/play_help.png');
       background-repeat: no-repeat; background-position: 0 0;
@@ -446,20 +415,10 @@
       position: absolute;
       bottom: 30%; left: 20px;
       z-index: 10;
-      transform: translateX(-50%);
-      width: 500px; height: 250px;
-      background-repeat: no-repeat; background-position: 0 0;
-      background-size: 1000px 250px;
-      cursor: pointer; border: none; background-color: transparent;
-      z-index: 15; transition: transform 0.3s ease, opacity 0.5s ease;
-      opacity: 1;
       display: flex; flex-direction: column;
       align-items: center;
       gap: 5px;
     }
-    .bg-selector:hover { background-position: -250px 0; transform: translateX(-50%) scale(1.05); }
-    .bg-selector:focus { outline: none; }
-
     .bg-thumb {
       width: 80px; height: 60px;
       object-fit: cover;
@@ -488,13 +447,13 @@
       background-image: url('images/menu.png');
       background-size: contain; background-repeat: no-repeat;
       background-position: center;
-      width: 200px;
+      width: 120px;
       padding: 20px 15px;
       display: flex; flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 15px;
-      min-height: 800px;
+      min-height: 400px;
     }
     .menu-btn {
       width: 80px; height: 60px;
@@ -531,8 +490,7 @@
       justify-content: center;
     }
     .items-panel.open { right: 120px; pointer-events: auto; }
-    
-    /* Items scroll with smooth animation */
+
     .items-scroll {
       display: flex;
       flex-direction: column;
@@ -542,18 +500,10 @@
       overflow: hidden;
       width: 100%;
       padding: 5px 0;
-      position: relative;
-    }
-    .items-scroll-inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
     .item-thumb {
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -576,35 +526,11 @@
     /* Bottom-right buttons */
     .bottom-btns {
       position: absolute;
-      bottom: 20px;
-      right: 20px;
+      bottom: 80px; right: 20px;
       z-index: 10;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      align-items: flex-end;
-    }
-    .magic-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 99999;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .magic-overlay.active {
-      opacity: 1;
-      pointer-events: none;
-    }
-    .magic-overlay video, .magic-overlay canvas {
-      max-width: 79%;
-      max-height: 100%;
-      object-fit: contain;
-      margin-top: 5%;
     }
     .print-btn, .startover-btn {
       width: 120px; height: 45px;
@@ -648,7 +574,6 @@
       .footer { font-size: 8px; bottom: 3px; }
     }
     @media (max-width: 480px) {
-      .bg-design { top: 15% !important; height: 40% !important; }
       .carousel-container { width: 100%; height: 120px; }
       .carousel-container.left, .carousel-container.right { transform: scale(1.5) !important; top: 30% !important; }
       .carousel-container.left { left: 20% !important; }
@@ -665,11 +590,9 @@
       .help-extra-images .horse { height: 20%; bottom: 5%; }
       .help-extra-images .cock { height: 20%; bottom: 5%; }
       .help-extra-images .model { height: 30%; top: 20%; }
-      .select-box { padding: 100% 100%; transform: scale(0.6); }
-      .select-box h2 {color: #fff;font-family: 'ALGER', serif;font-size: 32px;letter-spacing: 2px; margin-bottom: 0px;}
-      .select-options { gap: 0px; flex-direction: row; }
+      .select-box { padding: 15px 20px; }
+      .select-options { gap: 10px; flex-direction: column; }
       .select-option img { width: 60px; height: 60px; }
-      .select-option p {font-size: 180%; letter-spacing: 1px;}
       .model-display { height: 70%; bottom: 10%; }
       .footer { font-size: 7px; bottom: 2px; }
     }
@@ -722,25 +645,25 @@
   </div>
 
   <!-- SELECT SCREEN -->
-<div class="select-screen" id="selectScreen">
-  <div class="select-box">
-    <h2>Choose Your Character</h2>
-    <div class="select-options">
-      <div class="select-option" data-type="mermaid">
-        <button class="select-btn mermaid"></button>
-        <p>Mermaid</p>
-      </div>
-      <div class="select-option" data-type="human">
-        <button class="select-btn boy"></button>
-        <p>Boy</p>
-      </div>
-      <div class="select-option" data-type="fairy">
-        <button class="select-btn fairy"></button>
-        <p>Fairy</p>
+  <div class="select-screen" id="selectScreen">
+    <div class="select-box">
+      <h2>Choose Your Character</h2>
+      <div class="select-options">
+        <div class="select-option" data-type="mermaid">
+          <img src="images/mermaid_icon.png" alt="Mermaid">
+          <p>Mermaid</p>
+        </div>
+        <div class="select-option" data-type="human">
+          <img src="images/human_icon.png" alt="Human">
+          <p>Boy</p>
+        </div>
+        <div class="select-option" data-type="fairy">
+          <img src="images/fairy_icon.png" alt="Fairy">
+          <p>Fairy</p>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
   <!-- GAME SCREEN -->
   <div class="game-screen" id="gameScreen">
@@ -749,11 +672,6 @@
     <!-- Model Display -->
     <div class="model-display" id="modelDisplay">
       <img id="modelImage" src="images/assets/full/mermaid/mermaid_purple_fish2.png" alt="Model">
-    </div>
-
-    <!-- Magic Overlay (MOVED OUTSIDE model-display) -->
-    <div class="magic-overlay" id="magicOverlay">
-      <canvas id="magicCanvas"></canvas>
     </div>
 
     <!-- Help Button -->
@@ -766,10 +684,12 @@
       <button class="music-btn next" id="musicNext"></button>
     </div>
 
-    <!-- BG Selector - SINGLE BUTTON -->
-    <button class="bg-selector" id="bgSelector">
-      <img class="bg-thumb active" data-bg="3" src="images/bg/thumb3.png" alt="BG">
-    </button>
+    <!-- BG Selector -->
+    <div class="bg-selector" id="bgSelector">
+      <img class="bg-thumb active" data-bg="1" src="images/bg/thumb1.png" alt="BG 1">
+      <img class="bg-thumb" data-bg="2" src="images/bg/thumb2.png" alt="BG 2">
+      <img class="bg-thumb" data-bg="3" src="images/bg/thumb3.png" alt="BG 3">
+    </div>
 
     <!-- Menu Panel -->
     <div class="menu-panel show" id="menuPanel">
@@ -954,14 +874,13 @@
     const clickSound = new Audio("sounds/click.mp3"); clickSound.volume = 0.5;
     const hoverSound = new Audio("sounds/hover.mp3"); hoverSound.volume = 0.3;
     const appearSounds = {
-      landing: new Audio("sounds/appear.mp3"), // ADDED landing sound
+      //landing: new Audio("sounds/appear.mp3"),
       help: new Audio("sounds/appear1.mp3"),
       game: new Audio("sounds/appear2.mp3"),
       bonus: new Audio("sounds/appear3.mp3"),
       endHigh: new Audio("sounds/appear4.mp3"),
       endLow: new Audio("sounds/appear5.mp3")
     };
-    appearSounds.landing.volume = 0.6;
     appearSounds.help.volume = 0.9;
 
     function playClickSound() { clickSound.currentTime = 0; clickSound.play().catch(()=>{}); }
@@ -1068,7 +987,6 @@
 
     // ========== SCREEN TRANSITIONS ==========
     let landingCarousel, helpCarousel;
-    let selectedCharacter = null;
 
     function showLandingPage() {
       document.getElementById('landingPage').classList.add('show');
@@ -1081,7 +999,6 @@
         const rightCarousel = new ImageCarousel('carouselRight', 4);
         window._rightCarousel = rightCarousel;
       }
-      window.location.hash = 'landing';
     }
 
     function hideLandingPage() {
@@ -1106,7 +1023,6 @@
         const rightHelp = new ImageCarousel('carouselRight', 4);
         window._rightHelp = rightHelp;
       }
-      window.location.hash = 'help';
     }
 
     function hideHelpScreen() {
@@ -1117,16 +1033,22 @@
         helpCarousel.stop();
         window._rightHelp?.stop();
       }
+      // Show select screen after help
       setTimeout(() => showSelectScreen(), 300);
     }
+
+    // ========== SELECT SCREEN ==========
+    let selectedCharacter = null;
 
     function showSelectScreen() {
       const selectScreen = document.getElementById('selectScreen');
       const gameScreen = document.getElementById('gameScreen');
       
+      // Show game screen first
       gameScreen.classList.add('show');
       playAppearSound('game');
       
+      // Then show select screen overlay
       setTimeout(() => {
         selectScreen.classList.add('show');
       }, 100);
@@ -1137,180 +1059,21 @@
       selectScreen.classList.add('fade-out');
       setTimeout(() => {
         selectScreen.classList.remove('show', 'fade-out');
+        // Show game UI
         document.getElementById('menuPanel').classList.add('show');
         document.getElementById('itemsPanel').classList.add('open');
-        
-        if (selectedCharacter === 'mermaid') {
-          window.location.hash = 'mermaid';
-        } else if (selectedCharacter === 'fairy') {
-          window.location.hash = 'fairy';
-        } else if (selectedCharacter === 'human') {
-          window.location.hash = 'boy';
-        }
       }, 500);
     }
 
-    // ========== URL ROUTING ==========
-    function handleRoute() {
-      const hash = window.location.hash || '#landing';
-      console.log('Route:', hash);
-      
-      // Hide all screens first
-      document.getElementById('landingPage').classList.remove('show');
-      document.getElementById('helpScreen').classList.remove('show');
-      document.getElementById('gameScreen').classList.remove('show');
-      document.getElementById('selectScreen').classList.remove('show');
-      
-      if (hash === '#landing') {
-        showLandingPage();
-      } else if (hash === '#help') {
-        // Show landing first then help
-        document.getElementById('landingPage').classList.add('show');
-        setTimeout(() => {
-          document.getElementById('landingPage').classList.remove('show');
-          showHelpScreen();
-        }, 300);
-      } else if (hash === '#mermaid' || hash === '#fairy' || hash === '#boy') {
-        const gameScreen = document.getElementById('gameScreen');
-        gameScreen.classList.add('show');
-        document.getElementById('menuPanel').classList.add('show');
-        document.getElementById('itemsPanel').classList.add('open');
-        
-        if (hash === '#mermaid') {
-          selectedCharacter = 'mermaid';
-          document.getElementById('modelImage').src = 'images/assets/full/mermaid/mermaid_purple_fish2.png';
-        } else if (hash === '#fairy') {
-          selectedCharacter = 'fairy';
-          document.getElementById('modelImage').src = 'images/fairy_default.png';
-        } else if (hash === '#boy') {
-          selectedCharacter = 'human';
-          document.getElementById('modelImage').src = 'images/human_default.png';
-        }
-        
-        currentBg = 2;
-        document.getElementById('gameBg').style.backgroundImage = "url('images/bg/2.jpg')";
-        document.querySelector('.bg-thumb').src = "images/bg/thumb3.png";
-        document.querySelector('.bg-thumb').dataset.bg = 3;
-        
-        playAppearSound('game');
-      }
-    }
-
-    window.addEventListener('hashchange', handleRoute);
-
-    // ========== MAGIC TRANSFORMATION ANIMATION ==========
-    function playTransformationMagic(callback) {
-      const overlay = document.getElementById('magicOverlay');
-      const canvas = document.getElementById('magicCanvas');
-      const ctx = canvas.getContext('2d');
-      
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      
-      overlay.classList.add('active');
-      
-      const transferImg = new Image();
-      transferImg.src = 'images/mermaid_transfer.png';
-      transferImg.onload = function() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const scale = Math.min(canvas.width / transferImg.width, canvas.height / transferImg.height);
-        const x = (canvas.width - transferImg.width * scale) / 2;
-        const y = (canvas.height - transferImg.height * scale) / 2;
-        ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
-        
-        let startTime = Date.now();
-        const duration = 3000;
-        const sparkles = [];
-        
-        for (let i = 0; i < 50; i++) {
-          sparkles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 20 + 5,
-            speedX: (Math.random() - 0.5) * 4,
-            speedY: (Math.random() - 0.5) * 4,
-            rotation: Math.random() * Math.PI * 2,
-            rotationSpeed: (Math.random() - 0.5) * 0.1,
-            life: Math.random() * 0.5 + 0.5,
-            maxLife: Math.random() * 0.5 + 0.5,
-            img: sparkleImages[Math.floor(Math.random() * sparkleImages.length)]
-          });
-        }
-        
-        function animateSparkles() {
-          const elapsed = Date.now() - startTime;
-          if (elapsed > duration) {
-            overlay.classList.remove('active');
-            if (callback) callback();
-            return;
-          }
-          
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          
-          ctx.save();
-          ctx.shadowColor = '#ffffff';
-          ctx.shadowBlur = 30;
-          ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
-          ctx.restore();
-          
-          const progress = elapsed / duration;
-          const glowSize = 0;
-          ctx.save();
-          ctx.strokeStyle = `#ffffff`;
-          ctx.lineWidth = 0;
-          ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
-          ctx.shadowBlur = 0;
-          const rect = {
-            x: x - 10,
-            y: y - 10,
-            w: transferImg.width * scale + 0,
-            h: transferImg.height * scale + 0
-          };
-          ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
-          ctx.restore();
-          
-          sparkles.forEach(sp => {
-            sp.x += sp.speedX;
-            sp.y += sp.speedY;
-            sp.rotation += sp.rotationSpeed;
-            sp.life -= 0.01;
-            
-            if (sp.life <= 0) {
-              sp.life = sp.maxLife;
-              sp.x = Math.random() * canvas.width;
-              sp.y = Math.random() * canvas.height;
-            }
-            
-            if (sp.x < 0 || sp.x > canvas.width) sp.speedX *= -1;
-            if (sp.y < 0 || sp.y > canvas.height) sp.speedY *= -1;
-            
-            ctx.save();
-            ctx.globalAlpha = sp.life * 0.8;
-            ctx.translate(sp.x, sp.y);
-            ctx.rotate(sp.rotation);
-            
-            const img = new Image();
-            img.src = sp.img;
-            const size = sp.size * (0.5 + Math.sin(Date.now() / 1000 + sp.x) * 0.5);
-            ctx.drawImage(img, -size/2, -size/2, size, size);
-            
-            ctx.restore();
-          });
-          
-          requestAnimationFrame(animateSparkles);
-        }
-        
-        animateSparkles();
-      };
-    }
-
     // ========== GAME FUNCTIONS ==========
-    let currentBg = 2;
+    let currentBg = 1;
+    let currentModel = 'mermaid_purple_fish2';
     let currentMenu = 'tails';
     let currentItems = [];
     let itemScrollIndex = 0;
     let visibleItems = 4;
 
+    // Item data
     const itemData = {
       tails: [
         { thumb: 'images/assets/thumb/mermaid/mermaid_purple_pattern.png', full: 'images/assets/full/mermaid/mermaid_purple_pattern.png', layer: 1 },
@@ -1318,21 +1081,25 @@
         { thumb: 'images/assets/thumb/mermaid/mermaid_blue.png', full: 'images/assets/full/mermaid/mermaid_blue.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_green_pattern.png', full: 'images/assets/full/mermaid/mermaid_green_pattern.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_red_design.png', full: 'images/assets/full/mermaid/mermaid_red_design.png', layer: 1 },
+        
         { thumb: 'images/assets/thumb/mermaid/mermaid_white_fish.png', full: 'images/assets/full/mermaid/mermaid_white_fish.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_pink_fish2.png', full: 'images/assets/full/mermaid/mermaid_pink_fish2.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_gray_fish.png', full: 'images/assets/full/mermaid/mermaid_gray_fish.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_blue_pattern.png', full: 'images/assets/full/mermaid/mermaid_blue_pattern.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_yellow_design.png', full: 'images/assets/full/mermaid/mermaid_yellow_design.png', layer: 1 },
+        
         { thumb: 'images/assets/thumb/mermaid/mermaid_green_fish.png', full: 'images/assets/full/mermaid/mermaid_green_fish.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_purple_fish2.png', full: 'images/assets/full/mermaid/mermaid_purple_fish2.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_blue_fish2.png', full: 'images/assets/full/mermaid/mermaid_blue_fish2.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_white_pattern.png', full: 'images/assets/full/mermaid/mermaid_white_pattern.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_red_fish2.png', full: 'images/assets/full/mermaid/mermaid_red_fish2.png', layer: 1 },
+        
         { thumb: 'images/assets/thumb/mermaid/mermaid_pink_pattern.png', full: 'images/assets/full/mermaid/mermaid_pink_pattern.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_yellow_pattern.png', full: 'images/assets/full/mermaid/mermaid_yellow_pattern.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_color_fish2.png', full: 'images/assets/full/mermaid/mermaid_color_fish2.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_green_fish2.png', full: 'images/assets/full/mermaid/mermaid_green_fish2.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_white_fish2.png', full: 'images/assets/full/mermaid/mermaid_white_fish2.png', layer: 1 },
+        
         { thumb: 'images/assets/thumb/mermaid/mermaid_purple_fish.png', full: 'images/assets/full/mermaid/mermaid_purple_fish.png', layer: 1 },
         { thumb: 'images/assets/thumb/mermaid/mermaid_blue_fish.png', full: 'images/assets/full/mermaid/mermaid_blue_fish.png', layer: 1 },
       ],
@@ -1362,10 +1129,6 @@
       const container = document.getElementById('itemsScroll');
       container.innerHTML = '';
       
-      const inner = document.createElement('div');
-      inner.className = 'items-scroll-inner';
-      inner.id = 'itemsScrollInner';
-      
       const start = itemScrollIndex;
       const end = Math.min(start + visibleItems, currentItems.length);
       
@@ -1377,11 +1140,10 @@
         thumb.alt = 'Item';
         thumb.dataset.index = i;
         thumb.addEventListener('click', () => selectItem(i));
-        inner.appendChild(thumb);
+        container.appendChild(thumb);
       }
       
-      container.appendChild(inner);
-      
+      // Update scroll buttons
       document.getElementById('scrollUp').classList.toggle('disabled', itemScrollIndex <= 0);
       document.getElementById('scrollDown').classList.toggle('disabled', itemScrollIndex + visibleItems >= currentItems.length);
     }
@@ -1391,14 +1153,10 @@
       if (!item) return;
       playClickSound();
       
-      if (currentMenu === 'tails' && selectedCharacter === 'mermaid') {
-        playTransformationMagic(() => {
-          document.getElementById('modelImage').src = item.full;
-        });
-      } else {
-        document.getElementById('modelImage').src = item.full;
-      }
+      // Update model image (in real implementation, would layer items)
+      document.getElementById('modelImage').src = item.full;
       
+      // Update active state
       document.querySelectorAll('.item-thumb').forEach(el => el.classList.remove('active'));
       const thumbs = document.querySelectorAll('.item-thumb');
       if (thumbs[index - itemScrollIndex]) {
@@ -1411,42 +1169,31 @@
         itemScrollIndex--;
         renderItems();
         playClickSound();
-        const inner = document.getElementById('itemsScrollInner');
-        if (inner) {
-          inner.style.transform = 'translateY(20px)';
-          setTimeout(() => inner.style.transform = 'translateY(0px)', 50);
-        }
       } else if (direction === 'down' && itemScrollIndex + visibleItems < currentItems.length) {
         itemScrollIndex++;
         renderItems();
         playClickSound();
-        const inner = document.getElementById('itemsScrollInner');
-        if (inner) {
-          inner.style.transform = 'translateY(-20px)';
-          setTimeout(() => inner.style.transform = 'translateY(0px)', 50);
-        }
       }
     }
 
-    // ========== BG SELECTOR (single button cycling) ==========
-    let bgCycle = 2;
-
-    function changeBg() {
-      bgCycle = bgCycle === 2 ? 3 : bgCycle === 3 ? 1 : 2;
-      currentBg = bgCycle;
-      
+    // ========== BG SELECTOR ==========
+    function changeBg(bgNumber) {
+      currentBg = bgNumber;
       const bg = document.getElementById('gameBg');
       bg.style.opacity = '0';
       setTimeout(() => {
-        bg.style.backgroundImage = `url('images/bg/${bgCycle}.jpg')`;
+        bg.style.backgroundImage = `url('images/bg/${bgNumber}.jpg')`;
         bg.style.opacity = '1';
       }, 400);
       
-      const thumb = document.querySelector('.bg-thumb');
-      const nextBg = bgCycle === 2 ? 3 : bgCycle === 3 ? 1 : 2;
-      thumb.src = `images/bg/thumb${nextBg}.png`;
-      thumb.dataset.bg = nextBg;
-      thumb.classList.add('active');
+      // Update thumbnails
+      document.querySelectorAll('.bg-thumb').forEach(el => {
+        el.classList.toggle('active', parseInt(el.dataset.bg) === bgNumber);
+        // Update thumbnail images to show next bg
+        const nextBg = bgNumber % 3 + 1;
+        el.src = `images/bg/thumb${nextBg}.png`;
+        el.dataset.bg = nextBg;
+      });
       
       playClickSound();
     }
@@ -1462,8 +1209,6 @@
 
     function playTrack(index) {
       currentTrack = index;
-      audioPlayer.pause();
-      audioPlayer.currentTime = 0;
       audioPlayer.src = playlist[index].file;
       audioPlayer.play().catch(() => {});
     }
@@ -1481,6 +1226,7 @@
     }
 
     // ========== EVENT LISTENERS ==========
+    // Go button
     document.getElementById('goButton').addEventListener('click', function(e) {
       e.preventDefault();
       initAudioContext();
@@ -1496,6 +1242,7 @@
       });
     });
 
+    // Play buttons
     document.getElementById('playButton').addEventListener('click', function(e) {
       e.preventDefault();
       initAudioContext();
@@ -1515,24 +1262,26 @@
     });
 
     // Select options
-document.querySelectorAll('.select-option').forEach(option => {
-  option.addEventListener('click', function() {
-    const type = this.dataset.type;
-    selectedCharacter = type;
-    playClickSound();
-    
-    if (type === 'mermaid') {
-      document.getElementById('modelImage').src = 'images/assets/full/mermaid/mermaid_purple_fish2.png';
-    } else if (type === 'fairy') {
-      document.getElementById('modelImage').src = 'images/fairy_default.png';
-    } else if (type === 'human') {
-      document.getElementById('modelImage').src = 'images/human_default.png';
-    }
-    
-    hideSelectScreen();
-  });
-});
+    document.querySelectorAll('.select-option').forEach(option => {
+      option.addEventListener('click', function() {
+        const type = this.dataset.type;
+        selectedCharacter = type;
+        playClickSound();
+        
+        // Set default model based on type
+        if (type === 'mermaid') {
+          document.getElementById('modelImage').src = 'images/assets/full/mermaid/mermaid_purple_fish2.png';
+        } else if (type === 'fairy') {
+          document.getElementById('modelImage').src = 'images/fairy_default.png';
+        } else if (type === 'human') {
+          document.getElementById('modelImage').src = 'images/human_default.png';
+        }
+        
+        hideSelectScreen();
+      });
+    });
 
+    // In-game help
     document.getElementById('helpBtnGame').addEventListener('click', function() {
       playClickSound();
       document.getElementById('gameHelpOverlay').classList.add('show');
@@ -1542,26 +1291,32 @@ document.querySelectorAll('.select-option').forEach(option => {
       document.getElementById('gameHelpOverlay').classList.remove('show');
     });
 
+    // Music
     document.getElementById('musicPrev').addEventListener('click', prevTrack);
     document.getElementById('musicNext').addEventListener('click', nextTrack);
 
-    document.querySelector('.bg-thumb').addEventListener('click', changeBg);
+    // BG Selector
+    document.querySelectorAll('.bg-thumb').forEach(thumb => {
+      thumb.addEventListener('click', function() {
+        changeBg(parseInt(this.dataset.bg));
+      });
+    });
 
+    // Menu buttons
     document.querySelectorAll('.menu-btn').forEach(btn => {
       btn.addEventListener('click', function() {
         const menu = this.dataset.menu;
         playClickSound();
         updateItems(menu);
-        const panel = document.getElementById('itemsPanel');
-        panel.classList.remove('open');
-        void panel.offsetWidth;
-        panel.classList.add('open');
+        document.getElementById('itemsPanel').classList.add('open');
       });
     });
 
+    // Scroll buttons
     document.getElementById('scrollUp').addEventListener('click', () => scrollItems('up'));
     document.getElementById('scrollDown').addEventListener('click', () => scrollItems('down'));
 
+    // Start Over
     document.getElementById('startoverBtn').addEventListener('click', function() {
       playClickSound();
       if (confirm('Start over? All progress will be lost.')) {
@@ -1569,6 +1324,7 @@ document.querySelectorAll('.select-option').forEach(option => {
       }
     });
 
+    // Print
     document.getElementById('printBtn').addEventListener('click', function() {
       playClickSound();
       alert('Print function coming soon!');
@@ -1609,103 +1365,143 @@ document.querySelectorAll('.select-option').forEach(option => {
 
     // ========== LOADING ==========
     const filesToLoad = [
-      'images/quote-bg.png', 'images/sparkle.png', 'images/sparkle_a.png', 'images/sparkle_b.png',
-      'images/Go.png', 'images/loading-bg.png', 'images/landing.png', 'images/play_landing.png',
-      'images/play_help.png', 'images/help.png', 'images/bg_design_studio.jpg', 'images/landing-sparkle.png',
-      'images/bg_design_studio_help.jpg', 'images/fashion_horse.png', 'images/cock.png', 'images/model_help.png',
-      'images/help_btn.png', 'images/music.png', 'images/prev.png', 'images/next.png', 'images/melody.png',
-      'images/menu.png', 'images/btn_tails.png', 'images/btn_shirts.png', 'images/btn_accessories.png',
-      'images/itemsbg.png', 'images/up.png', 'images/down.png', 'images/print.png', 'images/startover.png',
-      'images/fairy_icon.png', 'images/mermaid_icon.png', 'images/human_icon.png',
-      'fonts/ALGER.ttf',
-      'sounds/click.mp3', 'sounds/hover.mp3',
-      'sounds/appear.mp3', 'sounds/appear1.mp3', 'sounds/appear2.mp3',
-      'sounds/appear3.mp3', 'sounds/appear4.mp3', 'sounds/appear5.mp3',
-      'music/music_game.mp3'
-    ];
+  // Core assets (no duplicates)
+  'images/quote-bg.png', 'images/sparkle.png', 'images/sparkle_a.png', 'images/sparkle_b.png',
+  'images/Go.png', 'images/loading-bg.png', 'images/landing.png', 'images/play_landing.png',
+  'images/play_help.png', 'images/help.png', 'images/bg_design_studio.jpg', 'images/landing-sparkle.png',
+  'images/bg_design_studio_help.jpg', 'images/fashion_horse.png', 'images/cock.png', 'images/model_help.png',
+  'images/help_btn.png', 'images/music.png', 'images/prev.png', 'images/next.png', 'images/melody.png',
+  'images/menu.png', 'images/btn_tails.png', 'images/btn_shirts.png', 'images/btn_accessories.png',
+  'images/itemsbg.png', 'images/up.png', 'images/down.png', 'images/print.png', 'images/startover.png',
+  'images/fairy_icon.png', 'images/mermaid_icon.png', 'images/human_icon.png',
+  'fonts/ALGER.ttf',
+  'sounds/click.mp3', 'sounds/hover.mp3',
+  'sounds/appear.mp3', 'sounds/appear1.mp3', 'sounds/appear2.mp3',
+  'sounds/appear3.mp3', 'sounds/appear4.mp3', 'sounds/appear5.mp3',
+  'music/music_game.mp3'
+];
 
-    for (let i = 1; i <= 9; i++) {
-      filesToLoad.push(`images/landing/${i}.png`);
-    }
+// Add landing images
+for (let i = 1; i <= 9; i++) {
+  filesToLoad.push(`images/landing/${i}.png`);
+}
 
-    for (let i = 1; i <= 3; i++) {
-      filesToLoad.push(`images/bg/${i}.jpg`);
-      filesToLoad.push(`images/bg/thumb${i}.png`);
-    }
+// Add bg images and thumbs
+for (let i = 1; i <= 3; i++) {
+  filesToLoad.push(`images/bg/${i}.jpg`);
+  filesToLoad.push(`images/bg/thumb${i}.png`);
+}
 
-    const tailFiles = [
-      'mermaid_purple_pattern', 'mermaid_yellow_fish2', 'mermaid_blue', 'mermaid_green_pattern',
-      'mermaid_red_design', 'mermaid_white_fish', 'mermaid_pink_fish2', 'mermaid_gray_fish',
-      'mermaid_blue_pattern', 'mermaid_yellow_design', 'mermaid_green_fish', 'mermaid_purple_fish2',
-      'mermaid_blue_fish2', 'mermaid_white_pattern', 'mermaid_red_fish2', 'mermaid_pink_pattern',
-      'mermaid_yellow_pattern', 'mermaid_color_fish2', 'mermaid_green_fish2', 'mermaid_white_fish2',
-      'mermaid_purple_fish', 'mermaid_blue_fish'
-    ];
+// Add ONLY the actual files you're using in itemData
+// For tails
+const tailFiles = [
+  'mermaid_purple_pattern', 'mermaid_yellow_fish2', 'mermaid_blue', 'mermaid_green_pattern',
+  'mermaid_red_design', 'mermaid_white_fish', 'mermaid_pink_fish2', 'mermaid_gray_fish',
+  'mermaid_blue_pattern', 'mermaid_yellow_design', 'mermaid_green_fish', 'mermaid_purple_fish2',
+  'mermaid_blue_fish2', 'mermaid_white_pattern', 'mermaid_red_fish2', 'mermaid_pink_pattern',
+  'mermaid_yellow_pattern', 'mermaid_color_fish2', 'mermaid_green_fish2', 'mermaid_white_fish2',
+  'mermaid_purple_fish', 'mermaid_blue_fish'
+];
 
-    tailFiles.forEach(file => {
-      filesToLoad.push(`images/assets/thumb/mermaid/${file}.png`);
-      filesToLoad.push(`images/assets/full/mermaid/${file}.png`);
-    });
+tailFiles.forEach(file => {
+  filesToLoad.push(`images/assets/thumb/mermaid/${file}.png`);
+  filesToLoad.push(`images/assets/full/mermaid/${file}.png`);
+});
 
-    for (let i = 1; i <= 4; i++) {
-      filesToLoad.push(`images/assets/thumb/mermaid/shirt${i}.png`);
-      filesToLoad.push(`images/assets/full/mermaid/shirt${i}.png`);
-    }
-    for (let i = 1; i <= 5; i++) {
-      filesToLoad.push(`images/assets/thumb/mermaid/acc${i}.png`);
-      filesToLoad.push(`images/assets/full/mermaid/acc${i}.png`);
-    }
+// Add shirts and accessories
+for (let i = 1; i <= 4; i++) {
+  filesToLoad.push(`images/assets/thumb/mermaid/shirt${i}.png`);
+  filesToLoad.push(`images/assets/full/mermaid/shirt${i}.png`);
+}
+for (let i = 1; i <= 5; i++) {
+  filesToLoad.push(`images/assets/thumb/mermaid/acc${i}.png`);
+  filesToLoad.push(`images/assets/full/mermaid/acc${i}.png`);
+}
+    
 
     let loadedCount = 0;
     const totalFiles = filesToLoad.length;
     const percentEl = document.getElementById('loadingPercent');
 
     function updatePercent() {
-      const p = Math.min(Math.floor((loadedCount / totalFiles) * 100), 100);
-      if (percentEl) {
+    const p = Math.min(Math.floor((loadedCount / totalFiles) * 100), 100);
+    const percentEl = document.getElementById('loadingPercent');
+    if (percentEl) {
         percentEl.textContent = p + '%';
-      }
+        console.log('Loading:', p + '%'); // Debug - check console
     }
+}
 
     function loadFile(src) {
-      return new Promise((resolve) => {
+    return new Promise((resolve) => {
         const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src);
         const isAudio = /\.(mp3|wav|ogg|m4a)$/i.test(src);
         const isFont = /\.(ttf|otf|woff|woff2)$/i.test(src);
 
         if (isImage) {
-          const img = new Image();
-          img.onload = () => { loadedCount++; updatePercent(); resolve(); };
-          img.onerror = () => { loadedCount++; updatePercent(); resolve(); };
-          img.src = src;
+            const img = new Image();
+            img.onload = () => { 
+                loadedCount++; 
+                updatePercent(); 
+                resolve(); 
+            };
+            img.onerror = () => { 
+                loadedCount++; 
+                updatePercent(); 
+                resolve(); 
+            };
+            img.src = src;
         } else if (isAudio || isFont) {
-          fetch(src).then(() => { loadedCount++; updatePercent(); resolve(); })
-            .catch(() => { loadedCount++; updatePercent(); resolve(); });
+            fetch(src)
+                .then(() => { 
+                    loadedCount++; 
+                    updatePercent(); 
+                    resolve(); 
+                })
+                .catch(() => { 
+                    loadedCount++; 
+                    updatePercent(); 
+                    resolve(); 
+                });
         } else {
-          fetch(src).then(() => { loadedCount++; updatePercent(); resolve(); })
-            .catch(() => { loadedCount++; updatePercent(); resolve(); });
+            fetch(src)
+                .then(() => { 
+                    loadedCount++; 
+                    updatePercent(); 
+                    resolve(); 
+                })
+                .catch(() => { 
+                    loadedCount++; 
+                    updatePercent(); 
+                    resolve(); 
+                });
         }
-      });
-    }
+    });
+}
 
-    async function preloadAll() {
-      console.log('Starting preload... Total files:', totalFiles);
-      loadedCount = 0;
-      updatePercent();
-      
-      try {
+async function preloadAll() {
+    console.log('Starting preload...'); // Debug
+    console.log('Total files:', totalFiles); // Debug
+    
+    // Reset counter
+    loadedCount = 0;
+    updatePercent();
+    
+    try {
+        // Load all files in parallel
         await Promise.all(filesToLoad.map(f => loadFile(f)));
-        console.log('All files loaded!');
-      } catch (error) {
+        console.log('All files loaded!'); // Debug
+    } catch (error) {
         console.error('Error loading files:', error);
-      }
-      
-      loadedCount = totalFiles;
-      updatePercent();
-      
-      addHoverSoundToButtons();
-      setTimeout(() => replacePercentWithGo(), 300);
     }
+    
+    // Make sure we're at 100%
+    loadedCount = totalFiles;
+    updatePercent();
+    
+    addHoverSoundToButtons();
+    setTimeout(() => replacePercentWithGo(), 300);
+}
 
     function replacePercentWithGo() {
       const pEl = document.getElementById('loadingPercent');
@@ -1730,15 +1526,14 @@ document.querySelectorAll('.select-option').forEach(option => {
         startTouchSparkles();
       }
       
+      // Init items with default
       updateItems('tails');
       
-      document.getElementById('gameBg').style.backgroundImage = "url('images/bg/2.jpg')";
-      document.querySelector('.bg-thumb').src = "images/bg/thumb3.png";
-      document.querySelector('.bg-thumb').dataset.bg = 3;
-      
-      handleRoute();
+      // Set initial BG
+      document.getElementById('gameBg').style.backgroundImage = "url('images/bg/1.jpg')";
     });
 
+    // Fallback
     setTimeout(() => {
       const goBtn = document.getElementById('goButton');
       if (!goBtn.classList.contains('show')) {
