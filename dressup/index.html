@@ -435,23 +435,50 @@
     }
     .music-btn.melody.muted { opacity: 0.5; }
 
-    /* BG Selector */
-    .bg-selector {
-      position: absolute;
-      bottom: 30%; left: 20px;
-      z-index: 10;
-      width: 250px;
-      height: 125px;
-      background-image: url('images/bg_btn.png');
-      background-repeat: no-repeat;
-      background-position: 0 0;
-      background-size: 500px 125px;
-      cursor: pointer;
-      border: none;
-      background-color: transparent;
-      transition: transform 0.3s ease;
-    }
-    .bg-selector:hover { background-position: -250px 0; transform: scale(1.05); }
+    /* BG Selector - with hover states in one PNG */
+.bg-selector {
+  position: absolute;
+  bottom: 30%; 
+  left: 20px;
+  z-index: 10;
+  width: 250px; 
+  height: 125px;
+  background-image: url('images/bg_btn.png');
+  background-repeat: no-repeat; 
+  background-position: 0 0;
+  background-size: 500px 125px;
+  cursor: pointer; 
+  border: none; 
+  background-color: transparent;
+  transition: transform 0.3s ease, opacity 0.5s ease;
+  opacity: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px;
+}
+.bg-selector:hover { 
+  background-position: -250px 0; 
+  transform: scale(1.05); 
+}
+
+.bg-thumb {
+  width: 80px; 
+  height: 60px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.9;
+}
+.bg-thumb:hover { 
+  opacity: 1; 
+  transform: scale(1.05); 
+}
+.bg-thumb.active { 
+  opacity: 1; 
+}
 
     /* Menu Panel */
     .menu-panel {
@@ -500,7 +527,7 @@
       right: -200px;
       top: 50%;
       transform: translateY(-50%);
-      z-index: 9;
+      z-index: 999;
       width: 180px;
       height: 742px;
       background-image: url('images/itemsbg.png');
@@ -679,7 +706,7 @@
       .select-option img { width: 60px; height: 60px; }
       .select-option p {font-size: 180%; letter-spacing: 1px;}
       .model-display { height: 70%; bottom: 10%; transform: scale(0.8); left: 7%; top: 12.5%; }
-      .magic-overlay { transform: scale(0.8); left: 0;  }
+      .magic-overlay { transform: scale(1.03); left: 5.2%; bottom: 4.8%; }
       .magic-overlay canvas { margin-right: 44.5%;  }
       .footer { font-size: 7px; bottom: 2px; }
     }
@@ -776,8 +803,10 @@
       <button class="music-btn next" id="musicNext"></button>
     </div>
 
-    <!-- BG Selector -->
-    <button class="bg-selector" id="bgSelector"></button>
+    <!-- BG Selector - SINGLE BUTTON with thumbnail -->
+<button class="bg-selector" id="bgSelector">
+  <img class="bg-thumb active" data-bg="3" src="images/bg/thumb3.png" alt="BG">
+</button>
 
     <!-- Menu Panel -->
     <div class="menu-panel show" id="menuPanel">
@@ -1532,22 +1561,34 @@ function playTransformationMagic(callback) {
   };
 }
 
-    // ========== BG SELECTOR ==========
-    let bgCycle = 2;
+   // ========== BG SELECTOR (cycling through 3 backgrounds) ==========
+let bgCycle = 2;
+let bgThumbCycle = 1; // Which thumb to show
 
-    function changeBg() {
-      bgCycle = bgCycle === 2 ? 3 : bgCycle === 3 ? 1 : 2;
-      currentBg = bgCycle;
-      
-      const bg = document.getElementById('gameBg');
-      bg.style.opacity = '0';
-      setTimeout(() => {
-        bg.style.backgroundImage = `url('images/bg/${bgCycle}.jpg')`;
-        bg.style.opacity = '1';
-      }, 400);
-      
-      playClickSound();
-    }
+function changeBg() {
+  // Cycle through backgrounds: 1 -> 2 -> 3 -> 1
+  bgCycle = bgCycle === 3 ? 1 : bgCycle + 1;
+  currentBg = bgCycle;
+  
+  // Fade out background
+  const bg = document.getElementById('gameBg');
+  bg.style.opacity = '0';
+  
+  setTimeout(() => {
+    bg.style.backgroundImage = `url('images/bg/${bgCycle}.jpg')`;
+    bg.style.opacity = '1';
+  }, 400);
+  
+  // Update the thumbnail to show NEXT bg preview
+  const thumb = document.querySelector('.bg-thumb');
+  // Show thumb of the background that will appear NEXT click
+  const nextBg = bgCycle === 3 ? 1 : bgCycle + 1;
+  thumb.src = `images/bg/thumb${nextBg}.png`;
+  thumb.dataset.bg = nextBg;
+  
+  // Play sound
+  playClickSound();
+}
 
     // ========== MUSIC PLAYER ==========
 let currentTrack = 0;
