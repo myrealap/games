@@ -220,7 +220,7 @@
           });
           
           // Apply change at 1.5 seconds
-    if (elapsed > 1500 && !changeApplied) {
+    if (elapsed > 500 && !changeApplied) {
       changeApplied = true;
       if (callback) callback();
     }
