@@ -521,59 +521,71 @@
     .menu-btn.shirts { background-image: url('images/btn_shirts_mer.png'); }
     .menu-btn.accessories { background-image: url('images/btn_accessories_mer.png'); }
 
-    /* Items Panel */
-    .items-panel {
-      position: absolute;
-      right: -200px;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 999;
-      width: 180px;
-      height: 742px;
-      background-image: url('images/itemsbg.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      padding: 40px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: right 0.5s ease;
-      pointer-events: none;
-      min-height: 400px;
-      justify-content: center;
-    }
-    .items-panel.open { right: 120px; pointer-events: auto; }
-    
-    .items-scroll {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      max-height: 100%;
-      overflow: hidden;
-      width: 100%;
-      padding: 5px 0;
-      position: relative;
-    }
-    .items-scroll-inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    .item-thumb {
-      width: 100%; height: 100%;
-      object-fit: contain;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      opacity: 0.7;
-    }
-    .item-thumb:hover { opacity: 1; transform: scale(1.05); }
-    .item-thumb.active { opacity: 1; }
+    /* Items Panel - right to left slide effect */
+.items-panel {
+  position: absolute;
+  right: -220px; /* Start further right for slide effect */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  width: 180px;
+  height: 742px;
+  background-image: url('images/itemsbg.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+  min-height: 400px;
+  justify-content: center;
+}
+.items-panel.open { 
+  right: 120px; 
+  pointer-events: auto; 
+}
 
+/* Item thumb - prevent image reload */
+.item-thumb {
+  width: 100%; 
+  height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+}
+.item-thumb:hover { opacity: 1; transform: scale(1.05); }
+.item-thumb.active { opacity: 1; }
+
+/* Items scroll with touch drag support */
+.items-scroll {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-height: 100%;
+  overflow: hidden;
+  width: 100%;
+  padding: 5px 0;
+  position: relative;
+  touch-action: none; /* Prevents page scroll on touch */
+  -webkit-overflow-scrolling: touch;
+}
+.items-scroll-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
     .scroll-btn {
       width: 37.5px; height: 37.5px;
       background-repeat: no-repeat; background-position: 0 0;
@@ -705,9 +717,7 @@
       .select-options { gap: 0px; flex-direction: row; }
       .select-option img { width: 60px; height: 60px; }
       .select-option p {font-size: 180%; letter-spacing: 1px;}
-      .model-display { height: 70%; bottom: 10%; transform: scale(0.8); left: 7%; top: 12.5%; }
-      .magic-overlay { transform: scale(1.03); left: 5.2%; bottom: 4.8%; }
-      .magic-overlay canvas { margin-right: 44.5%;  }
+      .modelViewer { bottom: 4% !important; left: -20% !important; width: 150% !important; height: 100% !important; transform: scale(0.8) !important; top: unset !important; }
       .footer { font-size: 7px; bottom: 2px; }
     }
   </style>
@@ -783,15 +793,25 @@
   <div class="game-screen" id="gameScreen">
     <div class="game-bg" id="gameBg"></div>
     
-    <!-- Model Display -->
-    <div class="model-display" id="modelDisplay">
-      <img id="modelImage" src="images/assets/full/mermaid/mermaid_purple_fish2.png" alt="Model">
-    </div>
-
-    <!-- Magic Overlay -->
-    <div class="magic-overlay" id="magicOverlay">
-      <canvas id="magicCanvas"></canvas>
-    </div>
+    <!-- Model Viewer (embedded) -->
+<iframe 
+  id="modelViewer"
+ class="modelViewer"
+  src="model-viewer.html" 
+  style="
+    position: absolute;
+    top: 2%;
+    left: 25%;
+    width: 100%;
+    height: 100%;
+    border: none;
+    z-index: 1;
+    pointer-events: none;
+    background: transparent;
+    transform: scale(1.22);
+  "
+  allow="autoplay"
+></iframe>
 
     <!-- Help Button -->
     <button class="help-btn-game" id="helpBtnGame"></button>
@@ -840,737 +860,751 @@
   <div class="footer">© 2026 Myrealap. All Rights Reserved.</div>
 
   <script>
-    // ========== QUOTES ==========
-    const quotes = [
-      { text: "Love & Imagination can change the world!", author: "Myrealap" },
-      { text: "What makes you different, Makes you special", author: "Myrealap" },
-      { text: "Your braver than you think", author: "Myrealap" },
-      { text: "There is always hope", author: "Myrealap" },
-      { text: "Trust your true self", author: "Myrealap" },
-      { text: "The most beautiful thing you can be, is your self", author: "Myrealap" },
-      { text: "Live your dream", author: "Myrealap" },
-      { text: "Music is the poetry of the air", author: "Richter" },
-      { text: "Where words fail, music speaks", author: "Hans Christian Andersen" },
-      { text: "Art washes away from the soul the dust of everyday life", author: "Picasso" },
-      { text: "The only truth is music", author: "Kerouac" },
-      { text: "Life is like a beautiful melody, only the lyrics are messed up", author: "myrealap" }
-    ];
-    function showRandomQuote() {
-      const r = Math.floor(Math.random() * quotes.length);
-      document.getElementById('quoteText').textContent = `" ${quotes[r].text} "`;
-      document.getElementById('quoteAuthor').textContent = `— ${quotes[r].author}`;
-    }
-    showRandomQuote();
+   // ========== QUOTES ==========
+const quotes = [
+  { text: "Love & Imagination can change the world!", author: "Myrealap" },
+  { text: "What makes you different, Makes you special", author: "Myrealap" },
+  { text: "Your braver than you think", author: "Myrealap" },
+  { text: "There is always hope", author: "Myrealap" },
+  { text: "Trust your true self", author: "Myrealap" },
+  { text: "The most beautiful thing you can be, is your self", author: "Myrealap" },
+  { text: "Live your dream", author: "Myrealap" },
+  { text: "Music is the poetry of the air", author: "Richter" },
+  { text: "Where words fail, music speaks", author: "Hans Christian Andersen" },
+  { text: "Art washes away from the soul the dust of everyday life", author: "Picasso" },
+  { text: "The only truth is music", author: "Kerouac" },
+  { text: "Life is like a beautiful melody, only the lyrics are messed up", author: "myrealap" }
+];
+function showRandomQuote() {
+  const r = Math.floor(Math.random() * quotes.length);
+  document.getElementById('quoteText').textContent = `" ${quotes[r].text} "`;
+  document.getElementById('quoteAuthor').textContent = `— ${quotes[r].author}`;
+}
+showRandomQuote();
 
-    // ========== DEVICE ==========
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+// ========== DEVICE ==========
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-    // ========== SPARKLE IMAGES ==========
-    const sparkleImages = ['images/sparkle_a.png', 'images/sparkle_b.png'];
-    function getRandomSparkleImage() { return sparkleImages[Math.floor(Math.random() * sparkleImages.length)]; }
+// ========== SPARKLE IMAGES ==========
+const sparkleImages = ['images/sparkle_a.png', 'images/sparkle_b.png'];
+function getRandomSparkleImage() { return sparkleImages[Math.floor(Math.random() * sparkleImages.length)]; }
 
-    // ========== MOUSE TRAIL ==========
-    const MOUSE_SPARKLE_INTERVAL = 15;
-    const MOUSE_SPARKLE_SIZE_MIN = 8;
-    const MOUSE_SPARKLE_SIZE_MAX = 25;
-    let lastMouseX = window.innerWidth/2, lastMouseY = window.innerHeight/2;
-    let continuousSparkleInterval = null;
-    let fallingInterval = null;
+// ========== MOUSE TRAIL ==========
+const MOUSE_SPARKLE_INTERVAL = 15;
+const MOUSE_SPARKLE_SIZE_MIN = 8;
+const MOUSE_SPARKLE_SIZE_MAX = 25;
+let lastMouseX = window.innerWidth/2, lastMouseY = window.innerHeight/2;
+let continuousSparkleInterval = null;
+let fallingInterval = null;
 
-    function addMouseSparkle(x, y) {
-      const container = document.getElementById('mouseTrailContainer');
-      const el = document.createElement('div');
-      el.className = 'mouse-sparkle';
-      el.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
-      const ox = (Math.random() - 0.5) * 20;
-      const oy = (Math.random() - 0.5) * 20;
-      el.style.left = (x + ox) + 'px';
-      el.style.top = (y + oy) + 'px';
-      el.style.animationDelay = Math.random() * 0.1 + 's';
-      const size = Math.random() * (MOUSE_SPARKLE_SIZE_MAX - MOUSE_SPARKLE_SIZE_MIN) + MOUSE_SPARKLE_SIZE_MIN;
-      el.style.width = size + 'px'; el.style.height = size + 'px';
-      container.appendChild(el);
-      setTimeout(() => el.remove(), 800);
-    }
-
-    function startMouseTrail() {
-      if (isTouchDevice) return;
-      let lastTime = 0;
-      document.addEventListener('mousemove', (e) => {
-        const now = Date.now();
-        if (now - lastTime > MOUSE_SPARKLE_INTERVAL) { lastTime = now; addMouseSparkle(e.clientX, e.clientY); }
-        lastMouseX = e.clientX; lastMouseY = e.clientY;
-      });
-      continuousSparkleInterval = setInterval(() => addMouseSparkle(lastMouseX, lastMouseY), MOUSE_SPARKLE_INTERVAL);
-    }
-
-    // ========== FALLING SPARKLES ==========
-    function addFallingSparkle(x, y) {
-      const container = document.getElementById('fallingSparkleContainer');
-      const el = document.createElement('div');
-      el.className = 'falling-sparkle';
-      el.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
-      el.style.left = (x + (Math.random() - 0.5) * 30) + 'px';
-      el.style.top = (y + (Math.random() - 0.5) * 10) + 'px';
-      el.style.animationDelay = Math.random() * 0.2 + 's';
-      const size = Math.random() * 18 + 10;
-      el.style.width = size + 'px'; el.style.height = size + 'px';
-      container.appendChild(el);
-      setTimeout(() => el.remove(), 1400);
-    }
-
-    function startFallingSparkles() {
-      if (isTouchDevice) return;
-      let fallInterval;
-      document.addEventListener('mousemove', (e) => {
-        if (fallInterval) clearInterval(fallInterval);
-        let count = 0;
-        fallInterval = setInterval(() => {
-          if (count > 12) { clearInterval(fallInterval); return; }
-          addFallingSparkle(e.clientX, e.clientY);
-          count++;
-        }, 80);
-        if (fallingInterval) clearInterval(fallingInterval);
-        fallingInterval = setInterval(() => {
-          addFallingSparkle(e.clientX, e.clientY);
-        }, 200);
-      });
-      document.addEventListener('mouseleave', () => {
-        if (fallingInterval) clearInterval(fallingInterval);
-      });
-    }
-
-    // ========== TOUCH SPARKLES ==========
-    function addTouchSparkle(x, y) {
-      const container = document.getElementById('touchSparkleContainer');
-      const el = document.createElement('div');
-      el.className = 'touch-sparkle';
-      el.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
-      el.style.left = (x + (Math.random() - 0.5) * 30) + 'px';
-      el.style.top = (y + (Math.random() - 0.5) * 30) + 'px';
-      const size = Math.random() * 25 + 15;
-      el.style.width = size + 'px'; el.style.height = size + 'px';
-      container.appendChild(el);
-      setTimeout(() => el.remove(), 600);
-    }
-    function startTouchSparkles() {
-      if (!isTouchDevice) return;
-      document.addEventListener('touchmove', (e) => {
-        const t = e.touches[0];
-        addTouchSparkle(t.clientX, t.clientY);
-      });
-      document.addEventListener('touchstart', (e) => {
-        const t = e.touches[0];
-        for (let i=0; i<3; i++) setTimeout(() => addTouchSparkle(t.clientX, t.clientY), i*50);
-      });
-    }
-
-    // ========== CUSTOM CURSOR ==========
-    let customCursor = null;
-    function setupCustomCursor() {
-      if (isTouchDevice) return;
-      customCursor = document.createElement('div');
-      customCursor.className = 'custom-cursor';
-      document.body.appendChild(customCursor);
-      let mx=0, my=0, cx=0, cy=0;
-      document.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
-      function animate() {
-        cx += (mx - cx) * 0.3; cy += (my - cy) * 0.3;
-        if (customCursor) { customCursor.style.left = cx + 'px'; customCursor.style.top = cy + 'px'; }
-        requestAnimationFrame(animate);
-      }
-      animate();
-      document.addEventListener('mouseleave', () => { if (customCursor) customCursor.style.opacity = '0'; });
-      document.addEventListener('mouseenter', () => { if (customCursor) customCursor.style.opacity = '1'; });
-    }
-
-    // ========== AUDIO ==========
-    let audioContext = null;
-    let landingMusic = null;
-    let landingMusicBuffer = null;
-    const clickSound = new Audio("sounds/click.mp3"); clickSound.volume = 0.5;
-    const hoverSound = new Audio("sounds/hover.mp3"); hoverSound.volume = 0.3;
-    const appearSounds = {
-      landing: new Audio("sounds/appear.mp3"),
-      help: new Audio("sounds/appear1.mp3"),
-      game: new Audio("sounds/appear2.mp3"),
-      bonus: new Audio("sounds/appear3.mp3"),
-      endHigh: new Audio("sounds/appear4.mp3"),
-      endLow: new Audio("sounds/appear5.mp3")
-    };
-    appearSounds.landing.volume = 0.6;
-    appearSounds.help.volume = 0.9;
-
-    function playClickSound() { clickSound.currentTime = 0; clickSound.play().catch(()=>{}); }
-    function playHoverSound() { hoverSound.currentTime = 0; hoverSound.play().catch(()=>{}); }
-    function playAppearSound(type) { const s = appearSounds[type]; if (s) { s.currentTime = 0; s.play().catch(()=>{}); } }
-
-    function initAudioContext() {
-      if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioContext.state === 'suspended') audioContext.resume();
-    }
-
-    function loadLandingMusic() {
-      fetch('music/music_game.mp3')
-        .then(r => r.arrayBuffer())
-        .then(buf => { landingMusicBuffer = buf; })
-        .catch(() => {});
-    }
-
-    function playLandingMusic() {
-      if (!audioContext || !landingMusicBuffer) return;
-      if (landingMusic) { try { landingMusic.stop(); } catch(e) {} }
-      audioContext.decodeAudioData(landingMusicBuffer.slice(0))
-        .then(buffer => {
-          landingMusic = audioContext.createBufferSource();
-          landingMusic.buffer = buffer;
-          landingMusic.loop = true;
-          const gain = audioContext.createGain();
-          gain.gain.value = 0.9;
-          landingMusic.connect(gain);
-          gain.connect(audioContext.destination);
-          landingMusic.start(0);
-        }).catch(() => {});
-    }
-
-    function stopLandingMusic() {
-      if (landingMusic) { try { landingMusic.stop(); landingMusic = null; } catch(e) {} }
-    }
-
-    loadLandingMusic();
-
-    function addHoverSoundToButtons() {
-      document.querySelectorAll('button, .select-option, .bg-thumb, .item-thumb').forEach(el => 
-        el.addEventListener('mouseenter', () => playHoverSound())
-      );
-    }
-
-    // ========== CAROUSEL SYSTEM ==========
-    class ImageCarousel {
-      constructor(containerId, startIndex) {
-        this.container = document.getElementById(containerId);
-        this.stack = this.container.querySelector('.carousel-stack');
-        this.currentIndex = startIndex || 0;
-        this.images = [];
-        this.totalImages = 9;
-        this.interval = null;
-        this.isRunning = false;
-        this.init();
-      }
-
-      init() {
-        for (let i = 1; i <= this.totalImages; i++) {
-          const img = document.createElement('img');
-          img.className = 'carousel-image';
-          img.src = `images/landing/${i}.png`;
-          img.alt = `Model ${i}`;
-          this.stack.appendChild(img);
-          this.images.push(img);
-        }
-        this.showImage(this.currentIndex);
-        this.start();
-      }
-
-      showImage(index) {
-        this.images.forEach(img => img.classList.remove('show'));
-        if (this.images[index]) {
-          this.images[index].classList.add('show');
-        }
-      }
-
-      getNextIndex() {
-        return (this.currentIndex + 1) % this.totalImages;
-      }
-
-      next() {
-        const nextIdx = this.getNextIndex();
-        this.showImage(nextIdx);
-        this.currentIndex = nextIdx;
-      }
-
-      start() {
-        if (this.isRunning) return;
-        this.isRunning = true;
-        this.interval = setInterval(() => this.next(), 2500);
-      }
-
-      stop() {
-        this.isRunning = false;
-        if (this.interval) {
-          clearInterval(this.interval);
-          this.interval = null;
-        }
-      }
-    }
-
-    // ========== SCREEN TRANSITIONS ==========
-    let landingCarousel, helpCarousel;
-    let selectedCharacter = 'mermaid';
-    let isLoadingComplete = false;
-
-    function showLandingPage() {
-      document.getElementById('landingPage').classList.add('show');
-      playAppearSound('landing');
-      setTimeout(() => {
-        document.getElementById('landingSparkleOverlay').classList.add('show');
-      }, 1000);
-      if (!landingCarousel) {
-        landingCarousel = new ImageCarousel('carouselLeft', 0);
-        const rightCarousel = new ImageCarousel('carouselRight', 4);
-        window._rightCarousel = rightCarousel;
-      }
-    }
-
-    function hideLandingPage() {
-      document.getElementById('landingPage').classList.remove('show');
-      document.getElementById('landingSparkleOverlay').classList.remove('show');
-      if (landingCarousel) {
-        landingCarousel.stop();
-        window._rightCarousel?.stop();
-      }
-      setTimeout(() => showHelpScreen(), 100);
-    }
-
-    function showHelpScreen() {
-      document.getElementById('helpScreen').classList.add('show');
-    playAppearSound('help');
-    setTimeout(() => {
-        document.getElementById('helpSparkleOverlay').classList.add('show');
-        document.getElementById('helpExtraImages').classList.add('show'); // This triggers the fade
-    }, 1000);
-      if (!helpCarousel) {
-        helpCarousel = new ImageCarousel('carouselLeft', 0);
-        const rightHelp = new ImageCarousel('carouselRight', 4);
-        window._rightHelp = rightHelp;
-      }
-    }
-
-    function hideHelpScreen() {
-      document.getElementById('helpScreen').classList.remove('show');
-      document.getElementById('helpSparkleOverlay').classList.remove('show');
-      document.getElementById('helpExtraImages').classList.remove('show');
-      if (helpCarousel) {
-        helpCarousel.stop();
-        window._rightHelp?.stop();
-      }
-      setTimeout(() => showSelectScreen(), 300);
-    }
-
-    function showSelectScreen() {
-      const selectScreen = document.getElementById('selectScreen');
-      const gameScreen = document.getElementById('gameScreen');
-      gameScreen.classList.add('show');
-      playAppearSound('game');
-      setTimeout(() => {
-        selectScreen.classList.add('show');
-      }, 100);
-    }
-
-    function hideSelectScreen() {
-      const selectScreen = document.getElementById('selectScreen');
-      selectScreen.classList.add('fade-out');
-      setTimeout(() => {
-        selectScreen.classList.remove('show', 'fade-out');
-        document.getElementById('menuPanel').classList.add('show');
-        document.getElementById('itemsPanel').classList.add('open');
-        setupCharacter(selectedCharacter);
-      }, 500);
-    }
-
-    // ========== CHARACTER SETUP ==========
-    const characterConfig = {
-      mermaid: {
-        model: 'images/model/model_mermaid.png',
-        defaultBg: 2,
-        menuClass: 'mermaid',
-        menuButtons: ['tails', 'shirts', 'accessories'],
-        btnSuffix: '_mer'
-      },
-      fairy: {
-        model: 'images/model/model_fairy.png',
-        defaultBg: 1,
-        menuClass: 'fairy',
-        menuButtons: ['wings', 'dress', 'shirts', 'socks', 'shoes', 'accessories'],
-        btnSuffix: '_fairy'
-      },
-      human: {
-        model: 'images/model/model_boy.png',
-        defaultBg: 3,
-        menuClass: 'boy',
-        menuButtons: ['shirts', 'pants', 'shoes', 'accessories'],
-        btnSuffix: '_boy'
-      }
-    };
-
-    function setupCharacter(type) {
-      selectedCharacter = type;
-      const config = characterConfig[type];
-      if (!config) return;
-
-      // Set model
-      document.getElementById('modelImage').src = config.model;
-
-      // Set BG
-      const bgNum = config.defaultBg;
-      currentBg = bgNum;
-      const gameBg = document.getElementById('gameBg');
-      gameBg.style.backgroundImage = `url('images/bg/${bgNum}.jpg')`;
-      gameBg.style.opacity = '1';
-
-      // Set menu background
-      const menuBg = document.getElementById('menuBg');
-      menuBg.className = 'menu-bg ' + config.menuClass;
-
-      // Update menu buttons
-      const menuContainer = document.getElementById('menuBg');
-      const existingBtns = menuContainer.querySelectorAll('.menu-btn');
-      existingBtns.forEach(btn => btn.remove());
-
-      config.menuButtons.forEach(btnName => {
-        const btn = document.createElement('button');
-        btn.className = 'menu-btn ' + btnName;
-        btn.dataset.menu = btnName;
-        btn.style.backgroundImage = `url('images/btn_${btnName}${config.btnSuffix}.png')`;
-        btn.addEventListener('click', function() {
-          const menu = this.dataset.menu;
-          playClickSound();
-          updateItems(menu, type);
-          const panel = document.getElementById('itemsPanel');
-          panel.classList.remove('open');
-          void panel.offsetWidth;
-          panel.classList.add('open');
-        });
-        menuContainer.appendChild(btn);
-      });
-
-      // Update item data based on character
-      updateItems('tails', type);
-    }
-
-    // ========== ITEM DATA ==========
-    const itemData = {
-      mermaid: {
-        tails: [
-          { thumb: 'images/assets/thumb/mermaid/mermaid_purple_pattern.png', full: 'images/assets/full/mermaid/mermaid_purple_pattern.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_yellow_fish2.png', full: 'images/assets/full/mermaid/mermaid_yellow_fish2.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_blue.png', full: 'images/assets/full/mermaid/mermaid_blue.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_green_pattern.png', full: 'images/assets/full/mermaid/mermaid_green_pattern.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_red_design.png', full: 'images/assets/full/mermaid/mermaid_red_design.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_white_fish.png', full: 'images/assets/full/mermaid/mermaid_white_fish.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_pink_fish2.png', full: 'images/assets/full/mermaid/mermaid_pink_fish2.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_gray_fish.png', full: 'images/assets/full/mermaid/mermaid_gray_fish.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_blue_pattern.png', full: 'images/assets/full/mermaid/mermaid_blue_pattern.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_yellow_design.png', full: 'images/assets/full/mermaid/mermaid_yellow_design.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_green_fish.png', full: 'images/assets/full/mermaid/mermaid_green_fish.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_purple_fish2.png', full: 'images/assets/full/mermaid/mermaid_purple_fish2.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_blue_fish2.png', full: 'images/assets/full/mermaid/mermaid_blue_fish2.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_white_pattern.png', full: 'images/assets/full/mermaid/mermaid_white_pattern.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_red_fish2.png', full: 'images/assets/full/mermaid/mermaid_red_fish2.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_pink_pattern.png', full: 'images/assets/full/mermaid/mermaid_pink_pattern.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_yellow_pattern.png', full: 'images/assets/full/mermaid/mermaid_yellow_pattern.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_color_fish2.png', full: 'images/assets/full/mermaid/mermaid_color_fish2.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_green_fish2.png', full: 'images/assets/full/mermaid/mermaid_green_fish2.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_white_fish2.png', full: 'images/assets/full/mermaid/mermaid_white_fish2.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_purple_fish.png', full: 'images/assets/full/mermaid/mermaid_purple_fish.png' },
-          { thumb: 'images/assets/thumb/mermaid/mermaid_blue_fish.png', full: 'images/assets/full/mermaid/mermaid_blue_fish.png' }
-        ],
-        shirts: [
-          { thumb: 'images/assets/thumb/mermaid/shirt1.png', full: 'images/assets/full/mermaid/shirt1.png' },
-          { thumb: 'images/assets/thumb/mermaid/shirt2.png', full: 'images/assets/full/mermaid/shirt2.png' },
-          { thumb: 'images/assets/thumb/mermaid/shirt3.png', full: 'images/assets/full/mermaid/shirt3.png' },
-          { thumb: 'images/assets/thumb/mermaid/shirt4.png', full: 'images/assets/full/mermaid/shirt4.png' }
-        ],
-        accessories: [
-          { thumb: 'images/assets/thumb/mermaid/acc1.png', full: 'images/assets/full/mermaid/acc1.png' },
-          { thumb: 'images/assets/thumb/mermaid/acc2.png', full: 'images/assets/full/mermaid/acc2.png' },
-          { thumb: 'images/assets/thumb/mermaid/acc3.png', full: 'images/assets/full/mermaid/acc3.png' },
-          { thumb: 'images/assets/thumb/mermaid/acc4.png', full: 'images/assets/full/mermaid/acc4.png' },
-          { thumb: 'images/assets/thumb/mermaid/acc5.png', full: 'images/assets/full/mermaid/acc5.png' }
-        ]
-      },
-      fairy: {
-        wings: [
-          { thumb: 'images/assets/thumb/fairy/wing1.png', full: 'images/assets/full/fairy/wing1.png' },
-          { thumb: 'images/assets/thumb/fairy/wing2.png', full: 'images/assets/full/fairy/wing2.png' },
-          { thumb: 'images/assets/thumb/fairy/wing3.png', full: 'images/assets/full/fairy/wing3.png' }
-        ],
-        dress: [
-          { thumb: 'images/assets/thumb/fairy/dress1.png', full: 'images/assets/full/fairy/dress1.png' },
-          { thumb: 'images/assets/thumb/fairy/dress2.png', full: 'images/assets/full/fairy/dress2.png' },
-          { thumb: 'images/assets/thumb/fairy/dress3.png', full: 'images/assets/full/fairy/dress3.png' }
-        ],
-        shirts: [
-          { thumb: 'images/assets/thumb/fairy/shirt1.png', full: 'images/assets/full/fairy/shirt1.png' },
-          { thumb: 'images/assets/thumb/fairy/shirt2.png', full: 'images/assets/full/fairy/shirt2.png' }
-        ],
-        socks: [
-          { thumb: 'images/assets/thumb/fairy/sock1.png', full: 'images/assets/full/fairy/sock1.png' },
-          { thumb: 'images/assets/thumb/fairy/sock2.png', full: 'images/assets/full/fairy/sock2.png' }
-        ],
-        shoes: [
-          { thumb: 'images/assets/thumb/fairy/shoe1.png', full: 'images/assets/full/fairy/shoe1.png' },
-          { thumb: 'images/assets/thumb/fairy/shoe2.png', full: 'images/assets/full/fairy/shoe2.png' }
-        ],
-        accessories: [
-          { thumb: 'images/assets/thumb/fairy/acc1.png', full: 'images/assets/full/fairy/acc1.png' },
-          { thumb: 'images/assets/thumb/fairy/acc2.png', full: 'images/assets/full/fairy/acc2.png' }
-        ]
-      },
-      human: {
-        shirts: [
-          { thumb: 'images/assets/thumb/human/shirt1.png', full: 'images/assets/full/human/shirt1.png' },
-          { thumb: 'images/assets/thumb/human/shirt2.png', full: 'images/assets/full/human/shirt2.png' }
-        ],
-        pants: [
-          { thumb: 'images/assets/thumb/human/pant1.png', full: 'images/assets/full/human/pant1.png' },
-          { thumb: 'images/assets/thumb/human/pant2.png', full: 'images/assets/full/human/pant2.png' }
-        ],
-        shoes: [
-          { thumb: 'images/assets/thumb/human/shoe1.png', full: 'images/assets/full/human/shoe1.png' },
-          { thumb: 'images/assets/thumb/human/shoe2.png', full: 'images/assets/full/human/shoe2.png' }
-        ],
-        accessories: [
-          { thumb: 'images/assets/thumb/human/acc1.png', full: 'images/assets/full/human/acc1.png' },
-          { thumb: 'images/assets/thumb/human/acc2.png', full: 'images/assets/full/human/acc2.png' }
-        ]
-      }
-    };
-
-    let currentItems = [];
-    let itemScrollIndex = 0;
-    let visibleItems = 4;
-    let currentMenuType = 'tails';
-
-    function updateItems(menuType, characterType) {
-      currentMenuType = menuType;
-      const charData = itemData[characterType] || itemData.mermaid;
-      currentItems = charData[menuType] || [];
-      itemScrollIndex = 0;
-      renderItems();
-    }
-
-    function renderItems() {
-      const container = document.getElementById('itemsScroll');
-      container.innerHTML = '';
-      
-      const inner = document.createElement('div');
-      inner.className = 'items-scroll-inner';
-      inner.id = 'itemsScrollInner';
-      
-      const start = itemScrollIndex;
-      const end = Math.min(start + visibleItems, currentItems.length);
-      
-      for (let i = start; i < end; i++) {
-        const item = currentItems[i];
-        const thumb = document.createElement('img');
-        thumb.className = 'item-thumb';
-        thumb.src = item.thumb;
-        thumb.alt = 'Item';
-        thumb.dataset.index = i;
-        thumb.addEventListener('click', () => selectItem(i));
-        inner.appendChild(thumb);
-      }
-      
-      container.appendChild(inner);
-      
-      document.getElementById('scrollUp').classList.toggle('disabled', itemScrollIndex <= 0);
-      document.getElementById('scrollDown').classList.toggle('disabled', itemScrollIndex + visibleItems >= currentItems.length);
-    }
-
-    function selectItem(index) {
-      const item = currentItems[index];
-      if (!item) return;
-      playClickSound();
-      
-      if (selectedCharacter === 'mermaid' && currentMenuType === 'tails') {
-        playTransformationMagic(() => {
-          document.getElementById('modelImage').src = item.full;
-        });
-      } else {
-        document.getElementById('modelImage').src = item.full;
-      }
-      
-      document.querySelectorAll('.item-thumb').forEach(el => el.classList.remove('active'));
-      const thumbs = document.querySelectorAll('.item-thumb');
-      if (thumbs[index - itemScrollIndex]) {
-        thumbs[index - itemScrollIndex].classList.add('active');
-      }
-    }
-
-    function scrollItems(direction) {
-      if (direction === 'up' && itemScrollIndex > 0) {
-        itemScrollIndex--;
-        renderItems();
-        playClickSound();
-        const inner = document.getElementById('itemsScrollInner');
-        if (inner) {
-          inner.style.transform = 'translateY(20px)';
-          setTimeout(() => inner.style.transform = 'translateY(0px)', 50);
-        }
-      } else if (direction === 'down' && itemScrollIndex + visibleItems < currentItems.length) {
-        itemScrollIndex++;
-        renderItems();
-        playClickSound();
-        const inner = document.getElementById('itemsScrollInner');
-        if (inner) {
-          inner.style.transform = 'translateY(-20px)';
-          setTimeout(() => inner.style.transform = 'translateY(0px)', 50);
-        }
-      }
-    }
-
-    // ========== MAGIC TRANSFORMATION ==========
-// Preload sparkle images for better performance
-const sparkleImageObjects = [];
-sparkleImages.forEach(src => {
-  const img = new Image();
-  img.src = src;
-  sparkleImageObjects.push(img);
-});
-
-function playTransformationMagic(callback) {
-  const overlay = document.getElementById('magicOverlay');
-  const canvas = document.getElementById('magicCanvas');
-  const ctx = canvas.getContext('2d');
-  
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  
-  overlay.classList.add('active');
-  
-  const transferImg = new Image();
-  transferImg.src = 'images/mermaid_transfer.png';
-  transferImg.onload = function() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const scale = Math.min(canvas.width / transferImg.width, canvas.height / transferImg.height);
-    const x = (canvas.width - transferImg.width * scale) / 2;
-    const y = (canvas.height - transferImg.height * scale) / 2;
-    
-    let startTime = Date.now();
-    const duration = 1500;
-    const sparkles = [];
-    
-    // ========== ADJUST THESE VALUES ==========
-    const totalSparkles = 400;          // Number of sparkles (50-300)
-    const sparkleMinSize = 20;          // Minimum size (px)
-    const sparkleMaxSize = 45;          // Maximum size (px)
-    const sparkleDistance = 0.5;       // How far from edge (0.5 = edge, 0.8 = farther)
-    const blinkSpeed = 200;             // Blink speed in ms (lower = faster)
-    const sparkleSpeed = 2;             // Movement speed
-    const fadeSpeed = 0.001;            // How fast sparkles fade (lower = longer)
-    // =========================================
-    
-    // Create edge sparkles - FARTHER from edge
-    for (let i = 0; i < totalSparkles; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      // Distance 0.5-1.0: 0.5 = edge, 0.7 = farther, 0.9 = much farther
-      const dist = Math.random() * 0.3 + sparkleDistance;
-      const edgeX = x + transferImg.width * scale * 0.5 + Math.cos(angle) * transferImg.width * scale * 0.55 * dist;
-      const edgeY = y + transferImg.height * scale * 0.5 + Math.sin(angle) * transferImg.height * scale * 0.55 * dist;
-      
-      // Pick a random preloaded sparkle image
-      const img = sparkleImageObjects[Math.floor(Math.random() * sparkleImageObjects.length)];
-      
-      sparkles.push({
-        x: edgeX,
-        y: edgeY,
-        size: Math.random() * (sparkleMaxSize - sparkleMinSize) + sparkleMinSize,
-        speedX: (Math.random() - 0.5) * sparkleSpeed,
-        speedY: (Math.random() - 0.5) * sparkleSpeed,
-        rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.1,
-        life: Math.random() * 0.6 + 0.4,
-        maxLife: Math.random() * 0.6 + 0.4,
-        img: img,  // Use preloaded image directly
-        phase: Math.random() * Math.PI * 2
-      });
-    }
-    
-    let changeApplied = false;
-    let opacity = 0;
-    
-    function animateMagic() {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Fade in the transfer image
-      opacity = Math.min(progress * 2, 1);
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw transfer image with opacity
-      ctx.save();
-      ctx.globalAlpha = opacity;
-      ctx.shadowColor = '#ffffff';
-      ctx.shadowBlur = 30;
-      ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
-      ctx.restore();
-      
-      // Draw sparkles
-      sparkles.forEach(sp => {
-        sp.x += sp.speedX;
-        sp.y += sp.speedY;
-        sp.rotation += sp.rotationSpeed;
-        sp.life -= fadeSpeed;
-        
-        if (sp.life <= 0) {
-          sp.life = sp.maxLife;
-          const angle = Math.random() * Math.PI * 2;
-          const dist = Math.random() * 0.3 + sparkleDistance;
-          sp.x = x + transferImg.width * scale * 0.5 + Math.cos(angle) * transferImg.width * scale * 0.55 * dist;
-          sp.y = y + transferImg.height * scale * 0.5 + Math.sin(angle) * transferImg.height * scale * 0.55 * dist;
-          sp.speedX = (Math.random() - 0.5) * sparkleSpeed;
-          sp.speedY = (Math.random() - 0.5) * sparkleSpeed;
-          // Pick a new random sparkle image
-          sp.img = sparkleImageObjects[Math.floor(Math.random() * sparkleImageObjects.length)];
-        }
-        
-        // Blink effect
-        const blink = Math.abs(Math.sin(Date.now() / blinkSpeed + sp.phase));
-        
-        ctx.save();
-        ctx.globalAlpha = sp.life * 0.8 * opacity * (0.5 + 0.5 * blink);
-        ctx.translate(sp.x, sp.y);
-        ctx.rotate(sp.rotation);
-        
-        const size = sp.size * (0.8 + 0.4 * Math.sin(Date.now() / 400 + sp.x));
-        ctx.drawImage(sp.img, -size/2, -size/2, size, size);
-        
-        ctx.restore();
-      });
-      
-      // Apply change at 1.5 seconds
-      if (elapsed > 1500 && !changeApplied) {
-        changeApplied = true;
-        if (callback) callback();
-      }
-      
-      // Fade out after 3 seconds
-      if (elapsed > duration) {
-        opacity = Math.max(0, 1 - (elapsed - duration) / 500);
-        if (opacity <= 0) {
-          overlay.classList.remove('active');
-          return;
-        }
-      }
-      
-      requestAnimationFrame(animateMagic);
-    }
-    
-    animateMagic();
-  };
+function addMouseSparkle(x, y) {
+  const container = document.getElementById('mouseTrailContainer');
+  const el = document.createElement('div');
+  el.className = 'mouse-sparkle';
+  el.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
+  const ox = (Math.random() - 0.5) * 20;
+  const oy = (Math.random() - 0.5) * 20;
+  el.style.left = (x + ox) + 'px';
+  el.style.top = (y + oy) + 'px';
+  el.style.animationDelay = Math.random() * 0.1 + 's';
+  const size = Math.random() * (MOUSE_SPARKLE_SIZE_MAX - MOUSE_SPARKLE_SIZE_MIN) + MOUSE_SPARKLE_SIZE_MIN;
+  el.style.width = size + 'px'; el.style.height = size + 'px';
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 800);
 }
 
-   // ========== BG SELECTOR (cycling through 3 backgrounds) ==========
+function startMouseTrail() {
+  if (isTouchDevice) return;
+  let lastTime = 0;
+  document.addEventListener('mousemove', (e) => {
+    const now = Date.now();
+    if (now - lastTime > MOUSE_SPARKLE_INTERVAL) { lastTime = now; addMouseSparkle(e.clientX, e.clientY); }
+    lastMouseX = e.clientX; lastMouseY = e.clientY;
+  });
+  continuousSparkleInterval = setInterval(() => addMouseSparkle(lastMouseX, lastMouseY), MOUSE_SPARKLE_INTERVAL);
+}
+
+// ========== FALLING SPARKLES ==========
+function addFallingSparkle(x, y) {
+  const container = document.getElementById('fallingSparkleContainer');
+  const el = document.createElement('div');
+  el.className = 'falling-sparkle';
+  el.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
+  el.style.left = (x + (Math.random() - 0.5) * 30) + 'px';
+  el.style.top = (y + (Math.random() - 0.5) * 10) + 'px';
+  el.style.animationDelay = Math.random() * 0.2 + 's';
+  const size = Math.random() * 18 + 10;
+  el.style.width = size + 'px'; el.style.height = size + 'px';
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 1400);
+}
+
+function startFallingSparkles() {
+  if (isTouchDevice) return;
+  let fallInterval;
+  document.addEventListener('mousemove', (e) => {
+    if (fallInterval) clearInterval(fallInterval);
+    let count = 0;
+    fallInterval = setInterval(() => {
+      if (count > 12) { clearInterval(fallInterval); return; }
+      addFallingSparkle(e.clientX, e.clientY);
+      count++;
+    }, 80);
+    if (fallingInterval) clearInterval(fallingInterval);
+    fallingInterval = setInterval(() => {
+      addFallingSparkle(e.clientX, e.clientY);
+    }, 200);
+  });
+  document.addEventListener('mouseleave', () => {
+    if (fallingInterval) clearInterval(fallingInterval);
+  });
+}
+
+// ========== TOUCH SPARKLES ==========
+function addTouchSparkle(x, y) {
+  const container = document.getElementById('touchSparkleContainer');
+  const el = document.createElement('div');
+  el.className = 'touch-sparkle';
+  el.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
+  el.style.left = (x + (Math.random() - 0.5) * 30) + 'px';
+  el.style.top = (y + (Math.random() - 0.5) * 30) + 'px';
+  const size = Math.random() * 25 + 15;
+  el.style.width = size + 'px'; el.style.height = size + 'px';
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 600);
+}
+function startTouchSparkles() {
+  if (!isTouchDevice) return;
+  document.addEventListener('touchmove', (e) => {
+    const t = e.touches[0];
+    addTouchSparkle(t.clientX, t.clientY);
+  });
+  document.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    for (let i=0; i<3; i++) setTimeout(() => addTouchSparkle(t.clientX, t.clientY), i*50);
+  });
+}
+
+// ========== CUSTOM CURSOR ==========
+let customCursor = null;
+function setupCustomCursor() {
+  if (isTouchDevice) return;
+  customCursor = document.createElement('div');
+  customCursor.className = 'custom-cursor';
+  document.body.appendChild(customCursor);
+  let mx=0, my=0, cx=0, cy=0;
+  document.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
+  function animate() {
+    cx += (mx - cx) * 0.3; cy += (my - cy) * 0.3;
+    if (customCursor) { customCursor.style.left = cx + 'px'; customCursor.style.top = cy + 'px'; }
+    requestAnimationFrame(animate);
+  }
+  animate();
+  document.addEventListener('mouseleave', () => { if (customCursor) customCursor.style.opacity = '0'; });
+  document.addEventListener('mouseenter', () => { if (customCursor) customCursor.style.opacity = '1'; });
+}
+
+// ========== AUDIO ==========
+let audioContext = null;
+let landingMusic = null;
+let landingMusicBuffer = null;
+const clickSound = new Audio("sounds/click.mp3"); clickSound.volume = 0.5;
+const hoverSound = new Audio("sounds/hover.mp3"); hoverSound.volume = 0.3;
+const appearSounds = {
+  landing: new Audio("sounds/appear.mp3"),
+  help: new Audio("sounds/appear1.mp3"),
+  game: new Audio("sounds/appear2.mp3"),
+  bonus: new Audio("sounds/appear3.mp3"),
+  endHigh: new Audio("sounds/appear4.mp3"),
+  endLow: new Audio("sounds/appear5.mp3")
+};
+appearSounds.landing.volume = 0.6;
+appearSounds.help.volume = 0.9;
+
+function playClickSound() { clickSound.currentTime = 0; clickSound.play().catch(()=>{}); }
+function playHoverSound() { hoverSound.currentTime = 0; hoverSound.play().catch(()=>{}); }
+function playAppearSound(type) { const s = appearSounds[type]; if (s) { s.currentTime = 0; s.play().catch(()=>{}); } }
+
+function initAudioContext() {
+  if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioContext.state === 'suspended') audioContext.resume();
+}
+
+function loadLandingMusic() {
+  fetch('music/music_game.mp3')
+    .then(r => r.arrayBuffer())
+    .then(buf => { landingMusicBuffer = buf; })
+    .catch(() => {});
+}
+
+function playLandingMusic() {
+  if (!audioContext || !landingMusicBuffer) return;
+  if (landingMusic) { try { landingMusic.stop(); } catch(e) {} }
+  audioContext.decodeAudioData(landingMusicBuffer.slice(0))
+    .then(buffer => {
+      landingMusic = audioContext.createBufferSource();
+      landingMusic.buffer = buffer;
+      landingMusic.loop = true;
+      const gain = audioContext.createGain();
+      gain.gain.value = 0.9;
+      landingMusic.connect(gain);
+      gain.connect(audioContext.destination);
+      landingMusic.start(0);
+    }).catch(() => {});
+}
+
+function stopLandingMusic() {
+  if (landingMusic) { try { landingMusic.stop(); landingMusic = null; } catch(e) {} }
+}
+
+loadLandingMusic();
+
+function addHoverSoundToButtons() {
+  document.querySelectorAll('button, .select-option, .bg-thumb, .item-thumb').forEach(el => 
+    el.addEventListener('mouseenter', () => playHoverSound())
+  );
+}
+
+// ========== CAROUSEL SYSTEM ==========
+class ImageCarousel {
+  constructor(containerId, startIndex) {
+    this.container = document.getElementById(containerId);
+    this.stack = this.container.querySelector('.carousel-stack');
+    this.currentIndex = startIndex || 0;
+    this.images = [];
+    this.totalImages = 9;
+    this.interval = null;
+    this.isRunning = false;
+    this.init();
+  }
+
+  init() {
+    for (let i = 1; i <= this.totalImages; i++) {
+      const img = document.createElement('img');
+      img.className = 'carousel-image';
+      img.src = `images/landing/${i}.png`;
+      img.alt = `Model ${i}`;
+      this.stack.appendChild(img);
+      this.images.push(img);
+    }
+    this.showImage(this.currentIndex);
+    this.start();
+  }
+
+  showImage(index) {
+    this.images.forEach(img => img.classList.remove('show'));
+    if (this.images[index]) {
+      this.images[index].classList.add('show');
+    }
+  }
+
+  getNextIndex() {
+    return (this.currentIndex + 1) % this.totalImages;
+  }
+
+  next() {
+    const nextIdx = this.getNextIndex();
+    this.showImage(nextIdx);
+    this.currentIndex = nextIdx;
+  }
+
+  start() {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    this.interval = setInterval(() => this.next(), 2500);
+  }
+
+  stop() {
+    this.isRunning = false;
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  }
+}
+
+// ========== SCREEN TRANSITIONS ==========
+let landingCarousel, helpCarousel;
+let selectedCharacter = 'mermaid';
+let isLoadingComplete = false;
+
+function showLandingPage() {
+  document.getElementById('landingPage').classList.add('show');
+  playAppearSound('landing');
+  setTimeout(() => {
+    document.getElementById('landingSparkleOverlay').classList.add('show');
+  }, 1000);
+  if (!landingCarousel) {
+    landingCarousel = new ImageCarousel('carouselLeft', 0);
+    const rightCarousel = new ImageCarousel('carouselRight', 4);
+    window._rightCarousel = rightCarousel;
+  }
+}
+
+function hideLandingPage() {
+  document.getElementById('landingPage').classList.remove('show');
+  document.getElementById('landingSparkleOverlay').classList.remove('show');
+  if (landingCarousel) {
+    landingCarousel.stop();
+    window._rightCarousel?.stop();
+  }
+  setTimeout(() => showHelpScreen(), 100);
+}
+
+function showHelpScreen() {
+  document.getElementById('helpScreen').classList.add('show');
+  playAppearSound('help');
+  setTimeout(() => {
+    document.getElementById('helpSparkleOverlay').classList.add('show');
+    document.getElementById('helpExtraImages').classList.add('show');
+  }, 1000);
+  if (!helpCarousel) {
+    helpCarousel = new ImageCarousel('carouselLeft', 0);
+    const rightHelp = new ImageCarousel('carouselRight', 4);
+    window._rightHelp = rightHelp;
+  }
+}
+
+function hideHelpScreen() {
+  document.getElementById('helpScreen').classList.remove('show');
+  document.getElementById('helpSparkleOverlay').classList.remove('show');
+  document.getElementById('helpExtraImages').classList.remove('show');
+  if (helpCarousel) {
+    helpCarousel.stop();
+    window._rightHelp?.stop();
+  }
+  setTimeout(() => showSelectScreen(), 300);
+}
+
+function showSelectScreen() {
+  const selectScreen = document.getElementById('selectScreen');
+  const gameScreen = document.getElementById('gameScreen');
+  gameScreen.classList.add('show');
+  playAppearSound('game');
+  setTimeout(() => {
+    selectScreen.classList.add('show');
+  }, 100);
+}
+
+function hideSelectScreen() {
+  const selectScreen = document.getElementById('selectScreen');
+  selectScreen.classList.add('fade-out');
+  setTimeout(() => {
+    selectScreen.classList.remove('show', 'fade-out');
+    document.getElementById('menuPanel').classList.add('show');
+    document.getElementById('itemsPanel').classList.add('open');
+    setupCharacter(selectedCharacter);
+  }, 500);
+}
+
+// ========== COMMUNICATE WITH MODEL VIEWER IFRAME ==========
+function updateModelInViewer(imageUrl) {
+  const iframe = document.getElementById('modelViewer');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({
+      action: 'updateModel',
+      imageUrl: imageUrl
+    }, '*');
+  }
+}
+
+function playMagicInViewer(callback) {
+  const iframe = document.getElementById('modelViewer');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({
+      action: 'playMagic'
+    }, '*');
+    // Store callback for when magic completes
+    window._magicCallback = callback;
+  } else {
+    // Fallback if iframe not ready
+    if (callback) callback();
+  }
+}
+
+// Listen for messages from iframe
+window.addEventListener('message', function(event) {
+  if (event.data.action === 'modelViewerReady') {
+    console.log('Model viewer is ready!');
+  }
+  if (event.data.action === 'magicComplete') {
+    if (window._magicCallback) {
+      window._magicCallback();
+      window._magicCallback = null;
+    }
+  }
+});
+
+// ========== CHARACTER SETUP ==========
+const characterConfig = {
+  mermaid: {
+    model: 'images/model/model_mermaid.png',
+    defaultBg: 2,
+    menuClass: 'mermaid',
+    menuButtons: ['tails', 'shirts', 'accessories'],
+    btnSuffix: '_mer'
+  },
+  fairy: {
+    model: 'images/model/model_fairy.png',
+    defaultBg: 1,
+    menuClass: 'fairy',
+    menuButtons: ['wings', 'dress', 'shirts', 'socks', 'shoes', 'accessories'],
+    btnSuffix: '_fairy'
+  },
+  human: {
+    model: 'images/model/model_boy.png',
+    defaultBg: 3,
+    menuClass: 'boy',
+    menuButtons: ['shirts', 'pants', 'shoes', 'accessories'],
+    btnSuffix: '_boy'
+  }
+};
+
+function setupCharacter(type) {
+  selectedCharacter = type;
+  const config = characterConfig[type];
+  if (!config) return;
+
+  // Set model in iframe
+  updateModelInViewer(config.model);
+
+  // Set BG
+  const bgNum = config.defaultBg;
+  currentBg = bgNum;
+  const gameBg = document.getElementById('gameBg');
+  gameBg.style.backgroundImage = `url('images/bg/${bgNum}.jpg')`;
+  gameBg.style.opacity = '1';
+
+  // Set menu background
+  const menuBg = document.getElementById('menuBg');
+  menuBg.className = 'menu-bg ' + config.menuClass;
+
+  // Update menu buttons
+  const menuContainer = document.getElementById('menuBg');
+  const existingBtns = menuContainer.querySelectorAll('.menu-btn');
+  existingBtns.forEach(btn => btn.remove());
+
+  config.menuButtons.forEach(btnName => {
+    const btn = document.createElement('button');
+    btn.className = 'menu-btn ' + btnName;
+    btn.dataset.menu = btnName;
+    btn.style.backgroundImage = `url('images/btn_${btnName}${config.btnSuffix}.png')`;
+    btn.addEventListener('click', function() {
+      const menu = this.dataset.menu;
+      playClickSound();
+      updateItems(menu, type);
+      const panel = document.getElementById('itemsPanel');
+      panel.classList.remove('open');
+      void panel.offsetWidth;
+      panel.classList.add('open');
+    });
+    menuContainer.appendChild(btn);
+  });
+
+  // Update item data based on character
+  updateItems('tails', type);
+}
+
+// ========== ITEM DATA ==========
+const itemData = {
+  mermaid: {
+    tails: [
+      { thumb: 'images/assets/thumb/mermaid/mermaid_purple_pattern.png', full: 'images/assets/full/mermaid/mermaid_purple_pattern.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_yellow_fish2.png', full: 'images/assets/full/mermaid/mermaid_yellow_fish2.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_blue.png', full: 'images/assets/full/mermaid/mermaid_blue.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_green_pattern.png', full: 'images/assets/full/mermaid/mermaid_green_pattern.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_red_design.png', full: 'images/assets/full/mermaid/mermaid_red_design.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_white_fish.png', full: 'images/assets/full/mermaid/mermaid_white_fish.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_pink_fish2.png', full: 'images/assets/full/mermaid/mermaid_pink_fish2.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_gray_fish.png', full: 'images/assets/full/mermaid/mermaid_gray_fish.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_blue_pattern.png', full: 'images/assets/full/mermaid/mermaid_blue_pattern.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_yellow_design.png', full: 'images/assets/full/mermaid/mermaid_yellow_design.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_green_fish.png', full: 'images/assets/full/mermaid/mermaid_green_fish.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_purple_fish2.png', full: 'images/assets/full/mermaid/mermaid_purple_fish2.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_blue_fish2.png', full: 'images/assets/full/mermaid/mermaid_blue_fish2.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_white_pattern.png', full: 'images/assets/full/mermaid/mermaid_white_pattern.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_red_fish2.png', full: 'images/assets/full/mermaid/mermaid_red_fish2.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_pink_pattern.png', full: 'images/assets/full/mermaid/mermaid_pink_pattern.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_yellow_pattern.png', full: 'images/assets/full/mermaid/mermaid_yellow_pattern.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_color_fish2.png', full: 'images/assets/full/mermaid/mermaid_color_fish2.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_green_fish2.png', full: 'images/assets/full/mermaid/mermaid_green_fish2.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_white_fish2.png', full: 'images/assets/full/mermaid/mermaid_white_fish2.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_purple_fish.png', full: 'images/assets/full/mermaid/mermaid_purple_fish.png' },
+      { thumb: 'images/assets/thumb/mermaid/mermaid_blue_fish.png', full: 'images/assets/full/mermaid/mermaid_blue_fish.png' }
+    ],
+    shirts: [
+      { thumb: 'images/assets/thumb/mermaid/shirt1.png', full: 'images/assets/full/mermaid/shirt1.png' },
+      { thumb: 'images/assets/thumb/mermaid/shirt2.png', full: 'images/assets/full/mermaid/shirt2.png' },
+      { thumb: 'images/assets/thumb/mermaid/shirt3.png', full: 'images/assets/full/mermaid/shirt3.png' },
+      { thumb: 'images/assets/thumb/mermaid/shirt4.png', full: 'images/assets/full/mermaid/shirt4.png' }
+    ],
+    accessories: [
+      { thumb: 'images/assets/thumb/mermaid/acc1.png', full: 'images/assets/full/mermaid/acc1.png' },
+      { thumb: 'images/assets/thumb/mermaid/acc2.png', full: 'images/assets/full/mermaid/acc2.png' },
+      { thumb: 'images/assets/thumb/mermaid/acc3.png', full: 'images/assets/full/mermaid/acc3.png' },
+      { thumb: 'images/assets/thumb/mermaid/acc4.png', full: 'images/assets/full/mermaid/acc4.png' },
+      { thumb: 'images/assets/thumb/mermaid/acc5.png', full: 'images/assets/full/mermaid/acc5.png' }
+    ]
+  },
+  fairy: {
+    wings: [
+      { thumb: 'images/assets/thumb/fairy/wing1.png', full: 'images/assets/full/fairy/wing1.png' },
+      { thumb: 'images/assets/thumb/fairy/wing2.png', full: 'images/assets/full/fairy/wing2.png' },
+      { thumb: 'images/assets/thumb/fairy/wing3.png', full: 'images/assets/full/fairy/wing3.png' }
+    ],
+    dress: [
+      { thumb: 'images/assets/thumb/fairy/dress1.png', full: 'images/assets/full/fairy/dress1.png' },
+      { thumb: 'images/assets/thumb/fairy/dress2.png', full: 'images/assets/full/fairy/dress2.png' },
+      { thumb: 'images/assets/thumb/fairy/dress3.png', full: 'images/assets/full/fairy/dress3.png' }
+    ],
+    shirts: [
+      { thumb: 'images/assets/thumb/fairy/shirt1.png', full: 'images/assets/full/fairy/shirt1.png' },
+      { thumb: 'images/assets/thumb/fairy/shirt2.png', full: 'images/assets/full/fairy/shirt2.png' }
+    ],
+    socks: [
+      { thumb: 'images/assets/thumb/fairy/sock1.png', full: 'images/assets/full/fairy/sock1.png' },
+      { thumb: 'images/assets/thumb/fairy/sock2.png', full: 'images/assets/full/fairy/sock2.png' }
+    ],
+    shoes: [
+      { thumb: 'images/assets/thumb/fairy/shoe1.png', full: 'images/assets/full/fairy/shoe1.png' },
+      { thumb: 'images/assets/thumb/fairy/shoe2.png', full: 'images/assets/full/fairy/shoe2.png' }
+    ],
+    accessories: [
+      { thumb: 'images/assets/thumb/fairy/acc1.png', full: 'images/assets/full/fairy/acc1.png' },
+      { thumb: 'images/assets/thumb/fairy/acc2.png', full: 'images/assets/full/fairy/acc2.png' }
+    ]
+  },
+  human: {
+    shirts: [
+      { thumb: 'images/assets/thumb/human/shirt1.png', full: 'images/assets/full/human/shirt1.png' },
+      { thumb: 'images/assets/thumb/human/shirt2.png', full: 'images/assets/full/human/shirt2.png' }
+    ],
+    pants: [
+      { thumb: 'images/assets/thumb/human/pant1.png', full: 'images/assets/full/human/pant1.png' },
+      { thumb: 'images/assets/thumb/human/pant2.png', full: 'images/assets/full/human/pant2.png' }
+    ],
+    shoes: [
+      { thumb: 'images/assets/thumb/human/shoe1.png', full: 'images/assets/full/human/shoe1.png' },
+      { thumb: 'images/assets/thumb/human/shoe2.png', full: 'images/assets/full/human/shoe2.png' }
+    ],
+    accessories: [
+      { thumb: 'images/assets/thumb/human/acc1.png', full: 'images/assets/full/human/acc1.png' },
+      { thumb: 'images/assets/thumb/human/acc2.png', full: 'images/assets/full/human/acc2.png' }
+    ]
+  }
+};
+
+// ========== ITEM FUNCTIONS with drag support ==========
+let currentItems = [];
+let itemScrollIndex = 0;
+let visibleItems = 4;
+let currentMenuType = 'tails';
+let dragStartY = 0;
+let dragCurrentY = 0;
+let isDragging = false;
+let dragOffset = 0;
+
+function updateItems(menuType, characterType) {
+  currentMenuType = menuType;
+  const charData = itemData[characterType] || itemData.mermaid;
+  currentItems = charData[menuType] || [];
+  itemScrollIndex = 0;
+  renderItems();
+  
+  // Re-trigger slide animation
+  const panel = document.getElementById('itemsPanel');
+  panel.classList.remove('open');
+  // Force reflow
+  void panel.offsetWidth;
+  panel.classList.add('open');
+}
+
+function renderItems() {
+  const container = document.getElementById('itemsScroll');
+  container.innerHTML = '';
+  
+  const inner = document.createElement('div');
+  inner.className = 'items-scroll-inner';
+  inner.id = 'itemsScrollInner';
+  
+  const start = itemScrollIndex;
+  const end = Math.min(start + visibleItems, currentItems.length);
+  
+  for (let i = start; i < end; i++) {
+    const item = currentItems[i];
+    const thumb = document.createElement('img');
+    thumb.className = 'item-thumb';
+    // Use timestamp to force cache refresh? No - we want cached
+    thumb.src = item.thumb;
+    thumb.alt = 'Item';
+    thumb.dataset.index = i;
+    thumb.draggable = false;
+    thumb.addEventListener('click', () => selectItem(i));
+    inner.appendChild(thumb);
+  }
+  
+  container.appendChild(inner);
+  
+  // Store reference for drag
+  container._inner = inner;
+  
+  document.getElementById('scrollUp').classList.toggle('disabled', itemScrollIndex <= 0);
+  document.getElementById('scrollDown').classList.toggle('disabled', itemScrollIndex + visibleItems >= currentItems.length);
+}
+
+function selectItem(index) {
+  const item = currentItems[index];
+  if (!item) return;
+  playClickSound();
+  
+  if (selectedCharacter === 'mermaid' && currentMenuType === 'tails') {
+    // Play magic animation, then update model
+    playMagicInViewer(() => {
+      updateModelInViewer(item.full);
+    });
+  } else {
+    updateModelInViewer(item.full);
+  }
+  
+  document.querySelectorAll('.item-thumb').forEach(el => el.classList.remove('active'));
+  const thumbs = document.querySelectorAll('.item-thumb');
+  if (thumbs[index - itemScrollIndex]) {
+    thumbs[index - itemScrollIndex].classList.add('active');
+  }
+}
+
+function scrollItems(direction) {
+  if (direction === 'up' && itemScrollIndex > 0) {
+    itemScrollIndex--;
+    renderItems();
+    playClickSound();
+    const inner = document.getElementById('itemsScrollInner');
+    if (inner) {
+      inner.style.transform = 'translateY(0px)';
+    }
+  } else if (direction === 'down' && itemScrollIndex + visibleItems < currentItems.length) {
+    itemScrollIndex++;
+    renderItems();
+    playClickSound();
+    const inner = document.getElementById('itemsScrollInner');
+    if (inner) {
+      inner.style.transform = 'translateY(0px)';
+    }
+  }
+}
+
+// ========== TOUCH DRAG FOR ITEMS ==========
+function setupItemDrag() {
+  const container = document.getElementById('itemsScroll');
+  if (!container) return;
+  
+  // Touch events
+  container.addEventListener('touchstart', function(e) {
+    const touch = e.touches[0];
+    dragStartY = touch.clientY;
+    dragCurrentY = dragStartY;
+    isDragging = false;
+    dragOffset = 0;
+    this._inner = document.getElementById('itemsScrollInner');
+  }, { passive: true });
+  
+  container.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    dragCurrentY = touch.clientY;
+    const delta = dragCurrentY - dragStartY;
+    
+    if (Math.abs(delta) > 10) {
+      isDragging = true;
+      dragOffset = delta;
+      
+      // Apply smooth transform
+      if (this._inner) {
+        const maxOffset = 60;
+        const limitedOffset = Math.max(-maxOffset, Math.min(maxOffset, delta));
+        this._inner.style.transition = 'none';
+        this._inner.style.transform = `translateY(${limitedOffset}px)`;
+      }
+    }
+  }, { passive: false });
+  
+  container.addEventListener('touchend', function(e) {
+    if (!isDragging) return;
+    
+    const delta = dragCurrentY - dragStartY;
+    const threshold = 40;
+    
+    if (this._inner) {
+      this._inner.style.transition = 'transform 0.3s ease';
+      this._inner.style.transform = 'translateY(0px)';
+    }
+    
+    if (delta < -threshold) {
+      // Swipe up - scroll down
+      scrollItems('down');
+    } else if (delta > threshold) {
+      // Swipe down - scroll up
+      scrollItems('up');
+    }
+    
+    isDragging = false;
+    dragOffset = 0;
+  }, { passive: true });
+  
+  // Mouse wheel support
+  container.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    if (e.deltaY > 0) {
+      scrollItems('down');
+    } else if (e.deltaY < 0) {
+      scrollItems('up');
+    }
+  }, { passive: false });
+}
+
+// ========== START OVER FUNCTION ==========
+function startOver() {
+  playClickSound();
+  
+  // Reset character
+  selectedCharacter = 'mermaid';
+  
+  // Reset model to default
+  updateModelInViewer('images/assets/full/mermaid/mermaid_purple_fish2.png');
+  
+  // Reset items
+  updateItems('tails', 'mermaid');
+  
+  // Close items panel
+  document.getElementById('itemsPanel').classList.remove('open');
+  
+  // Show select screen
+  const selectScreen = document.getElementById('selectScreen');
+  selectScreen.classList.remove('fade-out');
+  selectScreen.classList.add('show');
+  
+  // Reset menu panel
+  setupCharacter('mermaid');
+  
+  // Reset BG
+  currentBg = 2;
+  const gameBg = document.getElementById('gameBg');
+  gameBg.style.backgroundImage = "url('images/bg/2.jpg')";
+  gameBg.style.opacity = '1';
+  
+  // Reset bg thumb
+  const thumb = document.querySelector('.bg-thumb');
+  thumb.src = 'images/bg/thumb3.png';
+  thumb.dataset.bg = 3;
+}
+
+// ========== BG SELECTOR ==========
 let bgCycle = 2;
-let bgThumbCycle = 1; // Which thumb to show
 
 function changeBg() {
-  // Cycle through backgrounds: 1 -> 2 -> 3 -> 1
   bgCycle = bgCycle === 3 ? 1 : bgCycle + 1;
   currentBg = bgCycle;
   
-  // Fade out background
   const bg = document.getElementById('gameBg');
   bg.style.opacity = '0';
   
@@ -1579,18 +1613,15 @@ function changeBg() {
     bg.style.opacity = '1';
   }, 400);
   
-  // Update the thumbnail to show NEXT bg preview
   const thumb = document.querySelector('.bg-thumb');
-  // Show thumb of the background that will appear NEXT click
   const nextBg = bgCycle === 3 ? 1 : bgCycle + 1;
   thumb.src = `images/bg/thumb${nextBg}.png`;
   thumb.dataset.bg = nextBg;
   
-  // Play sound
   playClickSound();
 }
 
-    // ========== MUSIC PLAYER ==========
+// ========== MUSIC PLAYER ==========
 let currentTrack = 0;
 let isMuted = false;
 const playlist = [
@@ -1602,7 +1633,6 @@ let audioPlayer = new Audio();
 audioPlayer.loop = true;
 
 function playTrack(index) {
-  // STOP the landing music when playlist starts
   stopLandingMusic();
   
   currentTrack = index;
@@ -1628,7 +1658,6 @@ function toggleMute() {
 
 function nextTrack() {
   audioPlayer.pause();
-  // Stop landing music before playing next
   stopLandingMusic();
   currentTrack = (currentTrack + 1) % playlist.length;
   playTrack(currentTrack);
@@ -1637,306 +1666,302 @@ function nextTrack() {
 
 function prevTrack() {
   audioPlayer.pause();
-  // Stop landing music before playing previous
   stopLandingMusic();
   currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
   playTrack(currentTrack);
   playClickSound();
 }
 
-    // ========== EVENT LISTENERS ==========
-    document.getElementById('goButton').addEventListener('click', function(e) {
-      e.preventDefault();
-      initAudioContext();
-      playClickSound();
-      this.classList.add('clicked');
-      triggerGlobalSparkleBurst(() => {
-        whiteFadeTransition(() => {
-          setTimeout(() => playLandingMusic(), 200);
-          document.getElementById('loadingScreen').classList.add('hide');
-          document.getElementById('loadingActionArea').style.display = 'none';
-          setTimeout(() => showLandingPage(), 400);
-        });
-      });
+// ========== EVENT LISTENERS ==========
+document.getElementById('goButton').addEventListener('click', function(e) {
+  e.preventDefault();
+  initAudioContext();
+  playClickSound();
+  this.classList.add('clicked');
+  triggerGlobalSparkleBurst(() => {
+    whiteFadeTransition(() => {
+      setTimeout(() => playLandingMusic(), 200);
+      document.getElementById('loadingScreen').classList.add('hide');
+      document.getElementById('loadingActionArea').style.display = 'none';
+      setTimeout(() => showLandingPage(), 400);
     });
+  });
+});
 
-    document.getElementById('playButton').addEventListener('click', function(e) {
-      e.preventDefault();
-      initAudioContext();
-      playClickSound();
-      triggerGlobalSparkleBurst(() => {
-        hideLandingPage();
-      });
-    });
+document.getElementById('playButton').addEventListener('click', function(e) {
+  e.preventDefault();
+  initAudioContext();
+  playClickSound();
+  triggerGlobalSparkleBurst(() => {
+    hideLandingPage();
+  });
+});
 
-    document.getElementById('helpPlayButton').addEventListener('click', function(e) {
-      e.preventDefault();
-      initAudioContext();
-      playClickSound();
-      triggerGlobalSparkleBurst(() => {
-        hideHelpScreen();
-      });
-    });
+document.getElementById('helpPlayButton').addEventListener('click', function(e) {
+  e.preventDefault();
+  initAudioContext();
+  playClickSound();
+  triggerGlobalSparkleBurst(() => {
+    hideHelpScreen();
+  });
+});
 
-    document.querySelectorAll('.select-option').forEach(option => {
-      option.addEventListener('click', function() {
-        const type = this.dataset.type;
-        selectedCharacter = type;
-        playClickSound();
-        hideSelectScreen();
-      });
-    });
+document.querySelectorAll('.select-option').forEach(option => {
+  option.addEventListener('click', function() {
+    const type = this.dataset.type;
+    selectedCharacter = type;
+    playClickSound();
+    hideSelectScreen();
+  });
+});
 
-    document.getElementById('helpBtnGame').addEventListener('click', function() {
-      playClickSound();
-      document.getElementById('gameHelpOverlay').classList.add('show');
-    });
+document.getElementById('helpBtnGame').addEventListener('click', function() {
+  playClickSound();
+  document.getElementById('gameHelpOverlay').classList.add('show');
+});
 
-    document.getElementById('gameHelpCloseBtn').addEventListener('click', function() {
-      playClickSound();
-      document.getElementById('gameHelpOverlay').classList.remove('show');
-    });
+document.getElementById('gameHelpCloseBtn').addEventListener('click', function() {
+  playClickSound();
+  document.getElementById('gameHelpOverlay').classList.remove('show');
+});
 
-    document.getElementById('musicPrev').addEventListener('click', prevTrack);
-    document.getElementById('musicNext').addEventListener('click', nextTrack);
-    document.getElementById('melodyBtn').addEventListener('click', toggleMute);
+document.getElementById('musicPrev').addEventListener('click', prevTrack);
+document.getElementById('musicNext').addEventListener('click', nextTrack);
+document.getElementById('melodyBtn').addEventListener('click', toggleMute);
 
-    document.getElementById('bgSelector').addEventListener('click', changeBg);
+document.getElementById('bgSelector').addEventListener('click', changeBg);
 
-    document.getElementById('scrollUp').addEventListener('click', () => scrollItems('up'));
-    document.getElementById('scrollDown').addEventListener('click', () => scrollItems('down'));
+document.getElementById('scrollUp').addEventListener('click', () => scrollItems('up'));
+document.getElementById('scrollDown').addEventListener('click', () => scrollItems('down'));
 
-    document.getElementById('startoverBtn').addEventListener('click', function() {
-      playClickSound();
-      if (confirm('Start over? All progress will be lost.')) {
-        location.reload();
-      }
-    });
+document.getElementById('startoverBtn').addEventListener('click', function() {
+  startOver();
+});
 
-    document.getElementById('printBtn').addEventListener('click', function() {
-      playClickSound();
-      alert('Print function coming soon!');
-    });
+document.getElementById('printBtn').addEventListener('click', function() {
+  playClickSound();
+  alert('Print function coming soon!');
+});
 
-    // ========== WHITE FADE ==========
-    function whiteFadeTransition(callback) {
-      const fade = document.getElementById('whiteFade');
-      fade.classList.add('active');
-      setTimeout(() => {
-        if (callback) callback();
-        setTimeout(() => fade.classList.remove('active'), 300);
-      }, 400);
+// ========== WHITE FADE ==========
+function whiteFadeTransition(callback) {
+  const fade = document.getElementById('whiteFade');
+  fade.classList.add('active');
+  setTimeout(() => {
+    if (callback) callback();
+    setTimeout(() => fade.classList.remove('active'), 300);
+  }, 400);
+}
+
+// ========== GLOBAL SPARKLE BURST ==========
+function triggerGlobalSparkleBurst(callback) {
+  const container = document.getElementById('globalSparkleContainer');
+  const total = 40;
+  let created = 0;
+  function create() {
+    const el = document.createElement('div');
+    el.className = 'global-sparkle';
+    el.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
+    el.style.left = Math.random() * window.innerWidth + 'px';
+    el.style.top = Math.random() * window.innerHeight + 'px';
+    el.style.animationDelay = Math.random() * 0.3 + 's';
+    const size = Math.random() * 40 + 20;
+    el.style.width = size + 'px'; el.style.height = size + 'px';
+    container.appendChild(el);
+    created++;
+    if (created >= total) {
+      setTimeout(() => { container.innerHTML = ''; if (callback) callback(); }, 1500);
     }
+  }
+  for (let i=0; i<total; i++) setTimeout(create, i*25);
+}
 
-    // ========== GLOBAL SPARKLE BURST ==========
-    function triggerGlobalSparkleBurst(callback) {
-      const container = document.getElementById('globalSparkleContainer');
-      const total = 40;
-      let created = 0;
-      function create() {
-        const el = document.createElement('div');
-        el.className = 'global-sparkle';
-        el.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
-        el.style.left = Math.random() * window.innerWidth + 'px';
-        el.style.top = Math.random() * window.innerHeight + 'px';
-        el.style.animationDelay = Math.random() * 0.3 + 's';
-        const size = Math.random() * 40 + 20;
-        el.style.width = size + 'px'; el.style.height = size + 'px';
-        container.appendChild(el);
-        created++;
-        if (created >= total) {
-          setTimeout(() => { container.innerHTML = ''; if (callback) callback(); }, 1500);
-        }
-      }
-      for (let i=0; i<total; i++) setTimeout(create, i*25);
+// ========== LOADING ==========
+const filesToLoad = [
+  'images/quote-bg.png', 'images/sparkle.png', 'images/sparkle_a.png', 'images/sparkle_b.png',
+  'images/Go.png', 'images/loading-bg.png', 'images/landing.png', 'images/play_landing.png',
+  'images/play_help.png', 'images/help.png', 'images/bg_design_studio.jpg', 'images/landing-sparkle.png',
+  'images/bg_design_studio_help.jpg', 'images/fashion_horse.png', 'images/cock.png', 'images/model_help.png',
+  'images/help_btn.png', 'images/music.png', 'images/prev.png', 'images/next.png', 'images/melody.png',
+  'images/menu_mermaid.png', 'images/menu_fairy.png', 'images/menu_boy.png',
+  'images/itemsbg.png', 'images/up.png', 'images/down.png', 'images/print.png', 'images/startover.png',
+  'images/bg_btn.png',
+  'images/fairy_icon.png', 'images/mermaid_icon.png', 'images/human_icon.png',
+  'images/model/model_mermaid.png', 'images/model/model_fairy.png', 'images/model/model_boy.png',
+  'images/mermaid_transfer.png',
+  'fonts/ALGER.ttf',
+  'sounds/click.mp3', 'sounds/hover.mp3',
+  'sounds/appear.mp3', 'sounds/appear1.mp3', 'sounds/appear2.mp3',
+  'sounds/appear3.mp3', 'sounds/appear4.mp3', 'sounds/appear5.mp3',
+  'music/music_game.mp3', 'music/track1.mp3', 'music/track2.mp3', 'music/track3.mp3'
+];
+
+// Landing images
+for (let i = 1; i <= 9; i++) {
+  filesToLoad.push(`images/landing/${i}.png`);
+}
+
+// BG images
+for (let i = 1; i <= 3; i++) {
+  filesToLoad.push(`images/bg/${i}.jpg`);
+}
+
+// Mermaid assets
+const mermaidTails = [
+  'mermaid_purple_pattern', 'mermaid_yellow_fish2', 'mermaid_blue', 'mermaid_green_pattern',
+  'mermaid_red_design', 'mermaid_white_fish', 'mermaid_pink_fish2', 'mermaid_gray_fish',
+  'mermaid_blue_pattern', 'mermaid_yellow_design', 'mermaid_green_fish', 'mermaid_purple_fish2',
+  'mermaid_blue_fish2', 'mermaid_white_pattern', 'mermaid_red_fish2', 'mermaid_pink_pattern',
+  'mermaid_yellow_pattern', 'mermaid_color_fish2', 'mermaid_green_fish2', 'mermaid_white_fish2',
+  'mermaid_purple_fish', 'mermaid_blue_fish'
+];
+mermaidTails.forEach(file => {
+  filesToLoad.push(`images/assets/thumb/mermaid/${file}.png`);
+  filesToLoad.push(`images/assets/full/mermaid/${file}.png`);
+});
+for (let i = 1; i <= 4; i++) {
+  filesToLoad.push(`images/assets/thumb/mermaid/shirt${i}.png`);
+  filesToLoad.push(`images/assets/full/mermaid/shirt${i}.png`);
+}
+for (let i = 1; i <= 5; i++) {
+  filesToLoad.push(`images/assets/thumb/mermaid/acc${i}.png`);
+  filesToLoad.push(`images/assets/full/mermaid/acc${i}.png`);
+}
+
+// Fairy assets
+for (let i = 1; i <= 3; i++) {
+  filesToLoad.push(`images/assets/thumb/fairy/wing${i}.png`);
+  filesToLoad.push(`images/assets/full/fairy/wing${i}.png`);
+  filesToLoad.push(`images/assets/thumb/fairy/dress${i}.png`);
+  filesToLoad.push(`images/assets/full/fairy/dress${i}.png`);
+}
+for (let i = 1; i <= 2; i++) {
+  filesToLoad.push(`images/assets/thumb/fairy/shirt${i}.png`);
+  filesToLoad.push(`images/assets/full/fairy/shirt${i}.png`);
+  filesToLoad.push(`images/assets/thumb/fairy/sock${i}.png`);
+  filesToLoad.push(`images/assets/full/fairy/sock${i}.png`);
+  filesToLoad.push(`images/assets/thumb/fairy/shoe${i}.png`);
+  filesToLoad.push(`images/assets/full/fairy/shoe${i}.png`);
+  filesToLoad.push(`images/assets/thumb/fairy/acc${i}.png`);
+  filesToLoad.push(`images/assets/full/fairy/acc${i}.png`);
+}
+
+// Human assets
+for (let i = 1; i <= 2; i++) {
+  filesToLoad.push(`images/assets/thumb/human/shirt${i}.png`);
+  filesToLoad.push(`images/assets/full/human/shirt${i}.png`);
+  filesToLoad.push(`images/assets/thumb/human/pant${i}.png`);
+  filesToLoad.push(`images/assets/full/human/pant${i}.png`);
+  filesToLoad.push(`images/assets/thumb/human/shoe${i}.png`);
+  filesToLoad.push(`images/assets/full/human/shoe${i}.png`);
+  filesToLoad.push(`images/assets/thumb/human/acc${i}.png`);
+  filesToLoad.push(`images/assets/full/human/acc${i}.png`);
+}
+
+// Menu buttons
+const btnTypes = ['tails', 'shirts', 'accessories', 'wings', 'dress', 'socks', 'shoes', 'pants'];
+const btnSuffixes = ['_mer', '_fairy', '_boy'];
+btnTypes.forEach(type => {
+  btnSuffixes.forEach(suffix => {
+    filesToLoad.push(`images/btn_${type}${suffix}.png`);
+  });
+});
+
+let loadedCount = 0;
+const totalFiles = filesToLoad.length;
+const percentEl = document.getElementById('loadingPercent');
+
+function updatePercent() {
+  const p = Math.min(Math.floor((loadedCount / totalFiles) * 100), 100);
+  if (percentEl) {
+    percentEl.textContent = p + '%';
+  }
+}
+
+function loadFile(src) {
+  return new Promise((resolve) => {
+    const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src);
+    const isAudio = /\.(mp3|wav|ogg|m4a)$/i.test(src);
+    const isFont = /\.(ttf|otf|woff|woff2)$/i.test(src);
+
+    if (isImage) {
+      const img = new Image();
+      img.onload = () => { loadedCount++; updatePercent(); resolve(); };
+      img.onerror = () => { loadedCount++; updatePercent(); resolve(); };
+      img.src = src;
+    } else if (isAudio || isFont) {
+      fetch(src).then(() => { loadedCount++; updatePercent(); resolve(); })
+        .catch(() => { loadedCount++; updatePercent(); resolve(); });
+    } else {
+      fetch(src).then(() => { loadedCount++; updatePercent(); resolve(); })
+        .catch(() => { loadedCount++; updatePercent(); resolve(); });
     }
+  });
+}
 
-    // ========== LOADING ==========
-    const filesToLoad = [
-      'images/quote-bg.png', 'images/sparkle.png', 'images/sparkle_a.png', 'images/sparkle_b.png',
-      'images/Go.png', 'images/loading-bg.png', 'images/landing.png', 'images/play_landing.png',
-      'images/play_help.png', 'images/help.png', 'images/bg_design_studio.jpg', 'images/landing-sparkle.png',
-      'images/bg_design_studio_help.jpg', 'images/fashion_horse.png', 'images/cock.png', 'images/model_help.png',
-      'images/help_btn.png', 'images/music.png', 'images/prev.png', 'images/next.png', 'images/melody.png',
-      'images/menu_mermaid.png', 'images/menu_fairy.png', 'images/menu_boy.png',
-      'images/itemsbg.png', 'images/up.png', 'images/down.png', 'images/print.png', 'images/startover.png',
-      'images/bg_btn.png',
-      'images/fairy_icon.png', 'images/mermaid_icon.png', 'images/human_icon.png',
-      'images/model/model_mermaid.png', 'images/model/model_fairy.png', 'images/model/model_boy.png',
-      'images/mermaid_transfer.png',
-      'fonts/ALGER.ttf',
-      'sounds/click.mp3', 'sounds/hover.mp3',
-      'sounds/appear.mp3', 'sounds/appear1.mp3', 'sounds/appear2.mp3',
-      'sounds/appear3.mp3', 'sounds/appear4.mp3', 'sounds/appear5.mp3',
-      'music/music_game.mp3', 'music/track1.mp3', 'music/track2.mp3', 'music/track3.mp3'
-    ];
+async function preloadAll() {
+  console.log('Starting preload... Total files:', totalFiles);
+  loadedCount = 0;
+  updatePercent();
+  
+  try {
+    await Promise.all(filesToLoad.map(f => loadFile(f)));
+    console.log('All files loaded!');
+  } catch (error) {
+    console.error('Error loading files:', error);
+  }
+  
+  loadedCount = totalFiles;
+  updatePercent();
+  
+  addHoverSoundToButtons();
+  setTimeout(() => replacePercentWithGo(), 300);
+}
 
-    // Landing images
-    for (let i = 1; i <= 9; i++) {
-      filesToLoad.push(`images/landing/${i}.png`);
-    }
+function replacePercentWithGo() {
+  const pEl = document.getElementById('loadingPercent');
+  const goBtn = document.getElementById('goButton');
+  const bg = document.getElementById('loadingBg');
+  pEl.classList.add('fade-out');
+  setTimeout(() => {
+    pEl.style.display = 'none';
+    bg.classList.add('show');
+    goBtn.classList.add('show');
+  }, 600);
+}
 
-    // BG images
-    for (let i = 1; i <= 3; i++) {
-      filesToLoad.push(`images/bg/${i}.jpg`);
-    }
+// ========== INIT ==========
+document.addEventListener('DOMContentLoaded', () => {
+  preloadAll();
+  if (!isTouchDevice) {
+    startMouseTrail();
+    startFallingSparkles();
+    setupCustomCursor();
+  } else {
+    startTouchSparkles();
+  }
+  
+  // Set initial character
+  selectedCharacter = 'mermaid';
+  setupCharacter('mermaid');
+  updateItems('tails', 'mermaid');
+  
+  // Set initial BG
+  document.getElementById('gameBg').style.backgroundImage = "url('images/bg/2.jpg')";
+  
+  // Set initial music
+  playTrack(0);
+});
 
-    // Mermaid assets
-    const mermaidTails = [
-      'mermaid_purple_pattern', 'mermaid_yellow_fish2', 'mermaid_blue', 'mermaid_green_pattern',
-      'mermaid_red_design', 'mermaid_white_fish', 'mermaid_pink_fish2', 'mermaid_gray_fish',
-      'mermaid_blue_pattern', 'mermaid_yellow_design', 'mermaid_green_fish', 'mermaid_purple_fish2',
-      'mermaid_blue_fish2', 'mermaid_white_pattern', 'mermaid_red_fish2', 'mermaid_pink_pattern',
-      'mermaid_yellow_pattern', 'mermaid_color_fish2', 'mermaid_green_fish2', 'mermaid_white_fish2',
-      'mermaid_purple_fish', 'mermaid_blue_fish'
-    ];
-    mermaidTails.forEach(file => {
-      filesToLoad.push(`images/assets/thumb/mermaid/${file}.png`);
-      filesToLoad.push(`images/assets/full/mermaid/${file}.png`);
-    });
-    for (let i = 1; i <= 4; i++) {
-      filesToLoad.push(`images/assets/thumb/mermaid/shirt${i}.png`);
-      filesToLoad.push(`images/assets/full/mermaid/shirt${i}.png`);
-    }
-    for (let i = 1; i <= 5; i++) {
-      filesToLoad.push(`images/assets/thumb/mermaid/acc${i}.png`);
-      filesToLoad.push(`images/assets/full/mermaid/acc${i}.png`);
-    }
-
-    // Fairy assets
-    for (let i = 1; i <= 3; i++) {
-      filesToLoad.push(`images/assets/thumb/fairy/wing${i}.png`);
-      filesToLoad.push(`images/assets/full/fairy/wing${i}.png`);
-      filesToLoad.push(`images/assets/thumb/fairy/dress${i}.png`);
-      filesToLoad.push(`images/assets/full/fairy/dress${i}.png`);
-    }
-    for (let i = 1; i <= 2; i++) {
-      filesToLoad.push(`images/assets/thumb/fairy/shirt${i}.png`);
-      filesToLoad.push(`images/assets/full/fairy/shirt${i}.png`);
-      filesToLoad.push(`images/assets/thumb/fairy/sock${i}.png`);
-      filesToLoad.push(`images/assets/full/fairy/sock${i}.png`);
-      filesToLoad.push(`images/assets/thumb/fairy/shoe${i}.png`);
-      filesToLoad.push(`images/assets/full/fairy/shoe${i}.png`);
-      filesToLoad.push(`images/assets/thumb/fairy/acc${i}.png`);
-      filesToLoad.push(`images/assets/full/fairy/acc${i}.png`);
-    }
-
-    // Human assets
-    for (let i = 1; i <= 2; i++) {
-      filesToLoad.push(`images/assets/thumb/human/shirt${i}.png`);
-      filesToLoad.push(`images/assets/full/human/shirt${i}.png`);
-      filesToLoad.push(`images/assets/thumb/human/pant${i}.png`);
-      filesToLoad.push(`images/assets/full/human/pant${i}.png`);
-      filesToLoad.push(`images/assets/thumb/human/shoe${i}.png`);
-      filesToLoad.push(`images/assets/full/human/shoe${i}.png`);
-      filesToLoad.push(`images/assets/thumb/human/acc${i}.png`);
-      filesToLoad.push(`images/assets/full/human/acc${i}.png`);
-    }
-
-    // Menu buttons
-    const btnTypes = ['tails', 'shirts', 'accessories', 'wings', 'dress', 'socks', 'shoes', 'pants'];
-    const btnSuffixes = ['_mer', '_fairy', '_boy'];
-    btnTypes.forEach(type => {
-      btnSuffixes.forEach(suffix => {
-        filesToLoad.push(`images/btn_${type}${suffix}.png`);
-      });
-    });
-
-    let loadedCount = 0;
-    const totalFiles = filesToLoad.length;
-    const percentEl = document.getElementById('loadingPercent');
-
-    function updatePercent() {
-      const p = Math.min(Math.floor((loadedCount / totalFiles) * 100), 100);
-      if (percentEl) {
-        percentEl.textContent = p + '%';
-      }
-    }
-
-    function loadFile(src) {
-      return new Promise((resolve) => {
-        const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src);
-        const isAudio = /\.(mp3|wav|ogg|m4a)$/i.test(src);
-        const isFont = /\.(ttf|otf|woff|woff2)$/i.test(src);
-
-        if (isImage) {
-          const img = new Image();
-          img.onload = () => { loadedCount++; updatePercent(); resolve(); };
-          img.onerror = () => { loadedCount++; updatePercent(); resolve(); };
-          img.src = src;
-        } else if (isAudio || isFont) {
-          fetch(src).then(() => { loadedCount++; updatePercent(); resolve(); })
-            .catch(() => { loadedCount++; updatePercent(); resolve(); });
-        } else {
-          fetch(src).then(() => { loadedCount++; updatePercent(); resolve(); })
-            .catch(() => { loadedCount++; updatePercent(); resolve(); });
-        }
-      });
-    }
-
-    async function preloadAll() {
-      console.log('Starting preload... Total files:', totalFiles);
-      loadedCount = 0;
-      updatePercent();
-      
-      try {
-        await Promise.all(filesToLoad.map(f => loadFile(f)));
-        console.log('All files loaded!');
-      } catch (error) {
-        console.error('Error loading files:', error);
-      }
-      
-      loadedCount = totalFiles;
-      updatePercent();
-      
-      addHoverSoundToButtons();
-      setTimeout(() => replacePercentWithGo(), 300);
-    }
-
-    function replacePercentWithGo() {
-      const pEl = document.getElementById('loadingPercent');
-      const goBtn = document.getElementById('goButton');
-      const bg = document.getElementById('loadingBg');
-      pEl.classList.add('fade-out');
-      setTimeout(() => {
-        pEl.style.display = 'none';
-        bg.classList.add('show');
-        goBtn.classList.add('show');
-      }, 600);
-    }
-
-    // ========== INIT ==========
-    document.addEventListener('DOMContentLoaded', () => {
-      preloadAll();
-      if (!isTouchDevice) {
-        startMouseTrail();
-        startFallingSparkles();
-        setupCustomCursor();
-      } else {
-        startTouchSparkles();
-      }
-      
-      // Set initial character
-      selectedCharacter = 'mermaid';
-      setupCharacter('mermaid');
-      updateItems('tails', 'mermaid');
-      
-      // Set initial BG
-      document.getElementById('gameBg').style.backgroundImage = "url('images/bg/2.jpg')";
-      
-      // Set initial music
-      playTrack(0);
-    });
-
-    // Fallback
-    setTimeout(() => {
-      const goBtn = document.getElementById('goButton');
-      if (!goBtn.classList.contains('show')) {
-        loadedCount = totalFiles;
-        updatePercent();
-        replacePercentWithGo();
-      }
-    }, 8000);
+// Fallback
+setTimeout(() => {
+  const goBtn = document.getElementById('goButton');
+  if (!goBtn.classList.contains('show')) {
+    loadedCount = totalFiles;
+    updatePercent();
+    replacePercentWithGo();
+  }
+setTimeout(setupItemDrag, 500);}, 8000);
   </script>
 </body>
 </html>
