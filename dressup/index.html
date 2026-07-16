@@ -860,6 +860,32 @@
   <div class="footer">© 2026 Myrealap. All Rights Reserved.</div>
 
   <script>
+
+// ========== REGISTER SERVICE WORKER ==========
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(registration => {
+        console.log('Service Worker registered with scope:', registration.scope);
+        
+        // Check for updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          console.log('New Service Worker installing...');
+          
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('Update available! Reload to get new version.');
+              // Show a notification or auto-reload
+            }
+          });
+        });
+      })
+      .catch(error => {
+        console.log('Service Worker registration failed:', error);
+      });
+  });
+}
    // ========== QUOTES ==========
 const quotes = [
   { text: "Love & Imagination can change the world!", author: "Myrealap" },
@@ -873,7 +899,7 @@ const quotes = [
   { text: "Where words fail, music speaks", author: "Hans Christian Andersen" },
   { text: "Art washes away from the soul the dust of everyday life", author: "Picasso" },
   { text: "The only truth is music", author: "Kerouac" },
-  { text: "Life is like a beautiful melody, only the lyrics are messed up", author: "myrealap" }
+  { text: "Love, Live!", author: "myrealap" }
 ];
 function showRandomQuote() {
   const r = Math.floor(Math.random() * quotes.length);
@@ -1901,6 +1927,20 @@ function loadFile(src) {
 
 async function preloadAll() {
   console.log('Starting preload... Total files:', totalFiles);
+  
+  // Check if service worker is handling caching
+  if ('serviceWorker' in navigator) {
+    const registration = await navigator.serviceWorker.ready;
+    const cache = await caches.open(CACHE_NAME);
+    const cachedRequests = await cache.keys();
+    
+    // If most assets are cached, we can speed up loading
+    if (cachedRequests.length > 0) {
+      console.log(`Found ${cachedRequests.length} cached assets`);
+      // Still load from network but use cache as fallback
+    }
+  }
+  
   loadedCount = 0;
   updatePercent();
   
