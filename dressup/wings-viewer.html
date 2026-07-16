@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Wings Viewer</title>
+  <style>
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    body {
+      background: transparent;
+      overflow: hidden;
+      height: 100vh;
+      width: 100%;
+      position: relative;
+    }
+
+    .wings-display {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      pointer-events: none;
+      z-index: 0;
+      align-items: center;
+      justify-content: center;
+    }
+    .wings-display canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .magic-overlay {
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 130%;
+      height: 130%;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.5s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .magic-overlay.active {
+      opacity: 1;
+    }
+    .magic-overlay canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wings-display" id="wingsDisplay">
+    <canvas id="wingsCanvas"></canvas>
+  </div>
+
+  <div class="magic-overlay" id="magicOverlay">
+    <canvas id="magicCanvas"></canvas>
+  </div>
+
+  <script>
+    // ========== SPARKLE IMAGES ==========
+    const sparkleImages = ['images/sparkle_a.png', 'images/sparkle_b.png'];
+    const sparkleImageObjects = [];
+    sparkleImages.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      sparkleImageObjects.push(img);
+    });
+
+    // ========== WINGS STATE ==========
+    let currentWingsImage = null;
+    let wingsAnimationId = null;
+    let wingFlapProgress = 0;
+    let wingFlapDirection = 1;
+    let wingsVisible = false;
+    let isAnimating = false;
+    let isStopping = false;
+    let stopProgress = 0;
+    let isTransitioning = false;
+
+    // ========== WINGS UPDATE ==========
+    function updateWings(imageUrl) {
+      console.log('Wings update called:', imageUrl);
+      
+      // If there's a current wing, smoothly stop it first
+      if (wingsVisible && currentWingsImage && isAnimating) {
+        smoothStopWings(() => {
+          // After stopping, load the new wing
+          loadNewWing(imageUrl);
+        });
+      } else {
+        // No wing showing, just load it
+        loadNewWing(imageUrl);
+      }
+    }
+
+    function loadNewWing(imageUrl) {
+      currentWingsImage = new Image();
+      currentWingsImage.onload = function() {
+        console.log('Wings image loaded successfully');
+        wingsVisible = true;
+        isAnimating = false;
+        isStopping = false;
+        stopProgress = 0;
+        wingFlapProgress = 0;
+        wingFlapDirection = 1;
+        startWingsAnimation();
+        window.parent.postMessage({ action: 'wingsUpdated' }, '*');
+      };
+      currentWingsImage.onerror = function() {
+        console.error('Failed to load wings image:', imageUrl);
+      };
+      currentWingsImage.src = imageUrl;
+    }
+
+    // ========== SMOOTH STOP WINGS ==========
+    function smoothStopWings(callback) {
+      if (!isAnimating || !wingsVisible) {
+        if (callback) callback();
+        return;
+      }
+      
+      console.log('Smoothly stopping wings...');
+      isStopping = true;
+      stopProgress = 0;
+      isAnimating = false;
+      
+      const canvas = document.getElementById('wingsCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      function animateStop() {
+        if (!currentWingsImage || !wingsVisible) {
+          if (callback) callback();
+          return;
+        }
+        
+        // Increase stop progress - fast and smooth
+        stopProgress += 0.04;
+        
+        if (stopProgress >= 1) {
+          stopProgress = 1;
+          isStopping = false;
+          
+          // Draw final frame - fully open (scaleX: 1.0)
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          const imgWidth = currentWingsImage.width;
+          const imgHeight = currentWingsImage.height;
+          const scale = Math.min(
+            canvas.width / imgWidth,
+            canvas.height / imgHeight
+          ) * 0.85;
+          
+          const x = (canvas.width - imgWidth * scale) / 2;
+          const y = (canvas.height - imgHeight * scale) / 2;
+          
+          ctx.save();
+          ctx.translate(x + (imgWidth * scale) / 2, y + (imgHeight * scale) / 2);
+          ctx.scale(1.0, 1); // Fully open
+          ctx.drawImage(
+            currentWingsImage,
+            -(imgWidth * scale) / 2,
+            -(imgHeight * scale) / 2,
+            imgWidth * scale,
+            imgHeight * scale
+          );
+          ctx.restore();
+          
+          console.log('Wings stopped - fully open');
+          if (callback) callback();
+          return;
+        }
+        
+        // Smooth easing for natural stopping
+        const easeOut = 1 - Math.pow(1 - stopProgress, 3);
+        // ScaleX from current position to 1.0 (fully open)
+        const currentScaleX = 0.4 + (easeOut * 0.6);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const imgWidth = currentWingsImage.width;
+        const imgHeight = currentWingsImage.height;
+        const scale = Math.min(
+          canvas.width / imgWidth,
+          canvas.height / imgHeight
+        ) * 0.85;
+        
+        const x = (canvas.width - imgWidth * scale) / 2;
+        const y = (canvas.height - imgHeight * scale) / 2;
+        
+        ctx.save();
+        ctx.translate(x + (imgWidth * scale) / 2, y + (imgHeight * scale) / 2);
+        ctx.scale(currentScaleX, 1);
+        ctx.drawImage(
+          currentWingsImage,
+          -(imgWidth * scale) / 2,
+          -(imgHeight * scale) / 2,
+          imgWidth * scale,
+          imgHeight * scale
+        );
+        ctx.restore();
+        
+        requestAnimationFrame(animateStop);
+      }
+      
+      animateStop();
+    }
+
+    // ========== BUTTERFLY WINGS ANIMATION ==========
+    function startWingsAnimation() {
+      const canvas = document.getElementById('wingsCanvas');
+      const ctx = canvas.getContext('2d');
+      const container = document.getElementById('wingsDisplay');
+      const rect = container.getBoundingClientRect();
+      
+      canvas.width = rect.width || window.innerWidth;
+      canvas.height = rect.height || window.innerHeight;
+      
+      wingFlapProgress = 0;
+      wingFlapDirection = 1;
+      isAnimating = true;
+      isStopping = false;
+      stopProgress = 0;
+      
+      if (wingsAnimationId) {
+        cancelAnimationFrame(wingsAnimationId);
+      }
+      
+      function animateWings() {
+        if (!currentWingsImage || !wingsVisible || !isAnimating) {
+          wingsAnimationId = requestAnimationFrame(animateWings);
+          return;
+        }
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Butterfly flap animation - scaleX oscillates between 0.4 and 1.0
+        wingFlapProgress += 0.025 * wingFlapDirection;
+        
+        if (wingFlapProgress > 1) {
+          wingFlapProgress = 1;
+          wingFlapDirection = -1;
+        } else if (wingFlapProgress < 0) {
+          wingFlapProgress = 0;
+          wingFlapDirection = 1;
+        }
+        
+        // Smooth ease-in-out for natural butterfly flapping
+        const easeProgress = wingFlapProgress < 0.5 
+          ? 2 * wingFlapProgress * wingFlapProgress 
+          : 1 - Math.pow(-2 * wingFlapProgress + 2, 2) / 2;
+        
+        // ScaleX from 0.4 (closed) to 1.0 (open)
+        const scaleX = 0.4 + (easeProgress * 0.6);
+        
+        const imgWidth = currentWingsImage.width;
+        const imgHeight = currentWingsImage.height;
+        const scale = Math.min(
+          canvas.width / imgWidth,
+          canvas.height / imgHeight
+        ) * 0.85;
+        
+        const x = (canvas.width - imgWidth * scale) / 2;
+        const y = (canvas.height - imgHeight * scale) / 2;
+        
+        ctx.save();
+        ctx.translate(x + (imgWidth * scale) / 2, y + (imgHeight * scale) / 2);
+        ctx.scale(scaleX, 1);
+        ctx.drawImage(
+          currentWingsImage,
+          -(imgWidth * scale) / 2,
+          -(imgHeight * scale) / 2,
+          imgWidth * scale,
+          imgHeight * scale
+        );
+        ctx.restore();
+        
+        wingsAnimationId = requestAnimationFrame(animateWings);
+      }
+      
+      animateWings();
+    }
+
+    // ========== WINGS MAGIC TRANSFORMATION ==========
+    function playWingsMagic(callback) {
+      console.log('Wings magic started');
+      
+      // If wings are animating, stop them first before showing magic
+      if (isAnimating && wingsVisible) {
+        smoothStopWings(() => {
+          // After stopping, play the magic
+          doMagicTransition(callback);
+        });
+      } else {
+        doMagicTransition(callback);
+      }
+    }
+
+    function doMagicTransition(callback) {
+      const overlay = document.getElementById('magicOverlay');
+      const canvas = document.getElementById('magicCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      const display = document.getElementById('wingsDisplay');
+      const rect = display.getBoundingClientRect();
+      
+      canvas.width = rect.width || window.innerWidth;
+      canvas.height = rect.height || window.innerHeight;
+      
+      overlay.classList.add('active');
+      
+      const transferImg = new Image();
+      transferImg.src = 'images/fairy_transfer.png';
+      transferImg.onload = function() {
+        console.log('fairy_transfer.png loaded');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const scale = Math.min(
+          canvas.width / transferImg.width,
+          canvas.height / transferImg.height
+        );
+        const x = (canvas.width - transferImg.width * scale) / 2;
+        const y = (canvas.height - transferImg.height * scale) / 2;
+        
+        let startTime = Date.now();
+        const duration = 1500;
+        const sparkles = [];
+        
+        const totalSparkles = 400;
+        const sparkleMinSize = 20;
+        const sparkleMaxSize = 45;
+        const sparkleDistance = 0.5;
+        const blinkSpeed = 200;
+        const sparkleSpeed = 2;
+        const fadeSpeed = 0.001;
+        
+        for (let i = 0; i < totalSparkles; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * 0.3 + sparkleDistance;
+          const edgeX = x + transferImg.width * scale * 0.5 + Math.cos(angle) * transferImg.width * scale * 0.55 * dist;
+          const edgeY = y + transferImg.height * scale * 0.5 + Math.sin(angle) * transferImg.height * scale * 0.55 * dist;
+          
+          const img = sparkleImageObjects[Math.floor(Math.random() * sparkleImageObjects.length)];
+          
+          sparkles.push({
+            x: edgeX,
+            y: edgeY,
+            size: Math.random() * (sparkleMaxSize - sparkleMinSize) + sparkleMinSize,
+            speedX: (Math.random() - 0.5) * sparkleSpeed,
+            speedY: (Math.random() - 0.5) * sparkleSpeed,
+            rotation: Math.random() * Math.PI * 2,
+            rotationSpeed: (Math.random() - 0.5) * 0.1,
+            life: Math.random() * 0.6 + 0.4,
+            maxLife: Math.random() * 0.6 + 0.4,
+            img: img,
+            phase: Math.random() * Math.PI * 2
+          });
+        }
+        
+        let changeApplied = false;
+        let opacity = 0;
+        let fadeOutProgress = 0;
+        
+        function animateMagic() {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          
+          opacity = Math.min(progress * 2, 1);
+          
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 30;
+          ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
+          ctx.restore();
+          
+          sparkles.forEach(sp => {
+            sp.x += sp.speedX;
+            sp.y += sp.speedY;
+            sp.rotation += sp.rotationSpeed;
+            sp.life -= fadeSpeed;
+            
+            if (sp.life <= 0) {
+              sp.life = sp.maxLife;
+              const angle = Math.random() * Math.PI * 2;
+              const dist = Math.random() * 0.3 + sparkleDistance;
+              sp.x = x + transferImg.width * scale * 0.5 + Math.cos(angle) * transferImg.width * scale * 0.55 * dist;
+              sp.y = y + transferImg.height * scale * 0.5 + Math.sin(angle) * transferImg.height * scale * 0.55 * dist;
+              sp.speedX = (Math.random() - 0.5) * sparkleSpeed;
+              sp.speedY = (Math.random() - 0.5) * sparkleSpeed;
+              sp.img = sparkleImageObjects[Math.floor(Math.random() * sparkleImageObjects.length)];
+            }
+            
+            const blink = Math.abs(Math.sin(Date.now() / blinkSpeed + sp.phase));
+            
+            ctx.save();
+            ctx.globalAlpha = sp.life * 0.8 * opacity * (0.5 + 0.5 * blink);
+            ctx.translate(sp.x, sp.y);
+            ctx.rotate(sp.rotation);
+            
+            const size = sp.size * (0.8 + 0.4 * Math.sin(Date.now() / 400 + sp.x));
+            ctx.drawImage(sp.img, -size/2, -size/2, size, size);
+            
+            ctx.restore();
+          });
+          
+          if (elapsed > 1500 && !changeApplied) {
+            changeApplied = true;
+            console.log('Wings magic complete');
+            if (callback) callback();
+          }
+          
+          if (elapsed > duration) {
+            fadeOutProgress += 0.025;
+            let fadeOutOpacity = Math.max(0, 1 - fadeOutProgress);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.save();
+            ctx.globalAlpha = fadeOutOpacity * opacity;
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 30 * fadeOutOpacity;
+            ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
+            ctx.restore();
+            
+            sparkles.forEach(sp => {
+              const blink = Math.abs(Math.sin(Date.now() / blinkSpeed + sp.phase));
+              ctx.save();
+              ctx.globalAlpha = sp.life * 0.8 * fadeOutOpacity * opacity * (0.5 + 0.5 * blink);
+              ctx.translate(sp.x, sp.y);
+              ctx.rotate(sp.rotation);
+              const size = sp.size * (0.8 + 0.4 * Math.sin(Date.now() / 400 + sp.x));
+              ctx.drawImage(sp.img, -size/2, -size/2, size, size);
+              ctx.restore();
+            });
+            
+            if (fadeOutOpacity <= 0) {
+              overlay.classList.remove('active');
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              // Start wings animation after magic completes
+              if (currentWingsImage && wingsVisible) {
+                startWingsAnimation();
+              }
+              return;
+            }
+            
+            requestAnimationFrame(animateMagic);
+            return;
+          }
+          
+          requestAnimationFrame(animateMagic);
+        }
+        
+        animateMagic();
+      };
+      transferImg.onerror = function() {
+        console.error('Failed to load fairy_transfer.png');
+        overlay.classList.remove('active');
+        if (callback) callback();
+      };
+    }
+
+    // ========== LISTEN FOR PARENT MESSAGES ==========
+    window.addEventListener('message', function(event) {
+      const data = event.data;
+      console.log('Wings received message:', data);
+      
+      if (data.action === 'updateWings') {
+        updateWings(data.imageUrl);
+      }
+      
+      if (data.action === 'playWingsMagic') {
+        playWingsMagic(() => {
+          window.parent.postMessage({ action: 'wingsMagicComplete' }, '*');
+        });
+      }
+      
+      if (data.action === 'resize') {
+        const canvas = document.getElementById('magicCanvas');
+        const rect = document.getElementById('wingsDisplay').getBoundingClientRect();
+        canvas.width = rect.width || window.innerWidth;
+        canvas.height = rect.height || window.innerHeight;
+        
+        const wingsCanvas = document.getElementById('wingsCanvas');
+        const wingsRect = document.getElementById('wingsDisplay').getBoundingClientRect();
+        wingsCanvas.width = wingsRect.width || window.innerWidth;
+        wingsCanvas.height = wingsRect.height || window.innerHeight;
+      }
+    });
+
+    // ========== RESIZE HANDLER ==========
+    window.addEventListener('resize', function() {
+      const canvas = document.getElementById('magicCanvas');
+      const rect = document.getElementById('wingsDisplay').getBoundingClientRect();
+      canvas.width = rect.width || window.innerWidth;
+      canvas.height = rect.height || window.innerHeight;
+      
+      const wingsCanvas = document.getElementById('wingsCanvas');
+      const wingsRect = document.getElementById('wingsDisplay').getBoundingClientRect();
+      wingsCanvas.width = wingsRect.width || window.innerWidth;
+      wingsCanvas.height = wingsRect.height || window.innerHeight;
+    });
+
+    // ========== INIT ==========
+    const wingsCanvas = document.getElementById('wingsCanvas');
+    const wingsRect = document.getElementById('wingsDisplay').getBoundingClientRect();
+    wingsCanvas.width = wingsRect.width || window.innerWidth;
+    wingsCanvas.height = wingsRect.height || window.innerHeight;
+    
+    window.parent.postMessage({ action: 'wingsViewerReady' }, '*');
+    console.log('Wings viewer ready!');
+  </script>
+</body>
+</html>

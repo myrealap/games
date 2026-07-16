@@ -520,6 +520,7 @@
     .menu-btn.tails { background-image: url('images/btn_tails_mer.png'); }
     .menu-btn.shirts { background-image: url('images/btn_shirts_mer.png'); }
     .menu-btn.accessories { background-image: url('images/btn_accessories_mer.png'); }
+    .menu-btn.wings { background-image: url('images/btn_wings_mer.png'); }
 
     /* Items Panel - right to left slide effect */
 .items-panel {
@@ -718,6 +719,7 @@
       .select-option img { width: 60px; height: 60px; }
       .select-option p {font-size: 180%; letter-spacing: 1px;}
       .modelViewer { bottom: 4% !important; left: -20% !important; width: 150% !important; height: 100% !important; transform: scale(0.8) !important; top: unset !important; }
+      .wingsViewer { bottom: 4% !important; left: -20% !important; width: 150% !important; height: 100% !important; transform: scale(0.8) !important; top: unset !important; }
       .footer { font-size: 7px; bottom: 2px; }
     }
   </style>
@@ -792,7 +794,27 @@
   <!-- GAME SCREEN -->
   <div class="game-screen" id="gameScreen">
     <div class="game-bg" id="gameBg"></div>
-    
+
+    <!-- In index.html, add this BEFORE the model viewer iframe -->
+<!-- Wings Viewer - Behind the model -->
+<iframe 
+  id="wingsViewer"
+  class="wingsViewer"
+  src="wings-viewer.html" 
+  style="
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    z-index: 0;
+    pointer-events: none;
+    background: transparent;
+  "
+  allow="autoplay"
+></iframe>
+
     <!-- Model Viewer (embedded) -->
 <iframe 
   id="modelViewer"
@@ -833,6 +855,7 @@
       <div class="menu-bg" id="menuBg">
         <button class="menu-btn tails" data-menu="tails"></button>
         <button class="menu-btn shirts" data-menu="shirts"></button>
+        <button class="menu-btn wings" data-menu="wings"></button>
         <button class="menu-btn accessories" data-menu="accessories"></button>
       </div>
     </div>
@@ -861,31 +884,6 @@
 
   <script>
 
-// ========== REGISTER SERVICE WORKER ==========
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(registration => {
-        console.log('Service Worker registered with scope:', registration.scope);
-        
-        // Check for updates
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          console.log('New Service Worker installing...');
-          
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('Update available! Reload to get new version.');
-              // Show a notification or auto-reload
-            }
-          });
-        });
-      })
-      .catch(error => {
-        console.log('Service Worker registration failed:', error);
-      });
-  });
-}
    // ========== QUOTES ==========
 const quotes = [
   { text: "Love & Imagination can change the world!", author: "Myrealap" },
@@ -1267,7 +1265,7 @@ const characterConfig = {
     model: 'images/model/model_mermaid.png',
     defaultBg: 2,
     menuClass: 'mermaid',
-    menuButtons: ['tails', 'shirts', 'accessories'],
+    menuButtons: ['tails', 'shirts', 'wings', 'accessories'],
     btnSuffix: '_mer'
   },
   fairy: {
@@ -1359,11 +1357,46 @@ const itemData = {
       { thumb: 'images/assets/thumb/mermaid/mermaid_blue_fish.png', full: 'images/assets/full/mermaid/mermaid_blue_fish.png' }
     ],
     shirts: [
-      { thumb: 'images/assets/thumb/mermaid/shirt1.png', full: 'images/assets/full/mermaid/shirt1.png' },
-      { thumb: 'images/assets/thumb/mermaid/shirt2.png', full: 'images/assets/full/mermaid/shirt2.png' },
+      { thumb: 'images/assets/thumb/mermaid/shirt1.png', full: 'images/assets/full/fairy/wings_pink_long.png' },
+      { thumb: 'images/assets/thumb/mermaid/shirt2.png', full: 'images/assets/full/fairy/wings_blue_long.png' },
       { thumb: 'images/assets/thumb/mermaid/shirt3.png', full: 'images/assets/full/mermaid/shirt3.png' },
       { thumb: 'images/assets/thumb/mermaid/shirt4.png', full: 'images/assets/full/mermaid/shirt4.png' }
     ],
+    wings: [
+  { thumb: 'images/assets/thumb/fairy/wings_pink_long.png', full: 'images/assets/full/fairy/wings_pink_long.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_blue_long.png', full: 'images/assets/full/fairy/wings_blue_long.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_orange_long.png', full: 'images/assets/full/fairy/wings_orange_long.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_purple_mariposa.png', full: 'images/assets/full/fairy/wings_purple_mariposa.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_yellow_design.png', full: 'images/assets/full/fairy/wings_yellow_design.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_blue_winx.png', full: 'images/assets/full/fairy/wings_blue_winx.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_red_long.png', full: 'images/assets/full/fairy/wings_red_long.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_green_butterfly.png', full: 'images/assets/full/fairy/wings_green_butterfly.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_pink_mariposa.png', full: 'images/assets/full/fairy/wings_pink_mariposa.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_orange_winx.png', full: 'images/assets/full/fairy/wings_orange_winx.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_purple_design.png', full: 'images/assets/full/fairy/wings_purple_design.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_yellow_long.png', full: 'images/assets/full/fairy/wings_yellow_long.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_gray_butterfly.png', full: 'images/assets/full/fairy/wings_gray_butterfly.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_blue_butterfly.png', full: 'images/assets/full/fairy/wings_blue_butterfly.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_pink_winx.png', full: 'images/assets/full/fairy/wings_pink_winx.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_orange_mariposa.png', full: 'images/assets/full/fairy/wings_orange_mariposa.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_red_mariposa.png', full: 'images/assets/full/fairy/wings_red_mariposa.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_yellow_mariposa.png', full: 'images/assets/full/fairy/wings_yellow_mariposa.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_purple_long.png', full: 'images/assets/full/fairy/wings_purple_long.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_blue_design.png', full: 'images/assets/full/fairy/wings_blue_design.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_orange_design.png', full: 'images/assets/full/fairy/wings_orange_design.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_pink_butterfly.png', full: 'images/assets/full/fairy/wings_pink_butterfly.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_purple_winx.png', full: 'images/assets/full/fairy/wings_purple_winx.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_yellow_winx.png', full: 'images/assets/full/fairy/wings_yellow_winx.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_red_butterfly.png', full: 'images/assets/full/fairy/wings_red_butterfly.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_blue_mariposa.png', full: 'images/assets/full/fairy/wings_blue_mariposa.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_gray_winx.png', full: 'images/assets/full/fairy/wings_gray_winx.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_green_winx.png', full: 'images/assets/full/fairy/wings_green_winx.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_pink_design.png', full: 'images/assets/full/fairy/wings_pink_design.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_purple_butterfly.png', full: 'images/assets/full/fairy/wings_purple_butterfly.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_color_mariposa.png', full: 'images/assets/full/fairy/wings_color_mariposa.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_orange_butterfly.png', full: 'images/assets/full/fairy/wings_orange_butterfly.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_yellow_butterfly.png', full: 'images/assets/full/fairy/wings_yellow_butterfly.png' },
+],
     accessories: [
       { thumb: 'images/assets/thumb/mermaid/acc1.png', full: 'images/assets/full/mermaid/acc1.png' },
       { thumb: 'images/assets/thumb/mermaid/acc2.png', full: 'images/assets/full/mermaid/acc2.png' },
@@ -1444,6 +1477,53 @@ function updateItems(menuType, characterType) {
   void panel.offsetWidth;
   panel.classList.add('open');
 }
+// ========== WINGS FUNCTIONS ==========
+function updateWingsInViewer(imageUrl) {
+  const iframe = document.getElementById('wingsViewer');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({
+      action: 'updateWings',
+      imageUrl: imageUrl
+    }, '*');
+  }
+}
+
+function playWingsMagicInViewer(callback) {
+  const iframe = document.getElementById('wingsViewer');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({
+      action: 'playWingsMagic'
+    }, '*');
+    window._wingsMagicCallback = callback;
+  } else {
+    if (callback) callback();
+  }
+}
+
+// Update the message listener
+window.addEventListener('message', function(event) {
+  if (event.data.action === 'modelViewerReady') {
+    console.log('Model viewer is ready!');
+  }
+  if (event.data.action === 'wingsViewerReady') {
+    console.log('Wings viewer is ready!');
+  }
+  if (event.data.action === 'magicComplete') {
+    if (window._magicCallback) {
+      window._magicCallback();
+      window._magicCallback = null;
+    }
+  }
+  if (event.data.action === 'wingsMagicComplete') {
+    if (window._wingsMagicCallback) {
+      window._wingsMagicCallback();
+      window._wingsMagicCallback = null;
+    }
+  }
+  if (event.data.action === 'wingsUpdated') {
+    console.log('Wings updated!');
+  }
+});
 
 function renderItems() {
   const container = document.getElementById('itemsScroll');
@@ -1483,15 +1563,24 @@ function selectItem(index) {
   if (!item) return;
   playClickSound();
   
+  // Check if it's wings - use wing selection with magic
+  if (currentMenuType === 'wings') {
+    // Use the wing selection with magic
+    selectWing(index);
+    return;
+  }
+  
+  // Handle tails with magic (mermaid tails)
   if (selectedCharacter === 'mermaid' && currentMenuType === 'tails') {
-    // Play magic animation, then update model
     playMagicInViewer(() => {
       updateModelInViewer(item.full);
     });
   } else {
+    // Regular item update (shirts, accessories, etc.)
     updateModelInViewer(item.full);
   }
   
+  // Update active state
   document.querySelectorAll('.item-thumb').forEach(el => el.classList.remove('active'));
   const thumbs = document.querySelectorAll('.item-thumb');
   if (thumbs[index - itemScrollIndex]) {
@@ -1499,6 +1588,30 @@ function selectItem(index) {
   }
 }
 
+// ========== WING SELECTION ==========
+function selectWing(index) {
+  const item = currentItems[index];
+  if (!item) return;
+  playClickSound();
+  
+  console.log('Selecting wing:', item.full);
+  
+  // Update wings in viewer (behind the model)
+  updateWingsInViewer(item.full);
+  
+  // Play wings transformation magic
+  playWingsMagicInViewer(() => {
+    // Transformation complete - wings are now behind model with butterfly animation
+    console.log('Wings transformation complete!');
+  });
+  
+  // Update active state
+  document.querySelectorAll('.item-thumb').forEach(el => el.classList.remove('active'));
+  const thumbs = document.querySelectorAll('.item-thumb');
+  if (thumbs[index - itemScrollIndex]) {
+    thumbs[index - itemScrollIndex].classList.add('active');
+  }
+} 
 function scrollItems(direction) {
   if (direction === 'up' && itemScrollIndex > 0) {
     itemScrollIndex--;

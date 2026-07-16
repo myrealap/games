@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Model Viewer</title>
+  <title>Model Viewer – Magic Fixed</title>
   <style>
     * { 
       margin: 0; 
@@ -18,7 +18,6 @@
       position: relative;
     }
 
-    /* Model display - centered perfectly */
     .model-display {
       position: absolute;
       top: 19%;
@@ -39,7 +38,6 @@
       margin: 0 auto;
     }
 
-    /* Magic Overlay - perfectly aligned with model */
     .magic-overlay {
       position: absolute;
       bottom: 4.8%;
@@ -66,12 +64,6 @@
       display: block;
       margin: 0 auto;
     }
-
-    /* Responsive */
-    @media (max-width: 480px) {
-    }
-    @media (max-width: 768px) {
-    }
   </style>
 </head>
 <body>
@@ -96,19 +88,18 @@
       sparkleImageObjects.push(img);
     });
 
-    // ========== MODEL UPDATE FUNCTION ==========
+    // ========== MODEL UPDATE ==========
     function updateModel(imageUrl) {
       const img = document.getElementById('modelImage');
       img.src = imageUrl;
     }
 
-    // ========== MAGIC TRANSFORMATION ==========
+    // ========== FIXED MAGIC TRANSFORMATION ==========
     function playTransformationMagic(callback) {
       const overlay = document.getElementById('magicOverlay');
       const canvas = document.getElementById('magicCanvas');
       const ctx = canvas.getContext('2d');
       
-      // Get the model display dimensions
       const modelDisplay = document.getElementById('modelDisplay');
       const rect = modelDisplay.getBoundingClientRect();
       
@@ -122,7 +113,6 @@
       transferImg.onload = function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Calculate scale to fit within canvas
         const scale = Math.min(
           canvas.width / transferImg.width,
           canvas.height / transferImg.height
@@ -142,7 +132,6 @@
         const sparkleSpeed = 2;
         const fadeSpeed = 0.001;
         
-        // Create edge sparkles
         for (let i = 0; i < totalSparkles; i++) {
           const angle = Math.random() * Math.PI * 2;
           const dist = Math.random() * 0.3 + sparkleDistance;
@@ -170,25 +159,25 @@
         let opacity = 0;
         let fadeOutStart = false;
         let fadeOutProgress = 0;
-  
-  function animateMagic() {
-    const elapsed = Date.now() - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    // Fade in
-    opacity = Math.min(progress * 2, 1);
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw transfer image
-    ctx.save();
-    ctx.globalAlpha = opacity;
-    ctx.shadowColor = '#ffffff';
-    ctx.shadowBlur = 30;
-    ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
-    ctx.restore();
+        
+        function animateMagic() {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
           
-          // Draw sparkles
+          // === FADE IN (first 1.5s) ===
+          opacity = Math.min(progress * 2, 1);
+          
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          // --- draw transfer image with current opacity ---
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 30;
+          ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
+          ctx.restore();
+          
+          // --- draw sparkles (always with base opacity) ---
           sparkles.forEach(sp => {
             sp.x += sp.speedX;
             sp.y += sp.speedY;
@@ -219,58 +208,61 @@
             ctx.restore();
           });
           
-          // Apply change at 1.5 seconds
-    if (elapsed > 500 && !changeApplied) {
-      changeApplied = true;
-      if (callback) callback();
-    }
-    
-    // FADE OUT after 3 seconds
-    if (elapsed > duration) {
-      fadeOutStart = true;
-      fadeOutProgress += 0.02;
-      const fadeOutOpacity = Math.max(0, 1 - fadeOutProgress);
-      
-      // Redraw with fading opacity
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      ctx.save();
-      ctx.globalAlpha = fadeOutOpacity * opacity;
-      ctx.shadowColor = '#ffffff';
-      ctx.shadowBlur = 30 * fadeOutOpacity;
-      ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
-      ctx.restore();
-      
-      // Also fade sparkles
-      sparkles.forEach(sp => {
-        const blink = Math.abs(Math.sin(Date.now() / blinkSpeed + sp.phase));
-        ctx.save();
-        ctx.globalAlpha = sp.life * 0.8 * fadeOutOpacity * opacity * (0.5 + 0.5 * blink);
-        ctx.translate(sp.x, sp.y);
-        ctx.rotate(sp.rotation);
-        const size = sp.size * (0.8 + 0.4 * Math.sin(Date.now() / 400 + sp.x));
-        ctx.drawImage(sp.img, -size/2, -size/2, size, size);
-        ctx.restore();
-      });
-      
-      if (fadeOutOpacity <= 0) {
-        overlay.classList.remove('active');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        return;
-      }
-      
-      requestAnimationFrame(animateMagic);
-      return;
-    }
-    
-    requestAnimationFrame(animateMagic);
-  }
-  
-  animateMagic();
+          // --- apply model change at 1.5s ---
+          if (elapsed > 1500 && !changeApplied) {
+            changeApplied = true;
+            if (callback) callback();
+          }
+          
+          // --- FADE OUT after 3s (duration) ---
+          if (elapsed > duration) {
+            fadeOutStart = true;
+            fadeOutProgress += 0.025;  // smooth fade over ~1.2s
+            
+            let fadeOutOpacity = Math.max(0, 1 - fadeOutProgress);
+            
+            // redraw everything with fade-out multiplier
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // transfer image faded
+            ctx.save();
+            ctx.globalAlpha = fadeOutOpacity * opacity;
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 30 * fadeOutOpacity;
+            ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
+            ctx.restore();
+            
+            // sparkles faded
+            sparkles.forEach(sp => {
+              const blink = Math.abs(Math.sin(Date.now() / blinkSpeed + sp.phase));
+              ctx.save();
+              ctx.globalAlpha = sp.life * 0.8 * fadeOutOpacity * opacity * (0.5 + 0.5 * blink);
+              ctx.translate(sp.x, sp.y);
+              ctx.rotate(sp.rotation);
+              const size = sp.size * (0.8 + 0.4 * Math.sin(Date.now() / 400 + sp.x));
+              ctx.drawImage(sp.img, -size/2, -size/2, size, size);
+              ctx.restore();
+            });
+            
+            if (fadeOutOpacity <= 0) {
+              overlay.classList.remove('active');
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              return;
+            }
+            
+            requestAnimationFrame(animateMagic);
+            return;
+          }
+          
+          // continue normal animation (before fade-out)
+          requestAnimationFrame(animateMagic);
+        }
+        
+        animateMagic();
       };
     }
 
-    // ========== LISTEN FOR MESSAGES FROM PARENT ==========
+    // ========== LISTEN FOR PARENT MESSAGES ==========
     window.addEventListener('message', function(event) {
       const data = event.data;
       
@@ -280,13 +272,11 @@
       
       if (data.action === 'playMagic') {
         playTransformationMagic(() => {
-          // Notify parent that magic is complete
           window.parent.postMessage({ action: 'magicComplete' }, '*');
         });
       }
       
       if (data.action === 'resize') {
-        // Handle resize
         const canvas = document.getElementById('magicCanvas');
         const rect = document.getElementById('modelDisplay').getBoundingClientRect();
         canvas.width = rect.width || window.innerWidth;
@@ -294,7 +284,7 @@
       }
     });
 
-    // ========== HANDLE RESIZE ==========
+    // ========== RESIZE HANDLER ==========
     window.addEventListener('resize', function() {
       const canvas = document.getElementById('magicCanvas');
       const rect = document.getElementById('modelDisplay').getBoundingClientRect();
@@ -303,7 +293,6 @@
     });
 
     // ========== INIT ==========
-    // Let parent know we're ready
     window.parent.postMessage({ action: 'modelViewerReady' }, '*');
   </script>
 </body>
