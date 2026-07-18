@@ -114,14 +114,6 @@
         stopProgress = 0;
         wingFlapProgress = 0;
         wingFlapDirection = 1;
-        // start flapping immediately after load? we want flapping only after magic.
-        // but if no magic, we start flapping directly.
-        // we'll start flapping only if not waiting for magic.
-        // The magic flow will call startWingsAnimation after transform.
-        // But to keep backward compatible, if no magic triggered, we start flap.
-        // However in this game, magic is always triggered after wing change.
-        // We'll rely on playWingsMagic to start flapping.
-        // So we just set wingsVisible and wait for magic.
         window.parent.postMessage({ action: 'wingsUpdated' }, '*');
       };
       currentWingsImage.onerror = function() {
@@ -370,31 +362,35 @@
         let fadeOutProgress = 0;
 
         // magic starts at 0.5s (500ms) and lasts 3s total
-        const magicStartDelay = 0; // 0.5 seconds
+        const magicStartDelay = 500; // 0.5 seconds
         let magicStarted = false;
+        let wingLoaded = false;
+
+        // Start loading the new wing at 0.5s
+        function loadWingDuringMagic() {
+          // The wing should already be loading via updateWings -> loadNewWing
+          // We just need to ensure it's fully loaded by the time magic ends
+          // The wing image is already being loaded in the background
+          // We'll just check if it's loaded before starting flap
+          wingLoaded = true;
+        }
 
         function animateMagic() {
           const elapsed = Date.now() - startTime;
           const progress = Math.min(elapsed / duration, 1);
 
-          // opacity ramps up from 0 to 1 over first 0.5s
+          // Before 0.5s: show nothing
           if (elapsed < magicStartDelay) {
-            opacity = elapsed / magicStartDelay;
-            // draw nothing or very faint
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // but we still want to show sparkles gradually? we start sparkles after delay
-            // we just draw empty
             requestAnimationFrame(animateMagic);
             return;
           }
 
-          // after delay, we show the magic
+          // At 0.5s, start showing the magic and begin loading wing
           if (!magicStarted) {
             magicStarted = true;
-            // reset startTime for the magic duration? we keep elapsed but we need to adjust progress
-            // we want the magic to be fully visible at 3s from start, but we already passed 0.5s
-            // so we set progress based on remaining time
-            // we'll just use the same progress but we want to show magic full at 3s
+            // The wing is already being loaded via updateWings
+            // Just mark that we've passed the 0.5s mark
           }
 
           // magic visibility: from 0.5s to 3s, opacity goes from 0 to 1 and stays
@@ -478,10 +474,23 @@
             if (fadeOutOpacity <= 0) {
               overlay.classList.remove('active');
               ctx.clearRect(0, 0, canvas.width, canvas.height);
+              
               // START FLAPPING ANIMATION RIGHT AFTER MAGIC FINISHES
-              if (currentWingsImage && wingsVisible) {
+              // The wing should be fully loaded by now (loaded during the 0.5s-3s window)
+              if (currentWingsImage && wingsVisible && currentWingsImage.complete && currentWingsImage.naturalWidth > 0) {
+                // Wing is loaded, start flapping from fully open
                 startWingsAnimation();
+              } else {
+                // If for some reason wing isn't loaded yet, wait for it
+                console.log('Waiting for wing to load before starting flap...');
+                const checkWing = setInterval(() => {
+                  if (currentWingsImage && currentWingsImage.complete && currentWingsImage.naturalWidth > 0) {
+                    clearInterval(checkWing);
+                    startWingsAnimation();
+                  }
+                }, 100);
               }
+              
               if (callback) callback();
               return;
             }
@@ -498,7 +507,6 @@
       transferImg.onerror = function() {
         console.error('Failed to load fairy_transfer.png');
         overlay.classList.remove('active');
-        // even on error, start flapping?
         if (currentWingsImage && wingsVisible) {
           startWingsAnimation();
         }
