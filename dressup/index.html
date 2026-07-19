@@ -480,7 +480,7 @@
   opacity: 1; 
 }
 
-    /* Menu Panel */
+    /* Menu Panel - FIXED with tighter spacing */
     .menu-panel {
       position: absolute;
       right: 0; top: 50%;
@@ -495,14 +495,12 @@
     .menu-panel.show { opacity: 1; pointer-events: auto; }
 
     .menu-bg {
-      background-size: contain; background-repeat: no-repeat;
+      background-size: contain;
+      background-repeat: no-repeat;
       background-position: center;
       width: 200px;
       padding: 20px 15px;
-      display: flex; flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
+      flex-direction: column;
       min-height: 800px;
     }
     .menu-bg.mermaid { background-image: url('images/menu_mermaid.png'); }
@@ -510,17 +508,23 @@
     .menu-bg.boy { background-image: url('images/menu_boy.png'); }
 
     .menu-btn {
-      width: 160px; height: 60px;
-      background-repeat: no-repeat; background-position: 0 0;
-      background-size: 320px 60px;
-      cursor: pointer; border: none; background-color: transparent;
+      width: 125px;
+      height: 125px;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      background-size: 250px 125px;
+      cursor: pointer;
+      border: none;
+      background-color: transparent;
       transition: transform 0.3s ease;
+      margin: 1px 0;
+      flex-shrink: 0;
+      margin-left: 35%;
+      margin-top: 35%;
     }
-    .menu-btn:hover { background-position: -160px 0; transform: scale(1.05); }
-    .menu-btn.tails { background-image: url('images/btn_tails_mer.png'); }
-    .menu-btn.shirts { background-image: url('images/btn_shirts_mer.png'); }
-    .menu-btn.accessories { background-image: url('images/btn_accessories_mer.png'); }
-    .menu-btn.wings { background-image: url('images/btn_wings_mer.png'); }
+    .menu-btn:hover {
+      background-position: -125px 0; */
+    }
 
     /* Items Panel - right to left slide effect */
 .items-panel {
@@ -702,7 +706,8 @@
       .play-button:hover, .help-play-button:hover {background-position: -60px 0; transform: translateX(-50%) scale(1.8); left: 50%; }
       .help-play-button:hover { top: 54%; }
       .landing-page, .help-screen { transform: scale(1.2); }
-      .menu-panel { transform: scale(0.5); right: -50px; top: 0%; }
+      .menu-bg { margin-bottom: 250%; }
+      .menu-panel { transform: scale(0.5); right: -50px; top: -15%; }
       .items-panel { transform: scale(0.5); }
       .items-panel.open { right: 30px; top: 3%; }
       .music-box { transform: scale(0.6); bottom: 5px; left: 5px; }
@@ -720,6 +725,14 @@
       .select-option p {font-size: 180%; letter-spacing: 1px;}
       .modelViewer { bottom: 4% !important; left: -20% !important; width: 150% !important; height: 100% !important; transform: scale(0.8) !important; top: unset !important; }
       .wingsViewer { bottom: 1% !important; left: -45% !important; width: 150% !important; height: 100% !important; transform: scale(0.8) !important; top: unset !important; }
+      .shirtViewer {
+        bottom: 4% !important;
+        left: -20% !important;
+        width: 150% !important;
+        height: 100% !important;
+        transform: scale(0.8) !important;
+        top: unset !important;
+    }
       .footer { font-size: 7px; bottom: 2px; }
     }
   </style>
@@ -795,7 +808,26 @@
   <div class="game-screen" id="gameScreen">
     <div class="game-bg" id="gameBg"></div>
 
-    <!-- In index.html, add this BEFORE the model viewer iframe -->
+<!-- Shirt Viewer - On top of model -->
+<iframe 
+  id="shirtViewer"
+  class="shirtViewer"
+  src="shirt-viewer-mermaid.html" 
+  style="
+    position: absolute;
+    top: 2%;
+    left: 25%;
+    width: 100%;
+    height: 100%;
+    border: none;
+    z-index: 2;
+    pointer-events: none;
+    background: transparent;
+    transform: scale(1.22);
+  "
+  allow="autoplay"
+></iframe>
+
 <!-- Wings Viewer - Behind the model -->
 <iframe 
   id="wingsViewer"
@@ -819,7 +851,7 @@
 <iframe 
   id="modelViewer"
  class="modelViewer"
-  src="model-viewer.html" 
+  src="model-viewer-mermaid.html" 
   style="
     position: absolute;
     top: 2%;
@@ -853,10 +885,7 @@
     <!-- Menu Panel -->
     <div class="menu-panel show" id="menuPanel">
       <div class="menu-bg" id="menuBg">
-        <button class="menu-btn tails" data-menu="tails"></button>
-        <button class="menu-btn shirts" data-menu="shirts"></button>
-        <button class="menu-btn wings" data-menu="wings"></button>
-        <button class="menu-btn accessories" data-menu="accessories"></button>
+        <!-- Menu buttons will be added dynamically by JavaScript -->
       </div>
     </div>
 
@@ -1313,6 +1342,10 @@ function setupCharacter(type) {
     btn.className = 'menu-btn ' + btnName;
     btn.dataset.menu = btnName;
     btn.style.backgroundImage = `url('images/btn_${btnName}${config.btnSuffix}.png')`;
+    btn.style.width = '125px';
+    btn.style.height = '125px';
+    btn.style.backgroundSize = '250px 125px';
+    
     btn.addEventListener('click', function() {
       const menu = this.dataset.menu;
       playClickSound();
@@ -1354,18 +1387,24 @@ const itemData = {
       { thumb: 'images/assets/thumb/mermaid/mermaid_green_fish2.png', full: 'images/assets/full/mermaid/mermaid_green_fish2.png' },
       { thumb: 'images/assets/thumb/mermaid/mermaid_white_fish2.png', full: 'images/assets/full/mermaid/mermaid_white_fish2.png' },
       { thumb: 'images/assets/thumb/mermaid/mermaid_purple_fish.png', full: 'images/assets/full/mermaid/mermaid_purple_fish.png' },
-      { thumb: 'images/assets/thumb/mermaid/mermaid_blue_fish.png', full: 'images/assets/full/mermaid/mermaid_blue_fish.png' }
+      { thumb: 'images/assets/thumb/mermaid/mermaid_blue_fish.png', full: 'images/assets/full/mermaid/mermaid_blue_fish.png' },
     ],
     shirts: [
-      { thumb: 'images/assets/thumb/mermaid/shirt1.png', full: 'images/assets/full/fairy/wings_pink_long.png' },
-      { thumb: 'images/assets/thumb/mermaid/shirt2.png', full: 'images/assets/full/fairy/wings_blue_long.png' },
-      { thumb: 'images/assets/thumb/mermaid/shirt3.png', full: 'images/assets/full/mermaid/shirt3.png' },
-      { thumb: 'images/assets/thumb/mermaid/shirt4.png', full: 'images/assets/full/mermaid/shirt4.png' }
+    { thumb: 'images/assets/thumb/mermaid/no-shirt.png', full: 'images/assets/full/mermaid/no-shirt.png' },
+    { thumb: 'images/assets/thumb/shirt_pink_barbie.png', full: 'images/assets/full/shirt_pink_barbie.png', layer: 2 },
+    { thumb: 'images/assets/thumb/shirt_yellow_linen.png', full: 'images/assets/full/shirt_yellow_linen.png', layer: 2 },
+    { thumb: 'images/assets/thumb/shirt_pink_church.png', full: 'images/assets/full/shirt_pink_church.png', layer: 2 },
+    { thumb: 'images/assets/thumb/shirt_blue_olaf.png', full: 'images/assets/full/shirt_blue_olaf.png', layer: 2 },
+    { thumb: 'images/assets/thumb/shirt_pinkglitter.png', full: 'images/assets/full/shirt_pinkglitter.png', layer: 2 },
+    { thumb: 'images/assets/thumb/shirt_brown_linencolor.png', full: 'images/assets/full/shirt_brown_linencolor.png', layer: 2 },
+    { thumb: 'images/assets/thumb/shirt_purple_linen.png', full: 'images/assets/full/shirt_purple_linen.png', layer: 2 },
+    { thumb: 'images/assets/thumb/shirt_white_hugme.png', full: 'images/assets/full/shirt_white_hugme.png', layer: 2 },
+    { thumb: 'images/assets/thumb/shirt_orange_linen.png', full: 'images/assets/full/shirt_orange_linen.png', layer: 2 },
+    { thumb: 'images/assets/thumb/shirt_pink_linen.png', full: 'images/assets/full/shirt_pink_linen.png', layer: 2 },
     ],
     wings: [
+  { thumb: 'images/assets/thumb/fairy/no-wing.png', full: 'images/assets/full/fairy/no-wing.png' },
   { thumb: 'images/assets/thumb/fairy/wings_pink_long.png', full: 'images/assets/full/fairy/wings_pink_long.png' },
-  { thumb: 'images/assets/thumb/fairy/wings_blue_long.png', full: 'images/assets/full/fairy/wings_blue_long.png' },
-  { thumb: 'images/assets/thumb/fairy/wings_orange_long.png', full: 'images/assets/full/fairy/wings_orange_long.png' },
   { thumb: 'images/assets/thumb/fairy/wings_purple_mariposa.png', full: 'images/assets/full/fairy/wings_purple_mariposa.png' },
   { thumb: 'images/assets/thumb/fairy/wings_yellow_design.png', full: 'images/assets/full/fairy/wings_yellow_design.png' },
   { thumb: 'images/assets/thumb/fairy/wings_blue_winx.png', full: 'images/assets/full/fairy/wings_blue_winx.png' },
@@ -1376,6 +1415,7 @@ const itemData = {
   { thumb: 'images/assets/thumb/fairy/wings_purple_design.png', full: 'images/assets/full/fairy/wings_purple_design.png' },
   { thumb: 'images/assets/thumb/fairy/wings_yellow_long.png', full: 'images/assets/full/fairy/wings_yellow_long.png' },
   { thumb: 'images/assets/thumb/fairy/wings_gray_butterfly.png', full: 'images/assets/full/fairy/wings_gray_butterfly.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_orange_long.png', full: 'images/assets/full/fairy/wings_orange_long.png' },
   { thumb: 'images/assets/thumb/fairy/wings_blue_butterfly.png', full: 'images/assets/full/fairy/wings_blue_butterfly.png' },
   { thumb: 'images/assets/thumb/fairy/wings_pink_winx.png', full: 'images/assets/full/fairy/wings_pink_winx.png' },
   { thumb: 'images/assets/thumb/fairy/wings_orange_mariposa.png', full: 'images/assets/full/fairy/wings_orange_mariposa.png' },
@@ -1390,6 +1430,7 @@ const itemData = {
   { thumb: 'images/assets/thumb/fairy/wings_red_butterfly.png', full: 'images/assets/full/fairy/wings_red_butterfly.png' },
   { thumb: 'images/assets/thumb/fairy/wings_blue_mariposa.png', full: 'images/assets/full/fairy/wings_blue_mariposa.png' },
   { thumb: 'images/assets/thumb/fairy/wings_gray_winx.png', full: 'images/assets/full/fairy/wings_gray_winx.png' },
+  { thumb: 'images/assets/thumb/fairy/wings_blue_long.png', full: 'images/assets/full/fairy/wings_blue_long.png' },
   { thumb: 'images/assets/thumb/fairy/wings_green_winx.png', full: 'images/assets/full/fairy/wings_green_winx.png' },
   { thumb: 'images/assets/thumb/fairy/wings_pink_design.png', full: 'images/assets/full/fairy/wings_pink_design.png' },
   { thumb: 'images/assets/thumb/fairy/wings_purple_butterfly.png', full: 'images/assets/full/fairy/wings_purple_butterfly.png' },
@@ -1565,8 +1606,19 @@ function selectItem(index) {
   
   // Check if it's wings - use wing selection with magic
   if (currentMenuType === 'wings') {
-    // Use the wing selection with magic
     selectWing(index);
+    return;
+  }
+  
+  // Check if it's shirts - use shirt viewer with sparkles
+  if (currentMenuType === 'shirts') {
+    updateShirtInViewer(item.full);
+    // Update active state
+    document.querySelectorAll('.item-thumb').forEach(el => el.classList.remove('active'));
+    const thumbs = document.querySelectorAll('.item-thumb');
+    if (thumbs[index - itemScrollIndex]) {
+      thumbs[index - itemScrollIndex].classList.add('active');
+    }
     return;
   }
   
@@ -1576,7 +1628,7 @@ function selectItem(index) {
       updateModelInViewer(item.full);
     });
   } else {
-    // Regular item update (shirts, accessories, etc.)
+    // Regular item update (accessories, etc.)
     updateModelInViewer(item.full);
   }
   
@@ -1631,6 +1683,45 @@ function scrollItems(direction) {
     }
   }
 }
+
+// ========== SHIRT FUNCTIONS ==========
+function updateShirtInViewer(imageUrl) {
+  const iframe = document.getElementById('shirtViewer');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({
+      action: 'updateShirt',
+      imageUrl: imageUrl
+    }, '*');
+  }
+}
+
+// Add to message listener
+window.addEventListener('message', function(event) {
+  if (event.data.action === 'modelViewerReady') {
+    console.log('Model viewer is ready!');
+  }
+  if (event.data.action === 'shirtViewerReady') {
+    console.log('Shirt viewer is ready!');
+  }
+  if (event.data.action === 'wingsViewerReady') {
+    console.log('Wings viewer is ready!');
+  }
+  if (event.data.action === 'magicComplete') {
+    if (window._magicCallback) {
+      window._magicCallback();
+      window._magicCallback = null;
+    }
+  }
+  if (event.data.action === 'wingsMagicComplete') {
+    if (window._wingsMagicCallback) {
+      window._wingsMagicCallback();
+      window._wingsMagicCallback = null;
+    }
+  }
+  if (event.data.action === 'wingsUpdated') {
+    console.log('Wings updated!');
+  }
+});
 
 // ========== TOUCH DRAG FOR ITEMS ==========
 function setupItemDrag() {
@@ -1959,8 +2050,8 @@ mermaidTails.forEach(file => {
   filesToLoad.push(`images/assets/full/mermaid/${file}.png`);
 });
 for (let i = 1; i <= 4; i++) {
-  filesToLoad.push(`images/assets/thumb/mermaid/shirt${i}.png`);
-  filesToLoad.push(`images/assets/full/mermaid/shirt${i}.png`);
+  filesToLoad.push(`images/assets/thumb/shirt${i}.png`);
+  filesToLoad.push(`images/assets/full/shirt${i}.png`);
 }
 for (let i = 1; i <= 5; i++) {
   filesToLoad.push(`images/assets/thumb/mermaid/acc${i}.png`);

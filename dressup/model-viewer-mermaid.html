@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Model Viewer – With Shirt Layer</title>
+  <style>
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    body {
+      background: transparent;
+      overflow: hidden;
+      height: 100vh;
+      width: 100%;
+      position: relative;
+    }
+
+    /* Base Model Layer */
+    .model-display {
+      position: absolute;
+      top: 19%;
+      left: 30%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 70%;
+      display: flex;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .model-display img {
+      height: 90%;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Shirt Layer - On top of model */
+    .shirt-layer {
+      position: absolute;
+      top: 19%;
+      left: 30%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 70%;
+      display: flex;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .shirt-layer.visible {
+      opacity: 1;
+    }
+    .shirt-layer img {
+      height: 90%;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Magic Overlay - On top of everything */
+    .magic-overlay {
+      position: absolute;
+      bottom: 4.8%;
+      right: 20%;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 0.5s ease-out;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      transform: scale(1.14);
+    }
+    .magic-overlay.active {
+      opacity: 1;
+    }
+    .magic-overlay canvas {
+      height: 90%;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Sparkle Container for Shirts */
+    .shirt-sparkle-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+      overflow: hidden;
+    }
+    .shirt-sparkle {
+      position: absolute;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0;
+      pointer-events: none;
+      animation: shirtSparkleFall 1.5s ease-out forwards;
+    }
+    @keyframes shirtSparkleFall {
+      0% { opacity: 0; transform: translateY(0) scale(0.3) rotate(0deg); }
+      20% { opacity: 1; transform: translateY(15px) scale(1.1) rotate(60deg); }
+      60% { opacity: 0.9; transform: translateY(50px) scale(0.9) rotate(180deg); }
+      100% { opacity: 0; transform: translateY(90px) scale(0.3) rotate(300deg); }
+    }
+
+    /* Mobile Responsive - Match model viewer */
+    @media (max-width: 480px) {
+      .model-display {
+        bottom: 4% !important;
+        left: -20% !important;
+        width: 150% !important;
+        height: 100% !important;
+        transform: scale(0.8) !important;
+        top: unset !important;
+      }
+      .shirt-layer {
+        bottom: 4% !important;
+        left: -20% !important;
+        width: 150% !important;
+        height: 100% !important;
+        transform: scale(0.8) !important;
+        top: unset !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Model Layer (Base Body) -->
+  <div class="model-display" id="modelDisplay">
+    <img id="modelImage" src="images/assets/full/mermaid/mermaid_purple_fish2.png" alt="Model">
+  </div>
+
+  <!-- Shirt Layer (On Top of Model) -->
+  <div class="shirt-layer" id="shirtLayer">
+    <img id="shirtImage" src="" alt="Shirt">
+  </div>
+
+  <!-- Magic Overlay -->
+  <div class="magic-overlay" id="magicOverlay">
+    <canvas id="magicCanvas"></canvas>
+  </div>
+
+  <!-- Sparkle Container -->
+  <div class="shirt-sparkle-container" id="shirtSparkleContainer"></div>
+
+  <script>
+    // ========== SPARKLE IMAGES ==========
+    const sparkleImages = ['images/sparkle_a.png', 'images/sparkle_b.png'];
+    const sparkleImageObjects = [];
+    sparkleImages.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      sparkleImageObjects.push(img);
+    });
+
+    // ========== SHIRT STATE ==========
+    let currentShirtUrl = null;
+    let shirtLoaded = false;
+
+    // ========== SHIRT SPARKLES ==========
+    function addShirtSparkle(x, y) {
+      const container = document.getElementById('shirtSparkleContainer');
+      const el = document.createElement('div');
+      el.className = 'shirt-sparkle';
+      const sparkleImg = sparkleImages[Math.floor(Math.random() * sparkleImages.length)];
+      el.style.backgroundImage = `url('${sparkleImg}')`;
+      el.style.left = (x + (Math.random() - 0.5) * 15) + 'px';
+      el.style.top = (y + (Math.random() - 0.5) * 15) + 'px';
+      el.style.animationDelay = Math.random() * 0.2 + 's';
+      const size = Math.random() * 15 + 8;
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 2000);
+    }
+
+    function spawnShirtSparkles() {
+      const shirtLayer = document.getElementById('shirtLayer');
+      const rect = shirtLayer.getBoundingClientRect();
+      
+      if (!currentShirtUrl) return;
+      
+      const count = 20 + Math.floor(Math.random() * 15);
+      for (let i = 0; i < count; i++) {
+        const x = rect.left + Math.random() * rect.width;
+        const y = rect.top + Math.random() * rect.height;
+        setTimeout(() => {
+          addShirtSparkle(x, y);
+        }, i * 40 + Math.random() * 100);
+      }
+    }
+
+    // ========== UPDATE SHIRT ==========
+    function updateShirt(imageUrl) {
+      console.log('Shirt update called:', imageUrl);
+      
+      if (!imageUrl || imageUrl === '') {
+        // Remove shirt with fade out
+        fadeOutShirt(() => {
+          currentShirtUrl = null;
+          document.getElementById('shirtImage').src = '';
+          shirtLoaded = false;
+        });
+        return;
+      }
+      
+      // If same shirt, do nothing
+      if (imageUrl === currentShirtUrl && shirtLoaded) return;
+      
+      // Store new URL
+      const newUrl = imageUrl;
+      currentShirtUrl = newUrl;
+      shirtLoaded = false;
+      
+      // Fade out current shirt, then load new one with fade in + sparkles
+      fadeOutShirt(() => {
+        const shirtImg = document.getElementById('shirtImage');
+        shirtImg.src = newUrl;
+        shirtImg.onload = function() {
+          shirtLoaded = true;
+          fadeInShirtWithSparkles();
+        };
+        shirtImg.onerror = function() {
+          console.error('Failed to load shirt:', newUrl);
+        };
+      });
+    }
+
+    function fadeOutShirt(callback) {
+      const shirtLayer = document.getElementById('shirtLayer');
+      
+      // If already hidden, just callback
+      if (!shirtLayer.classList.contains('visible')) {
+        if (callback) callback();
+        return;
+      }
+      
+      shirtLayer.classList.remove('visible');
+      
+      // Spawn sparkles during fade out
+      spawnShirtSparkles();
+      
+      setTimeout(() => {
+        if (callback) callback();
+      }, 400);
+    }
+
+    function fadeInShirtWithSparkles() {
+      const shirtLayer = document.getElementById('shirtLayer');
+      
+      // Force reflow
+      void shirtLayer.offsetWidth;
+      
+      // Fade in
+      shirtLayer.classList.add('visible');
+      
+      // Spawn sparkles in bursts
+      setTimeout(() => {
+        spawnShirtSparkles();
+        // Second burst
+        setTimeout(() => {
+          spawnShirtSparkles();
+        }, 300);
+        // Third burst
+        setTimeout(() => {
+          spawnShirtSparkles();
+        }, 600);
+        // Fourth burst
+        setTimeout(() => {
+          spawnShirtSparkles();
+        }, 900);
+      }, 200);
+    }
+
+    // ========== MODEL UPDATE ==========
+    function updateModel(imageUrl) {
+      const img = document.getElementById('modelImage');
+      img.src = imageUrl;
+    }
+
+    // ========== MAGIC TRANSFORMATION ==========
+    function playTransformationMagic(callback) {
+      const overlay = document.getElementById('magicOverlay');
+      const canvas = document.getElementById('magicCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      const modelDisplay = document.getElementById('modelDisplay');
+      const rect = modelDisplay.getBoundingClientRect();
+      
+      canvas.width = rect.width || window.innerWidth;
+      canvas.height = rect.height || window.innerHeight * 0.85;
+      
+      overlay.classList.add('active');
+      
+      const transferImg = new Image();
+      transferImg.src = 'images/mermaid_transfer.png';
+      transferImg.onload = function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const scale = Math.min(
+          canvas.width / transferImg.width,
+          canvas.height / transferImg.height
+        );
+        const x = (canvas.width - transferImg.width * scale) / 2;
+        const y = (canvas.height - transferImg.height * scale) / 2;
+        
+        let startTime = Date.now();
+        const duration = 1500;
+        const sparkles = [];
+        
+        const totalSparkles = 400;
+        const sparkleMinSize = 20;
+        const sparkleMaxSize = 45;
+        const sparkleDistance = 0.5;
+        const blinkSpeed = 200;
+        const sparkleSpeed = 2;
+        const fadeSpeed = 0.001;
+        
+        for (let i = 0; i < totalSparkles; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * 0.3 + sparkleDistance;
+          const edgeX = x + transferImg.width * scale * 0.5 + Math.cos(angle) * transferImg.width * scale * 0.55 * dist;
+          const edgeY = y + transferImg.height * scale * 0.5 + Math.sin(angle) * transferImg.height * scale * 0.55 * dist;
+          
+          const img = sparkleImageObjects[Math.floor(Math.random() * sparkleImageObjects.length)];
+          
+          sparkles.push({
+            x: edgeX,
+            y: edgeY,
+            size: Math.random() * (sparkleMaxSize - sparkleMinSize) + sparkleMinSize,
+            speedX: (Math.random() - 0.5) * sparkleSpeed,
+            speedY: (Math.random() - 0.5) * sparkleSpeed,
+            rotation: Math.random() * Math.PI * 2,
+            rotationSpeed: (Math.random() - 0.5) * 0.1,
+            life: Math.random() * 0.6 + 0.4,
+            maxLife: Math.random() * 0.6 + 0.4,
+            img: img,
+            phase: Math.random() * Math.PI * 2
+          });
+        }
+        
+        let changeApplied = false;
+        let opacity = 0;
+        let fadeOutStart = false;
+        let fadeOutProgress = 0;
+        
+        function animateMagic() {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          
+          opacity = Math.min(progress * 2, 1);
+          
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 30;
+          ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
+          ctx.restore();
+          
+          sparkles.forEach(sp => {
+            sp.x += sp.speedX;
+            sp.y += sp.speedY;
+            sp.rotation += sp.rotationSpeed;
+            sp.life -= fadeSpeed;
+            
+            if (sp.life <= 0) {
+              sp.life = sp.maxLife;
+              const angle = Math.random() * Math.PI * 2;
+              const dist = Math.random() * 0.3 + sparkleDistance;
+              sp.x = x + transferImg.width * scale * 0.5 + Math.cos(angle) * transferImg.width * scale * 0.55 * dist;
+              sp.y = y + transferImg.height * scale * 0.5 + Math.sin(angle) * transferImg.height * scale * 0.55 * dist;
+              sp.speedX = (Math.random() - 0.5) * sparkleSpeed;
+              sp.speedY = (Math.random() - 0.5) * sparkleSpeed;
+              sp.img = sparkleImageObjects[Math.floor(Math.random() * sparkleImageObjects.length)];
+            }
+            
+            const blink = Math.abs(Math.sin(Date.now() / blinkSpeed + sp.phase));
+            
+            ctx.save();
+            ctx.globalAlpha = sp.life * 0.8 * opacity * (0.5 + 0.5 * blink);
+            ctx.translate(sp.x, sp.y);
+            ctx.rotate(sp.rotation);
+            
+            const size = sp.size * (0.8 + 0.4 * Math.sin(Date.now() / 400 + sp.x));
+            ctx.drawImage(sp.img, -size/2, -size/2, size, size);
+            
+            ctx.restore();
+          });
+          
+          if (elapsed > 1500 && !changeApplied) {
+            changeApplied = true;
+            if (callback) callback();
+          }
+          
+          if (elapsed > duration) {
+            fadeOutStart = true;
+            fadeOutProgress += 0.025;
+            
+            let fadeOutOpacity = Math.max(0, 1 - fadeOutProgress);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.save();
+            ctx.globalAlpha = fadeOutOpacity * opacity;
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 30 * fadeOutOpacity;
+            ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
+            ctx.restore();
+            
+            sparkles.forEach(sp => {
+              const blink = Math.abs(Math.sin(Date.now() / blinkSpeed + sp.phase));
+              ctx.save();
+              ctx.globalAlpha = sp.life * 0.8 * fadeOutOpacity * opacity * (0.5 + 0.5 * blink);
+              ctx.translate(sp.x, sp.y);
+              ctx.rotate(sp.rotation);
+              const size = sp.size * (0.8 + 0.4 * Math.sin(Date.now() / 400 + sp.x));
+              ctx.drawImage(sp.img, -size/2, -size/2, size, size);
+              ctx.restore();
+            });
+            
+            if (fadeOutOpacity <= 0) {
+              overlay.classList.remove('active');
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              return;
+            }
+            
+            requestAnimationFrame(animateMagic);
+            return;
+          }
+          
+          requestAnimationFrame(animateMagic);
+        }
+        
+        animateMagic();
+      };
+    }
+
+    // ========== LISTEN FOR PARENT MESSAGES ==========
+    window.addEventListener('message', function(event) {
+      const data = event.data;
+      console.log('Model viewer received:', data);
+      
+      if (data.action === 'updateModel') {
+        updateModel(data.imageUrl);
+      }
+      
+      if (data.action === 'updateShirt') {
+        updateShirt(data.imageUrl);
+      }
+      
+      if (data.action === 'playMagic') {
+        playTransformationMagic(() => {
+          window.parent.postMessage({ action: 'magicComplete' }, '*');
+        });
+      }
+      
+      if (data.action === 'resize') {
+        const canvas = document.getElementById('magicCanvas');
+        const rect = document.getElementById('modelDisplay').getBoundingClientRect();
+        canvas.width = rect.width || window.innerWidth;
+        canvas.height = rect.height || window.innerHeight * 0.85;
+      }
+    });
+
+    // ========== RESIZE HANDLER ==========
+    window.addEventListener('resize', function() {
+      const canvas = document.getElementById('magicCanvas');
+      const rect = document.getElementById('modelDisplay').getBoundingClientRect();
+      canvas.width = rect.width || window.innerWidth;
+      canvas.height = rect.height || window.innerHeight * 0.85;
+    });
+
+    // ========== INIT ==========
+    window.parent.postMessage({ action: 'modelViewerReady' }, '*');
+    console.log('Model viewer ready with shirt layer!');
+  </script>
+</body>
+</html>
