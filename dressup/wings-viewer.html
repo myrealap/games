@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Wings Viewer — Magic & Flap</title>
+  <title>Wings Viewer – Magic + New Wing at 1.5s</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
     }
     body {
       background: transparent;
@@ -94,7 +94,7 @@
     // ========== WINGS UPDATE ==========
     function updateWings(imageUrl) {
       console.log('Wings update called:', imageUrl);
-
+      
       if (wingsVisible && currentWingsImage && isAnimating) {
         smoothStopWings(() => {
           loadNewWing(imageUrl);
@@ -114,6 +114,7 @@
         stopProgress = 0;
         wingFlapProgress = 0;
         wingFlapDirection = 1;
+        startWingsAnimation();
         window.parent.postMessage({ action: 'wingsUpdated' }, '*');
       };
       currentWingsImage.onerror = function() {
@@ -128,39 +129,39 @@
         if (callback) callback();
         return;
       }
-
+      
       console.log('Smoothly stopping wings...');
       isStopping = true;
       stopProgress = 0;
       isAnimating = false;
-
+      
       const canvas = document.getElementById('wingsCanvas');
       const ctx = canvas.getContext('2d');
-
+      
       function animateStop() {
         if (!currentWingsImage || !wingsVisible) {
           if (callback) callback();
           return;
         }
-
+        
         stopProgress += 0.04;
-
+        
         if (stopProgress >= 1) {
           stopProgress = 1;
           isStopping = false;
-
+          
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+          
           const imgWidth = currentWingsImage.width;
           const imgHeight = currentWingsImage.height;
           const scale = Math.min(
             canvas.width / imgWidth,
             canvas.height / imgHeight
           ) * 0.85;
-
+          
           const x = (canvas.width - imgWidth * scale) / 2;
           const y = (canvas.height - imgHeight * scale) / 2;
-
+          
           ctx.save();
           ctx.translate(x + (imgWidth * scale) / 2, y + (imgHeight * scale) / 2);
           ctx.scale(1.0, 1);
@@ -172,27 +173,27 @@
             imgHeight * scale
           );
           ctx.restore();
-
+          
           console.log('Wings stopped - fully open');
           if (callback) callback();
           return;
         }
-
+        
         const easeOut = 1 - Math.pow(1 - stopProgress, 3);
         const currentScaleX = 0.4 + (easeOut * 0.6);
-
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        
         const imgWidth = currentWingsImage.width;
         const imgHeight = currentWingsImage.height;
         const scale = Math.min(
           canvas.width / imgWidth,
           canvas.height / imgHeight
         ) * 0.85;
-
+        
         const x = (canvas.width - imgWidth * scale) / 2;
         const y = (canvas.height - imgHeight * scale) / 2;
-
+        
         ctx.save();
         ctx.translate(x + (imgWidth * scale) / 2, y + (imgHeight * scale) / 2);
         ctx.scale(currentScaleX, 1);
@@ -204,43 +205,43 @@
           imgHeight * scale
         );
         ctx.restore();
-
+        
         requestAnimationFrame(animateStop);
       }
-
+      
       animateStop();
     }
 
-    // ========== BUTTERFLY WINGS ANIMATION (FLAPPING) ==========
+    // ========== BUTTERFLY WINGS ANIMATION ==========
     function startWingsAnimation() {
       const canvas = document.getElementById('wingsCanvas');
       const ctx = canvas.getContext('2d');
       const container = document.getElementById('wingsDisplay');
       const rect = container.getBoundingClientRect();
-
+      
       canvas.width = rect.width || window.innerWidth;
       canvas.height = rect.height || window.innerHeight;
-
+      
       wingFlapProgress = 0;
       wingFlapDirection = 1;
       isAnimating = true;
       isStopping = false;
       stopProgress = 0;
-
+      
       if (wingsAnimationId) {
         cancelAnimationFrame(wingsAnimationId);
       }
-
+      
       function animateWings() {
         if (!currentWingsImage || !wingsVisible || !isAnimating) {
           wingsAnimationId = requestAnimationFrame(animateWings);
           return;
         }
-
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        
         wingFlapProgress += 0.025 * wingFlapDirection;
-
+        
         if (wingFlapProgress > 1) {
           wingFlapProgress = 1;
           wingFlapDirection = -1;
@@ -248,23 +249,23 @@
           wingFlapProgress = 0;
           wingFlapDirection = 1;
         }
-
-        const easeProgress = wingFlapProgress < 0.5
-          ? 2 * wingFlapProgress * wingFlapProgress
+        
+        const easeProgress = wingFlapProgress < 0.5 
+          ? 2 * wingFlapProgress * wingFlapProgress 
           : 1 - Math.pow(-2 * wingFlapProgress + 2, 2) / 2;
-
+        
         const scaleX = 0.4 + (easeProgress * 0.6);
-
+        
         const imgWidth = currentWingsImage.width;
         const imgHeight = currentWingsImage.height;
         const scale = Math.min(
           canvas.width / imgWidth,
           canvas.height / imgHeight
         ) * 0.85;
-
+        
         const x = (canvas.width - imgWidth * scale) / 2;
         const y = (canvas.height - imgHeight * scale) / 2;
-
+        
         ctx.save();
         ctx.translate(x + (imgWidth * scale) / 2, y + (imgHeight * scale) / 2);
         ctx.scale(scaleX, 1);
@@ -276,17 +277,17 @@
           imgHeight * scale
         );
         ctx.restore();
-
+        
         wingsAnimationId = requestAnimationFrame(animateWings);
       }
-
+      
       animateWings();
     }
 
-    // ========== WINGS MAGIC TRANSFORMATION ==========
+    // ========== WINGS MAGIC TRANSFORMATION (NEW WING AT 1.5s) ==========
     function playWingsMagic(callback) {
       console.log('Wings magic started');
-
+      
       if (isAnimating && wingsVisible) {
         smoothStopWings(() => {
           doMagicTransition(callback);
@@ -300,32 +301,32 @@
       const overlay = document.getElementById('magicOverlay');
       const canvas = document.getElementById('magicCanvas');
       const ctx = canvas.getContext('2d');
-
+      
       const display = document.getElementById('wingsDisplay');
       const rect = display.getBoundingClientRect();
-
+      
       canvas.width = rect.width || window.innerWidth;
       canvas.height = rect.height || window.innerHeight;
-
+      
       overlay.classList.add('active');
-
+      
       const transferImg = new Image();
       transferImg.src = 'images/fairy_transfer.png';
       transferImg.onload = function() {
         console.log('fairy_transfer.png loaded');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        
         const scale = Math.min(
           canvas.width / transferImg.width,
           canvas.height / transferImg.height
         );
         const x = (canvas.width - transferImg.width * scale) / 2;
         const y = (canvas.height - transferImg.height * scale) / 2;
-
+        
         let startTime = Date.now();
-        const duration = 1500; // 3 seconds total transformation
+        const duration = 1500;
         const sparkles = [];
-
+        
         const totalSparkles = 400;
         const sparkleMinSize = 20;
         const sparkleMaxSize = 45;
@@ -333,15 +334,15 @@
         const blinkSpeed = 200;
         const sparkleSpeed = 2;
         const fadeSpeed = 0.001;
-
+        
         for (let i = 0; i < totalSparkles; i++) {
           const angle = Math.random() * Math.PI * 2;
           const dist = Math.random() * 0.3 + sparkleDistance;
           const edgeX = x + transferImg.width * scale * 0.5 + Math.cos(angle) * transferImg.width * scale * 0.55 * dist;
           const edgeY = y + transferImg.height * scale * 0.5 + Math.sin(angle) * transferImg.height * scale * 0.55 * dist;
-
+          
           const img = sparkleImageObjects[Math.floor(Math.random() * sparkleImageObjects.length)];
-
+          
           sparkles.push({
             x: edgeX,
             y: edgeY,
@@ -356,66 +357,76 @@
             phase: Math.random() * Math.PI * 2
           });
         }
-
+        
         let changeApplied = false;
         let opacity = 0;
         let fadeOutProgress = 0;
+        let newWingLoaded = false;
+        let newWingImg = null;
+        let newWingUrl = null;
 
-        // magic starts at 0.5s (500ms) and lasts 3s total
-        const magicStartDelay = 0; // 0.5 seconds
-        let magicStarted = false;
-        let wingLoaded = false;
-
-        // Start loading the new wing at 0.5s
-        function loadWingDuringMagic() {
-          // The wing should already be loading via updateWings -> loadNewWing
-          // We just need to ensure it's fully loaded by the time magic ends
-          // The wing image is already being loaded in the background
-          // We'll just check if it's loaded before starting flap
-          wingLoaded = true;
-        }
-
+        // We'll store the new wing URL that was set via updateWings during magic
+        // but we want to apply it at 1.5s. We'll capture it from the currentWingsImage.
+        // However, the magic might be called before the new wing is loaded.
+        // We'll use a separate variable to hold the pending wing.
+        // Actually, we want the wing that was set via updateWings() before magic started.
+        // But we also want to allow updateWings to be called during magic? 
+        // For simplicity, we'll use the currentWingsImage at the time magic starts.
+        // But we need to apply it at 1.5s. So we store a reference.
+        const wingToApply = currentWingsImage; // this is the old wing, but we want the new one.
+        // Actually, we need to know the new wing URL. We'll get it from the pending update.
+        // We'll use a global variable to store the pending wing URL.
+        // We'll set it in updateWings but not load until magic applies it.
+        // Let's redesign: when updateWings is called during magic, we store the URL.
+        // Then at 1.5s we load it and start the flapping.
+        // But we also need to handle the case where magic is called without a pending wing.
+        // We'll just use the current wing if no pending.
+        
+        // We'll use a variable to hold the new wing URL that should be applied at 1.5s
+        let pendingWingUrl = null;
+        // Override updateWings to store pending URL during magic
+        const originalUpdateWings = window.updateWings;
+        window.updateWings = function(imageUrl) {
+          if (overlay.classList.contains('active')) {
+            // During magic, just store the URL, don't load yet
+            pendingWingUrl = imageUrl;
+            console.log('Pending wing URL stored:', imageUrl);
+          } else {
+            // Normal behavior
+            originalUpdateWings(imageUrl);
+          }
+        };
+        
+        // Also listen for messages that might call updateWings
+        // We'll patch the message listener too.
+        // But we can also just handle it in the main message listener.
+        // We'll keep the original listener but we'll add a check.
+        // Actually, the message listener calls updateWings directly, so we need to override it.
+        // We already overrode updateWings, so any call to it will go through our override.
+        // But we need to make sure that the override is in place before magic starts.
+        // We'll set the override at the top of this function.
+        
         function animateMagic() {
           const elapsed = Date.now() - startTime;
           const progress = Math.min(elapsed / duration, 1);
-
-          // Before 0.5s: show nothing
-          if (elapsed < magicStartDelay) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            requestAnimationFrame(animateMagic);
-            return;
-          }
-
-          // At 0.5s, start showing the magic and begin loading wing
-          if (!magicStarted) {
-            magicStarted = true;
-            // The wing is already being loaded via updateWings
-            // Just mark that we've passed the 0.5s mark
-          }
-
-          // magic visibility: from 0.5s to 3s, opacity goes from 0 to 1 and stays
-          const magicElapsed = elapsed - magicStartDelay;
-          const magicDuration = duration - magicStartDelay; // 2500ms
-          const magicProgress = Math.min(magicElapsed / magicDuration, 1);
-          // opacity: 0 at start, 1 at 0.5s after start (so at 1s total)
-          const targetOpacity = Math.min(magicProgress * 2, 1);
-          opacity = targetOpacity;
-
+          
+          opacity = Math.min(progress * 2, 1);
+          
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+          
           ctx.save();
           ctx.globalAlpha = opacity;
           ctx.shadowColor = '#ffffff';
           ctx.shadowBlur = 30;
           ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
           ctx.restore();
-
+          
           sparkles.forEach(sp => {
             sp.x += sp.speedX;
             sp.y += sp.speedY;
             sp.rotation += sp.rotationSpeed;
             sp.life -= fadeSpeed;
-
+            
             if (sp.life <= 0) {
               sp.life = sp.maxLife;
               const angle = Math.random() * Math.PI * 2;
@@ -426,40 +437,65 @@
               sp.speedY = (Math.random() - 0.5) * sparkleSpeed;
               sp.img = sparkleImageObjects[Math.floor(Math.random() * sparkleImageObjects.length)];
             }
-
+            
             const blink = Math.abs(Math.sin(Date.now() / blinkSpeed + sp.phase));
-
+            
             ctx.save();
             ctx.globalAlpha = sp.life * 0.8 * opacity * (0.5 + 0.5 * blink);
             ctx.translate(sp.x, sp.y);
             ctx.rotate(sp.rotation);
-
+            
             const size = sp.size * (0.8 + 0.4 * Math.sin(Date.now() / 400 + sp.x));
             ctx.drawImage(sp.img, -size/2, -size/2, size, size);
-
+            
             ctx.restore();
           });
-
-          // if we reached the end of the magic (3s total)
-          if (elapsed >= duration && !changeApplied) {
+          
+          // --- APPLY NEW WING AT 1.5s (exactly like mermaid transformation) ---
+          if (elapsed > 1500 && !changeApplied) {
             changeApplied = true;
-            console.log('Wings magic complete');
-            // start fade out
+            console.log('Applying new wing at 1.5s');
+            
+            // If there is a pending wing URL, load it now
+            if (pendingWingUrl) {
+              console.log('Loading pending wing:', pendingWingUrl);
+              // Load the new wing
+              const newImg = new Image();
+              newImg.onload = function() {
+                console.log('New wing loaded at 1.5s');
+                // Replace current wings image
+                currentWingsImage = newImg;
+                wingsVisible = true;
+                // The animation will start after magic fades out
+                // We'll trigger it in the fade-out completion
+              };
+              newImg.onerror = function() {
+                console.error('Failed to load new wing at 1.5s');
+              };
+              newImg.src = pendingWingUrl;
+              pendingWingUrl = null;
+            } else {
+              // If no pending wing, just use the current one (which might be the same)
+              console.log('No pending wing, using current');
+            }
+            
+            if (callback) callback();
           }
-
-          if (elapsed >= duration) {
+          
+          // --- FADE OUT after 3s ---
+          if (elapsed > duration) {
             fadeOutProgress += 0.025;
             let fadeOutOpacity = Math.max(0, 1 - fadeOutProgress);
-
+            
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+            
             ctx.save();
             ctx.globalAlpha = fadeOutOpacity * opacity;
             ctx.shadowColor = '#ffffff';
             ctx.shadowBlur = 30 * fadeOutOpacity;
             ctx.drawImage(transferImg, x, y, transferImg.width * scale, transferImg.height * scale);
             ctx.restore();
-
+            
             sparkles.forEach(sp => {
               const blink = Math.abs(Math.sin(Date.now() / blinkSpeed + sp.phase));
               ctx.save();
@@ -470,46 +506,32 @@
               ctx.drawImage(sp.img, -size/2, -size/2, size, size);
               ctx.restore();
             });
-
+            
             if (fadeOutOpacity <= 0) {
               overlay.classList.remove('active');
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              
-              // START FLAPPING ANIMATION RIGHT AFTER MAGIC FINISHES
-              // The wing should be fully loaded by now (loaded during the 0.5s-3s window)
-              if (currentWingsImage && wingsVisible && currentWingsImage.complete && currentWingsImage.naturalWidth > 0) {
-                // Wing is loaded, start flapping from fully open
+              // Restore original updateWings
+              window.updateWings = originalUpdateWings;
+              // Start wings animation after magic completes
+              if (currentWingsImage && wingsVisible) {
+                console.log('Starting wings animation after magic');
                 startWingsAnimation();
-              } else {
-                // If for some reason wing isn't loaded yet, wait for it
-                console.log('Waiting for wing to load before starting flap...');
-                const checkWing = setInterval(() => {
-                  if (currentWingsImage && currentWingsImage.complete && currentWingsImage.naturalWidth > 0) {
-                    clearInterval(checkWing);
-                    startWingsAnimation();
-                  }
-                }, 100);
               }
-              
-              if (callback) callback();
               return;
             }
-
+            
             requestAnimationFrame(animateMagic);
             return;
           }
-
+          
           requestAnimationFrame(animateMagic);
         }
-
+        
         animateMagic();
       };
       transferImg.onerror = function() {
         console.error('Failed to load fairy_transfer.png');
         overlay.classList.remove('active');
-        if (currentWingsImage && wingsVisible) {
-          startWingsAnimation();
-        }
         if (callback) callback();
       };
     }
@@ -518,23 +540,23 @@
     window.addEventListener('message', function(event) {
       const data = event.data;
       console.log('Wings received message:', data);
-
+      
       if (data.action === 'updateWings') {
         updateWings(data.imageUrl);
       }
-
+      
       if (data.action === 'playWingsMagic') {
         playWingsMagic(() => {
           window.parent.postMessage({ action: 'wingsMagicComplete' }, '*');
         });
       }
-
+      
       if (data.action === 'resize') {
         const canvas = document.getElementById('magicCanvas');
         const rect = document.getElementById('wingsDisplay').getBoundingClientRect();
         canvas.width = rect.width || window.innerWidth;
         canvas.height = rect.height || window.innerHeight;
-
+        
         const wingsCanvas = document.getElementById('wingsCanvas');
         const wingsRect = document.getElementById('wingsDisplay').getBoundingClientRect();
         wingsCanvas.width = wingsRect.width || window.innerWidth;
@@ -548,7 +570,7 @@
       const rect = document.getElementById('wingsDisplay').getBoundingClientRect();
       canvas.width = rect.width || window.innerWidth;
       canvas.height = rect.height || window.innerHeight;
-
+      
       const wingsCanvas = document.getElementById('wingsCanvas');
       const wingsRect = document.getElementById('wingsDisplay').getBoundingClientRect();
       wingsCanvas.width = wingsRect.width || window.innerWidth;
@@ -560,7 +582,7 @@
     const wingsRect = document.getElementById('wingsDisplay').getBoundingClientRect();
     wingsCanvas.width = wingsRect.width || window.innerWidth;
     wingsCanvas.height = wingsRect.height || window.innerHeight;
-
+    
     window.parent.postMessage({ action: 'wingsViewerReady' }, '*');
     console.log('Wings viewer ready!');
   </script>
