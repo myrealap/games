@@ -23,7 +23,7 @@
     <meta name="distribution" content="global">
     <meta name="coverage" content="Worldwide">
     
-    <!-- 🔥 OPEN GRAPH / SOCIAL MEDIA (Facebook, LinkedIn, Discord, etc.) -->
+    <!-- 🔥 OPEN GRAPH / SOCIAL MEDIA -->
     <meta property="og:title" content="Myrealap - Wishing Star Catching Game">
     <meta property="og:description" content="Catch magical stars, unlock exclusive wallpapers & enjoy dreamy music in this beautiful free browser game by Myrealap. Play on mobile or desktop!">
     <meta property="og:type" content="website">
@@ -48,7 +48,7 @@
     <!-- 🔥 PINTEREST -->
     <meta name="pinterest-rich-pin" content="true">
     
-    <!-- 🔥 CANONICAL URL (prevents duplicate content penalties) -->
+    <!-- 🔥 CANONICAL URL -->
     <link rel="canonical" href="https://myrealap.github.io/games/minigame/">
     
     <!-- 🔥 ALTERNATE LANGUAGES -->
@@ -62,7 +62,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
     <link rel="manifest" href="site.webmanifest">
     
-    <!-- 🔥 STRUCTURED DATA / SCHEMA.ORG (Google Rich Results) -->
+    <!-- 🔥 STRUCTURED DATA -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -145,7 +145,7 @@
     }
     </script>
     
-    <!-- 🔥 FAQ STRUCTURED DATA (for Google "People Also Ask") -->
+    <!-- 🔥 FAQ STRUCTURED DATA -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -553,7 +553,6 @@
             background-image: url('images/galaxy.jpg');
             background-size: cover;
             background-repeat: no-repeat;
-            /* Start showing the BOTTOM of the image */
             background-position: center bottom;
             z-index: 2;
             pointer-events: none;
@@ -565,11 +564,9 @@
 
         @keyframes galaxyScroll {
             from {
-                /* Start at bottom of image */
                 background-position: center bottom;
             }
             to {
-                /* End at top of image (galaxy visible) */
                 background-position: center top;
             }
         }
@@ -662,12 +659,81 @@
             50% { transform: translate(-50%, -50%) scale(1.2); }
         }
 
-        /* Mobile */
+        /* ==================== CONSTELLATION IMAGES ==================== */
+        .constellation-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .constellation-item {
+            position: absolute;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            pointer-events: none;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+        }
+
+        .constellation-item.visible {
+            opacity: 0.8;
+        }
+
+        /* Desktop - default styles */
+        .constellation-item:nth-child(1) { top: 5%; left: 3%; max-width: 40%; max-height: 45%; }
+        .constellation-item:nth-child(2) { top: 10%; left: 60%; max-width: 55%; max-height: 70%; }
+        .constellation-item:nth-child(3) { top: 14%; left: 40%; max-width: 70%; max-height: 40%; }
+        .constellation-item:nth-child(4) { top: 45%; left: 1%; max-width: 40%; max-height: 60%; }
+        .constellation-item:nth-child(5) { top: 45%; left: 30%; max-width: 35%; max-height: 28%; }
+        .constellation-item:nth-child(6) { top: 50%; left: 45%; max-width: 35%; max-height: 38%; }
+
+        /* Tablet (max-width: 768px) */
         @media (max-width: 768px) {
-            .score-display { font-size: 22px; top: 15px; right: 15px; }
-            .timer-display { font-size: 22px; top: 15px; left: 15px; }
-            .help-btn-game { width: 100px; height: 100px; background-size: 200px 100px; }
-            .help-btn-game:hover { background-position: -100px 0; }
+        .constellation-item:nth-child(1) { top: 5%; left: 3%; max-width: 40%; max-height: 30%; }
+        .constellation-item:nth-child(2) { top: 17%; left: 45%; max-width: 55%; max-height: 70%; }
+        .constellation-item:nth-child(3) { top: 30%; left: 0%; max-width: 70%; max-height: 40%; }
+        .constellation-item:nth-child(4) { top: 45%; left: 40%; max-width: 40%; max-height: 60%; }
+        .constellation-item:nth-child(5) { top: 60%; left: 0%; max-width: 35%; max-height: 28%; }
+        .constellation-item:nth-child(6) { top: 75%; left: 50%; max-width: 35%; max-height: 28%; }
+        }
+
+        /* Small mobile (max-width: 480px) */
+        @media (max-width: 480px) {
+        .constellation-item:nth-child(1) { top: 5%; left: 3%; max-width: 55%; max-height: 30%; }
+        .constellation-item:nth-child(2) { top: 17%; left: 45%; max-width: 55%; max-height: 30%; }
+        .constellation-item:nth-child(3) { top: 30%; left: 0%; max-width: 55%; max-height: 30%; }
+        .constellation-item:nth-child(4) { top: 45%; left: 40%; max-width: 55%; max-height: 30%; }
+        .constellation-item:nth-child(5) { top: 60%; left: 0%; max-width: 55%; max-height: 30%; }
+        .constellation-item:nth-child(6) { top: 75%; left: 50%; max-width: 55%; max-height: 30%; }
+        }
+
+        .constellation-falling-sparkles {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            overflow: hidden;
+        }
+
+        .constellation-sparkle {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            pointer-events: none;
+            animation: constellationSparkleFall 3s ease-out forwards;
+        }
+
+        @keyframes constellationSparkleFall {
+            0% { opacity: 0; transform: translateY(0) scale(0.3) rotate(0deg); }
+            15% { opacity: 1; transform: translateY(20px) scale(1.2) rotate(45deg); }
+            50% { opacity: 0.8; transform: translateY(80px) scale(0.9) rotate(135deg); }
+            100% { opacity: 0; transform: translateY(160px) scale(0.2) rotate(270deg); }
         }
 
         /* ==================== FINISH SCREEN ==================== */
@@ -852,7 +918,7 @@
             .game-help-overlay { transform: scale(1.5); }
             .game-help-close-btn { width: 75px; height: 37.5px; background-size: 150px 37.5px; top: 55%; transform: scale(2.3); left: 38%; }
             .game-help-close-btn:hover { background-position: -75px 0; top: 55%; transform: scale(2.3); left: 38%; }
-            .bonus-text { font-size: 24px; white-space: nowrap;  /* Keep on one line */ width: 100%; text-align: center; }
+            .bonus-text { font-size: 24px; white-space: nowrap; width: 100%; text-align: center; }
             .help-btn-game { width: 100px; height: 100px; background-size: 200px 100px; }
             .help-btn-game:hover { background-position: -100px 0; }
             .download-btn { width: 130px; height: 45px; background-size: 260px 45px; }
@@ -867,7 +933,7 @@
             .wallpaper-lock-overlay { width: 160px; height: 120px; }
             .wallpaper-lock-overlay img { width: 35px; height: 35px; }
             .wallpaper-lock-text { font-size: 11px; }
-            .wallpaper-container { gap: 20px; transform: scale(1.3);  /* 👈 THIS ONE LINE shrinks everything! 0.7 = 70% size */ transform-origin: center center;  /* Keeps it centered */ margin-bottom: -45px;}
+            .wallpaper-container { gap: 20px; transform: scale(1.3); transform-origin: center center; margin-bottom: -45px;}
             .finish-score { font-size: 24px; transform: scale(1.5); }
             .finish-image { max-width: 200%; }
             .galaxy-bg {width: 200%; }
@@ -890,7 +956,7 @@
             .game-help-overlay { transform: scale(1.5); }
             .game-help-close-btn { width: 75px; height: 37.5px; background-size: 150px 37.5px; top: 52.5%;  transform: scale(1.2); left: 34%; }
             .game-help-close-btn:hover { background-position: -75px 0; top: 52.5%; transform: scale(1.2); left: 34%; }
-            .bonus-text { font-size: 24px; white-space: nowrap;  /* Keep on one line */ width: 100%; text-align: center; }
+            .bonus-text { font-size: 24px; white-space: nowrap; width: 100%; text-align: center; }
             .help-btn-game { width: 100px; height: 100px; background-size: 200px 100px; }
             .help-btn-game:hover { background-position: -100px 0; }
             .download-btn { width: 130px; height: 45px; background-size: 260px 45px; }
@@ -905,7 +971,7 @@
             .wallpaper-lock-overlay { width: 160px; height: 120px; }
             .wallpaper-lock-overlay img { width: 35px; height: 35px; }
             .wallpaper-lock-text { font-size: 11px; }
-            .wallpaper-container { gap: 20px; transform: scale(0.7);  /* 👈 THIS ONE LINE shrinks everything! 0.7 = 70% size */ transform-origin: center center;  /* Keeps it centered */ margin-bottom: -45px;}
+            .wallpaper-container { gap: 20px; transform: scale(0.7); transform-origin: center center; margin-bottom: -45px;}
             .finish-score { font-size: 24px; margin-bottom: 118px; }
             .finish-image { max-width: 200%; }
             .galaxy-bg {width: 200%; }
@@ -957,6 +1023,18 @@
         <div class="galaxy-overlay" id="galaxyOverlay"></div>
         <div class="game-sparkle-bg" id="gameSparkleBg"></div>
         <canvas id="gameCanvas"></canvas>
+        
+        <!-- CONSTELLATION CONTAINER -->
+        <div class="constellation-container" id="constellationContainer">
+            <img class="constellation-item" src="images/star_constellation1.png" alt="Constellation 1">
+            <img class="constellation-item" src="images/star_constellation2.png" alt="Constellation 2">
+            <img class="constellation-item" src="images/star_constellation3.png" alt="Constellation 3">
+            <img class="constellation-item" src="images/star_constellation4.png" alt="Constellation 4">
+            <img class="constellation-item" src="images/star_constellation5.png" alt="Constellation 5">
+            <img class="constellation-item" src="images/star_constellation6.png" alt="Constellation 6">
+        </div>
+        <div class="constellation-falling-sparkles" id="constellationFallingSparkles"></div>
+        
         <button class="help-btn-game" id="helpBtnGame"></button>
         <div class="score-display" id="scoreDisplay">Score: 0</div>
         <div class="timer-display" id="timerDisplay">Time: 60</div>
@@ -1148,7 +1226,6 @@
         let landingMusicBuffer = null;
         const clickSound = new Audio("sounds/click.mp3"); clickSound.volume = 0.5;
         const hoverSound = new Audio("sounds/hover.mp3"); hoverSound.volume = 0.3;
-        // 6 appear sounds
         const appearSounds = {
             landing: new Audio("sounds/appear.mp3"),
             help: new Audio("sounds/appear1.mp3"),
@@ -1157,15 +1234,13 @@
             endHigh: new Audio("sounds/appear4.mp3"),
             endLow: new Audio("sounds/appear5.mp3")
         };
-        // Individual volume settings for each appear sound
-appearSounds.landing.volume = 0.6;   // appear.mp3 - Landing page
-appearSounds.help.volume = 0.9;      // appear1.mp3 - Help screen (your setting)
-appearSounds.game.volume = 0.6;      // appear2.mp3 - Game start
-appearSounds.bonus.volume = 0.6;     // appear3.mp3 - Bonus round
-appearSounds.endHigh.volume = 0.6;   // appear4.mp3 - End high score
-appearSounds.endLow.volume = 0.9;    // appear5.mp3 - End low score (make louder)
+        appearSounds.landing.volume = 0.6;
+        appearSounds.help.volume = 0.9;
+        appearSounds.game.volume = 0.6;
+        appearSounds.bonus.volume = 0.6;
+        appearSounds.endHigh.volume = 0.6;
+        appearSounds.endLow.volume = 0.9;
         
-        // Custom star click sounds
         const starClickSounds = {
             small: new Audio("sounds/star_click_small.mp3"),
             medium: new Audio("sounds/star_click_medium.mp3"),
@@ -1225,19 +1300,20 @@ appearSounds.endLow.volume = 0.9;    // appear5.mp3 - End low score (make louder
         }
 
         // ==================== FILE LOADING ====================
-// Add audio files to the loading list
-const filesToLoad = [
-    "images/quote-bg.png","images/sparkle.png","images/sparkle_a.png","images/sparkle_b.png",
-    "images/Go.png","images/help.png","images/landing.png","images/play_landing.png",
-    "images/play_help.png","images/loading-bg.png","images/try-again.png","images/download.png",
-    "images/end.png","images/help_btn.png","images/lock.png","images/galaxy.jpg",
-    // Audio files - must be loaded before 100%
-    "sounds/click.mp3","sounds/hover.mp3",
-    "sounds/appear.mp3","sounds/appear1.mp3","sounds/appear2.mp3",
-    "sounds/appear3.mp3","sounds/appear4.mp3","sounds/appear5.mp3",
-    "sounds/star_click_small.mp3","sounds/star_click_medium.mp3","sounds/star_click_large.mp3",
-    "music/music_game.mp3",
-];
+        const filesToLoad = [
+            "images/quote-bg.png","images/sparkle.png","images/sparkle_a.png","images/sparkle_b.png",
+            "images/Go.png","images/help.png","images/landing.png","images/play_landing.png",
+            "images/play_help.png","images/loading-bg.png","images/try-again.png","images/download.png",
+            "images/end.png","images/help_btn.png","images/lock.png","images/galaxy.jpg",
+            "sounds/click.mp3","sounds/hover.mp3",
+            "sounds/appear.mp3","sounds/appear1.mp3","sounds/appear2.mp3",
+            "sounds/appear3.mp3","sounds/appear4.mp3","sounds/appear5.mp3",
+            "sounds/star_click_small.mp3","sounds/star_click_medium.mp3","sounds/star_click_large.mp3",
+            "music/music_game.mp3",
+            "images/star_constellation1.png","images/star_constellation2.png",
+            "images/star_constellation3.png","images/star_constellation4.png",
+            "images/star_constellation5.png","images/star_constellation6.png"
+        ];
         const allFiles = [...filesToLoad];
         let loadedCount = 0;
         const totalFiles = allFiles.length;
@@ -1249,28 +1325,28 @@ const filesToLoad = [
         }
 
         function loadFile(src) {
-    return new Promise((resolve) => {
-        const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src);
-        const isAudio = /\.(mp3|wav|ogg|m4a)$/i.test(src);
-        
-        if (isImage) {
-            const img = new Image();
-            img.onload = () => { loadedCount++; updateLoadingPercent(); resolve(); };
-            img.onerror = () => { loadedCount++; updateLoadingPercent(); resolve(); };
-            img.src = src;
-        } else if (isAudio) {
-            const audio = new Audio();
-            audio.preload = 'auto';
-            audio.oncanplaythrough = () => { loadedCount++; updateLoadingPercent(); resolve(); };
-            audio.onerror = () => { loadedCount++; updateLoadingPercent(); resolve(); };
-            audio.src = src;
-            audio.load();
-        } else {
-            fetch(src).then(() => { loadedCount++; updateLoadingPercent(); resolve(); })
-                .catch(() => { loadedCount++; updateLoadingPercent(); resolve(); });
+            return new Promise((resolve) => {
+                const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src);
+                const isAudio = /\.(mp3|wav|ogg|m4a)$/i.test(src);
+                
+                if (isImage) {
+                    const img = new Image();
+                    img.onload = () => { loadedCount++; updateLoadingPercent(); resolve(); };
+                    img.onerror = () => { loadedCount++; updateLoadingPercent(); resolve(); };
+                    img.src = src;
+                } else if (isAudio) {
+                    const audio = new Audio();
+                    audio.preload = 'auto';
+                    audio.oncanplaythrough = () => { loadedCount++; updateLoadingPercent(); resolve(); };
+                    audio.onerror = () => { loadedCount++; updateLoadingPercent(); resolve(); };
+                    audio.src = src;
+                    audio.load();
+                } else {
+                    fetch(src).then(() => { loadedCount++; updateLoadingPercent(); resolve(); })
+                        .catch(() => { loadedCount++; updateLoadingPercent(); resolve(); });
+                }
+            });
         }
-    });
-}
 
         async function preloadAllAssets() {
             updateLoadingPercent();
@@ -1380,6 +1456,83 @@ const filesToLoad = [
             triggerGlobalSparkleBurst(() => { hideHelpScreen(); });
         }
 
+        // ==================== CONSTELLATION SYSTEM ====================
+        // All 6 constellation images are in the HTML and positioned via CSS media queries.
+        // They will appear one by one: first at 58s, then 50s, 40s, 30s, 20s, 10s
+        let constellationTimeouts = [];
+
+        function scheduleConstellationAppearances() {
+            // Clear any existing timeouts
+            constellationTimeouts.forEach(t => clearTimeout(t));
+            constellationTimeouts = [];
+            
+            const items = document.querySelectorAll('.constellation-item');
+            // Schedule each constellation with timing: 58s, 50s, 40s, 30s, 20s, 10s
+            const timings = [58, 50, 40, 30, 20, 10];
+            
+            items.forEach((item, index) => {
+                if (index < timings.length) {
+                    const delay = (60 - timings[index]) * 1000; // Convert to ms from game start
+                    const timeout = setTimeout(() => {
+                        if (gameRunning) {
+                            item.classList.add('visible');
+                            // Spawn sparkles around this constellation
+                            setTimeout(() => {
+                                const rect = item.getBoundingClientRect();
+                                const padding = Math.min(40, rect.width * 0.1);
+                                spawnConstellationSparkles(
+                                    rect.left - padding,
+                                    rect.top - padding,
+                                    rect.width + (padding * 2),
+                                    rect.height + (padding * 2)
+                                );
+                            }, 200);
+                        }
+                    }, delay);
+                    constellationTimeouts.push(timeout);
+                }
+            });
+        }
+
+        function spawnConstellationSparkles(containerX, containerY, containerW, containerH) {
+            const sparkleContainer = document.getElementById('constellationFallingSparkles');
+            const bursts = 5;
+            const count = 15;
+            
+            for (let burst = 0; burst < bursts; burst++) {
+                setTimeout(() => {
+                    for (let i = 0; i < count; i++) {
+                        const sparkle = document.createElement('div');
+                        sparkle.className = 'constellation-sparkle';
+                        sparkle.style.backgroundImage = `url('${getRandomSparkleImage()}')`;
+                        const x = containerX + Math.random() * containerW;
+                        const y = containerY + Math.random() * containerH;
+                        sparkle.style.left = x + 'px';
+                        sparkle.style.top = y + 'px';
+                        const size = Math.random() * 25 + 5; // 5-30px
+                        sparkle.style.width = size + 'px';
+                        sparkle.style.height = size + 'px';
+                        sparkle.style.animationDelay = Math.random() * 0.3 + 's';
+                        sparkle.style.animationDuration = (2.5 + Math.random() * 1) + 's'; // Longer duration
+                        sparkleContainer.appendChild(sparkle);
+                        setTimeout(() => sparkle.remove(), 3500);
+                    }
+                }, burst * 200);
+            }
+        }
+
+        function clearConstellationSparkles() {
+            document.getElementById('constellationFallingSparkles').innerHTML = '';
+        }
+
+        function resetConstellations() {
+            const items = document.querySelectorAll('.constellation-item');
+            items.forEach(item => item.classList.remove('visible'));
+            clearConstellationSparkles();
+            constellationTimeouts.forEach(t => clearTimeout(t));
+            constellationTimeouts = [];
+        }
+
         // ==================== GAME LOGIC ====================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -1393,25 +1546,19 @@ const filesToLoad = [
         let gameTimerInterval = null;
         let bonusRoundActive = false;
         let spawnDirection = 'right';
-        let galaxyScrolling = false;
-        let galaxyScrollY = 0;
 
-        // ===== ADJUSTABLE SETTINGS =====
         const TRAIL_SPARKLE_SIZE_MIN = 6;
         const TRAIL_SPARKLE_SIZE_MAX = 16;
         const TRAIL_MAX_COUNT = 20;
         const TRAIL_SPAWN_RATE = 2;
         const TRAIL_LIFE_DECREASE = 0.03;
-        // ===============================
 
-        const STAR_SET_SIZE = 3;
         const STAR_SET_ROWS = 5;
         const STAR_SPAWN_INTERVAL = 800;
         const STAR_SPEED_X = 2.5;
         const STAR_SPEED_Y_MIN = 1.5;
         const STAR_SPEED_Y_MAX = 3.0;
 
-        const BONUS_SET_SIZE = 4;
         const BONUS_SET_ROWS = 5;
         const BONUS_SPAWN_INTERVAL = 500;
         const BONUS_SPEED = 3.5;
@@ -1423,8 +1570,6 @@ const filesToLoad = [
         const sparkleImageB = new Image(); sparkleImageB.src = 'images/sparkle_b.png';
         function getRandomSparkleImageObj() { return Math.random() < 0.5 ? sparkleImageA : sparkleImageB; }
 
-        // Normal mode: white stars, different sizes=different points
-        // Bonus mode: colored stars
         const starTypes = [
             { size: 20, points: 10, colorNormal: '#ffffff', colorBonus: '#4488ff', name: 'small' },
             { size: 35, points: 25, colorNormal: '#ffffff', colorBonus: '#ff4444', name: 'medium' },
@@ -1500,18 +1645,16 @@ const filesToLoad = [
         }
 
         function createFloatingText(x, y, points, isBonus) {
-    let color;
-    if (isBonus) {
-        // Bonus mode: colored like the stars
-        color = points >= 100 ? '#00ff88' : points >= 50 ? '#ffd700' : '#ff69b4';
-    } else {
-        // Normal mode: white
-        color = '#ffffff';
-    }
-    return {
-        x, y, text: '+' + points, life: 1, color: color
-    };
-}
+            let color;
+            if (isBonus) {
+                color = points >= 100 ? '#00ff88' : points >= 50 ? '#ffd700' : '#ff69b4';
+            } else {
+                color = '#ffffff';
+            }
+            return {
+                x, y, text: '+' + points, life: 1, color: color
+            };
+        }
 
         function addStarTrailSparkle(star) {
             const sparkle = {
@@ -1600,32 +1743,32 @@ const filesToLoad = [
             gameLoopId = requestAnimationFrame(gameLoop);
         }
 
-       function handleStarClick(clickX, clickY) {
-    let collected = false;
-    for (let i = gameStars.length - 1; i >= 0; i--) {
-        if (isClickOnStar(gameStars[i], clickX, clickY)) {
-            score += gameStars[i].points;
-            document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
-            floatingTexts.push(createFloatingText(gameStars[i].x, gameStars[i].y, gameStars[i].points, bonusRoundActive));
-            playStarClickSound(gameStars[i].starName || 'small');
-            gameStars.splice(i, 1);
-            collected = true;
-            break;
-        }
-    }
-    if (!collected) {
-        for (let i = bonusSparkles.length - 1; i >= 0; i--) {
-            if (isClickOnStar(bonusSparkles[i], clickX, clickY)) {
-                score += bonusSparkles[i].points;
-                document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
-                floatingTexts.push(createFloatingText(bonusSparkles[i].x, bonusSparkles[i].y, bonusSparkles[i].points, true));
-                playStarClickSound(bonusSparkles[i].points >= 100 ? 'large' : bonusSparkles[i].points >= 50 ? 'medium' : 'small');
-                bonusSparkles.splice(i, 1);
-                break;
+        function handleStarClick(clickX, clickY) {
+            let collected = false;
+            for (let i = gameStars.length - 1; i >= 0; i--) {
+                if (isClickOnStar(gameStars[i], clickX, clickY)) {
+                    score += gameStars[i].points;
+                    document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
+                    floatingTexts.push(createFloatingText(gameStars[i].x, gameStars[i].y, gameStars[i].points, bonusRoundActive));
+                    playStarClickSound(gameStars[i].starName || 'small');
+                    gameStars.splice(i, 1);
+                    collected = true;
+                    break;
+                }
+            }
+            if (!collected) {
+                for (let i = bonusSparkles.length - 1; i >= 0; i--) {
+                    if (isClickOnStar(bonusSparkles[i], clickX, clickY)) {
+                        score += bonusSparkles[i].points;
+                        document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
+                        floatingTexts.push(createFloatingText(bonusSparkles[i].x, bonusSparkles[i].y, bonusSparkles[i].points, true));
+                        playStarClickSound(bonusSparkles[i].points >= 100 ? 'large' : bonusSparkles[i].points >= 50 ? 'medium' : 'small');
+                        bonusSparkles.splice(i, 1);
+                        break;
+                    }
+                }
             }
         }
-    }
-}
 
         canvas.addEventListener('click', (e) => {
             if (!gameRunning) return;
@@ -1639,76 +1782,75 @@ const filesToLoad = [
         });
 
         function startGame() {
-    resizeCanvas();
-    document.getElementById('gameScreen').classList.add('show');
-    
-    // Reset everything
-    score = 0; timeLeft = 60;
-    gameStars = []; bonusSparkles = []; floatingTexts = [];
-    bonusRoundActive = false; spawnDirection = 'right';
-    
-    // Hide UI and overlay initially
-    document.getElementById('scoreDisplay').textContent = 'Score: 0';
-    document.getElementById('timerDisplay').textContent = 'Time: 60';
-    document.getElementById('scoreDisplay').classList.remove('visible');
-    document.getElementById('timerDisplay').classList.remove('visible');
-    document.getElementById('helpBtnGame').classList.remove('visible');
-    document.getElementById('galaxyOverlay').classList.remove('visible');
-    
-    // Start galaxy scroll
-    const galaxyBg = document.getElementById('galaxyBg');
-    galaxyBg.classList.remove('scrolling');
-    void galaxyBg.offsetWidth;
-    galaxyBg.classList.add('scrolling');
-    
-    // Start sparkle background immediately
-    startGameBgSparkles();
-    
-    gameRunning = true;
-    gameLoopId = requestAnimationFrame(gameLoop);
-    playAppearSound('game');
-    
-    // After 2.5s fade in dark overlay, after 3s show UI and start stars
-    setTimeout(() => {
-        document.getElementById('galaxyOverlay').classList.add('visible');
-    }, 2500);
-    
-    setTimeout(() => {
-        document.getElementById('scoreDisplay').classList.add('visible');
-        document.getElementById('timerDisplay').classList.add('visible');
-        document.getElementById('helpBtnGame').classList.add('visible');
-        spawnStarSet();
-    }, 3000);
-    
-    gameTimerInterval = setInterval(() => {
-        timeLeft--;
-        document.getElementById('timerDisplay').textContent = 'Time: ' + timeLeft;
-        
-        if (timeLeft === 30) {
-            bonusRoundActive = true;
-            spawnDirection = 'both';
-            spawnBonusSet();
-            const bonusText = document.getElementById('bonusText');
-            bonusText.textContent = 'BONUS ROUND!';
-            bonusText.classList.add('show');
-            playAppearSound('bonus');
-            setTimeout(() => bonusText.classList.remove('show'), 2000);
+            resizeCanvas();
+            document.getElementById('gameScreen').classList.add('show');
+            
+            score = 0; timeLeft = 60;
+            gameStars = []; bonusSparkles = []; floatingTexts = [];
+            bonusRoundActive = false; spawnDirection = 'right';
+            
+            document.getElementById('scoreDisplay').textContent = 'Score: 0';
+            document.getElementById('timerDisplay').textContent = 'Time: 60';
+            document.getElementById('scoreDisplay').classList.remove('visible');
+            document.getElementById('timerDisplay').classList.remove('visible');
+            document.getElementById('helpBtnGame').classList.remove('visible');
+            document.getElementById('galaxyOverlay').classList.remove('visible');
+            
+            // Reset constellations
+            resetConstellations();
+            
+            const galaxyBg = document.getElementById('galaxyBg');
+            galaxyBg.classList.remove('scrolling');
+            void galaxyBg.offsetWidth;
+            galaxyBg.classList.add('scrolling');
+            
+            startGameBgSparkles();
+            
+            gameRunning = true;
+            gameLoopId = requestAnimationFrame(gameLoop);
+            playAppearSound('game');
+            
+            setTimeout(() => {
+                document.getElementById('galaxyOverlay').classList.add('visible');
+            }, 2500);
+            
+            setTimeout(() => {
+                document.getElementById('scoreDisplay').classList.add('visible');
+                document.getElementById('timerDisplay').classList.add('visible');
+                document.getElementById('helpBtnGame').classList.add('visible');
+                spawnStarSet();
+                // Schedule constellation appearances
+                scheduleConstellationAppearances();
+            }, 3000);
+            
+            gameTimerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerDisplay').textContent = 'Time: ' + timeLeft;
+                
+                if (timeLeft === 30) {
+                    bonusRoundActive = true;
+                    spawnDirection = 'both';
+                    spawnBonusSet();
+                    const bonusText = document.getElementById('bonusText');
+                    bonusText.textContent = 'BONUS ROUND!';
+                    bonusText.classList.add('show');
+                    playAppearSound('bonus');
+                    setTimeout(() => bonusText.classList.remove('show'), 2000);
+                }
+                if (timeLeft === 10 && bonusRoundActive) {
+                    bonusRoundActive = false;
+                    spawnDirection = 'right';
+                    if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
+                    if (starSpawnTimeout) clearTimeout(starSpawnTimeout);
+                    spawnStarSet();
+                    const bonusText = document.getElementById('bonusText');
+                    bonusText.textContent = 'Bonus Finished!';
+                    bonusText.classList.add('show');
+                    setTimeout(() => bonusText.classList.remove('show'), 2000);
+                }
+                if (timeLeft <= 0) endGame();
+            }, 1000);
         }
-        if (timeLeft === 10 && bonusRoundActive) {
-    bonusRoundActive = false;
-    spawnDirection = 'right';
-    if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
-    // RESTART normal star spawning
-    if (starSpawnTimeout) clearTimeout(starSpawnTimeout);
-    spawnStarSet();  // 👈 ADD THIS LINE - restart normal stars
-    const bonusText = document.getElementById('bonusText');
-    bonusText.textContent = 'Bonus Finished!';
-    bonusText.classList.add('show');
-    setTimeout(() => bonusText.classList.remove('show'), 2000);
-}
-        if (timeLeft <= 0) endGame();
-    }, 1000);
-}
 
         function startGameBgSparkles() {
             for (let i = 0; i < 80; i++) setTimeout(() => createGameBgSparkle(), i * 40);
@@ -1735,33 +1877,35 @@ const filesToLoad = [
         }
 
         function endGame() {
-    gameRunning = false;
-    bonusRoundActive = false;
-    clearInterval(gameTimerInterval);
-    if (gameLoopId) cancelAnimationFrame(gameLoopId);
-    if (starSpawnTimeout) clearTimeout(starSpawnTimeout);
-    if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
-    stopGameBgSparkles();
-    document.getElementById('gameScreen').classList.remove('show');
-    
-    updateWallpaperUnlocks();
-    document.getElementById('finishScore').textContent = 'You caught ' + score + ' stars!';
-    
-    // Choose end image based on score
-    if (score >= 1000) {
-        document.getElementById('finishImage').src = 'images/endhigh.png';
-    } else {
-        document.getElementById('finishImage').src = 'images/endlow.png';
-    }
-    
-    whiteFadeTransition(() => {
-        document.getElementById('finishScreen').classList.add('show');
-        finishSparkleInterval = startSparkles('finishSparkleBg', 'finish-bg-sparkle', 100);
-        if (score >= 3000) playAppearSound('endHigh');
-        else if (score < 1000) playAppearSound('endLow');
-        else playAppearSound('endHigh');
-    });
-}
+            gameRunning = false;
+            bonusRoundActive = false;
+            clearInterval(gameTimerInterval);
+            if (gameLoopId) cancelAnimationFrame(gameLoopId);
+            if (starSpawnTimeout) clearTimeout(starSpawnTimeout);
+            if (bonusSpawnTimeout) clearTimeout(bonusSpawnTimeout);
+            stopGameBgSparkles();
+            clearConstellationSparkles();
+            constellationTimeouts.forEach(t => clearTimeout(t));
+            constellationTimeouts = [];
+            document.getElementById('gameScreen').classList.remove('show');
+            
+            updateWallpaperUnlocks();
+            document.getElementById('finishScore').textContent = 'You caught ' + score + ' stars!';
+            
+            if (score >= 1000) {
+                document.getElementById('finishImage').src = 'images/endhigh.png';
+            } else {
+                document.getElementById('finishImage').src = 'images/endlow.png';
+            }
+            
+            whiteFadeTransition(() => {
+                document.getElementById('finishScreen').classList.add('show');
+                finishSparkleInterval = startSparkles('finishSparkleBg', 'finish-bg-sparkle', 100);
+                if (score >= 3000) playAppearSound('endHigh');
+                else if (score < 1000) playAppearSound('endLow');
+                else playAppearSound('endHigh');
+            });
+        }
 
         function updateWallpaperUnlocks() {
             if (score >= 1000) {
@@ -1775,22 +1919,20 @@ const filesToLoad = [
         }
 
         function downloadWallpaper(url) {
-    if (url.includes('wallpaper1') && score < 1000) return;
-    if (url.includes('wallpaper2') && score < 3000) return;
-    
-    if (isTouchDevice || isMobile) {
-        // Mobile: force download
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = url.split('/').pop();
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } else {
-        // Desktop: open in new tab
-        window.open(url, '_blank');
-    }
-}
+            if (url.includes('wallpaper1') && score < 1000) return;
+            if (url.includes('wallpaper2') && score < 3000) return;
+            
+            if (isTouchDevice || isMobile) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = url.split('/').pop();
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                window.open(url, '_blank');
+            }
+        }
 
         function handleTryAgain() {
             playClickSound();
@@ -1810,7 +1952,7 @@ const filesToLoad = [
             });
         }
 
-        // ==================== IN-GAME HELP (doesn't stop stars) ====================
+        // ==================== IN-GAME HELP ====================
         function showGameHelp() {
             if (!gameRunning) return;
             document.getElementById('gameHelpOverlay').classList.add('show');
