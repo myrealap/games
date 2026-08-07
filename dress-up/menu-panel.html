@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Menu Panel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+    body {
+      background: transparent;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      touch-action: none;
+    }
+
+    .menu-panel {
+      position: absolute;
+      right: -320px; /* Start off-screen to the right */
+      margin-top: 150%;
+      transform: translateY(-50%);
+      z-index: 10;
+      display: flex;
+      align-items: stretch;
+      opacity: 1;
+      pointer-events: none;
+      transition: right 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .menu-panel.show {
+      right: 0;
+      pointer-events: auto;
+    }
+
+    .menu-bg {
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      width: 200px;
+      padding: 20px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 800px;
+    }
+    .menu-bg.mermaid { background-image: url('images/menu_mermaid.png'); }
+    .menu-bg.fairy { background-image: url('images/menu_fairy.png'); }
+    .menu-bg.boy { background-image: url('images/menu_boy.png'); }
+
+    .menu-btn {
+      width: 125px;
+      height: 125px;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      background-size: 250px 125px;
+      cursor: pointer;
+      border: none;
+      background-color: transparent;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+      margin-top: 30%;
+      margin-left: 45%;
+    }
+    .menu-btn:hover {
+      background-position: -125px 0;
+      transform: scale(1.05);
+    }
+
+    .items-panel {
+      position: absolute;
+      right: -220px;
+      margin-top: 150%;
+      transform: translateY(-50%);
+      z-index: 999;
+      width: 180px;
+      height: 742px;
+      background-image: url('images/itemsbg.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: right 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      pointer-events: none;
+      min-height: 400px;
+      justify-content: center;
+    }
+    .items-panel.open {
+      right: 120px;
+      pointer-events: auto;
+    }
+    .items-panel.closing {
+      transition: right 0.3s ease-out;
+    }
+
+    /* New class for sliding out animation */
+    .items-panel.slide-out {
+      right: -220px;
+      transition: right 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      pointer-events: none;
+    }
+
+    .items-scroll {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      max-height: 100%;
+      overflow: hidden;
+      width: 100%;
+      padding: 5px 0;
+      position: relative;
+      touch-action: none;
+    }
+    .items-scroll-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
+    }
+
+    .item-thumb {
+      width: 95%;
+      height: 100%;
+      object-fit: contain;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0.7;
+      -webkit-user-drag: none;
+      user-drag: none;
+      -webkit-touch-callout: none;
+    }
+    .item-thumb:hover { opacity: 1; transform: scale(1.05); }
+    .item-thumb.active { opacity: 1; }
+
+    .scroll-btn {
+      width: 37.5px;
+      height: 37.5px;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      background-size: 75px 37.5px;
+      cursor: pointer;
+      border: none;
+      background-color: transparent;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+    .scroll-btn:hover { background-position: -37.5px 0; transform: scale(1.05); }
+    .scroll-btn.up { background-image: url('images/up.png'); }
+    .scroll-btn.down { background-image: url('images/down.png'); }
+    .scroll-btn.disabled { opacity: 0.25; pointer-events: none; }
+
+    @media (max-width: 480px) {}
+  </style>
+</head>
+<body>
+
+  <div class="menu-panel" id="menuPanel">
+    <div class="menu-bg" id="menuBg"></div>
+  </div>
+
+  <div class="items-panel" id="itemsPanel">
+    <button class="scroll-btn up" id="scrollUp"></button>
+    <div class="items-scroll" id="itemsScroll"></div>
+    <button class="scroll-btn down" id="scrollDown"></button>
+  </div>
+
+  <script>
+    let currentItems = [];
+    let itemScrollIndex = 0;
+    let visibleItems = 4;
+    let currentMenuType = 'tails';
+    let currentCharacter = 'mermaid';
+    let itemData = {};
+    let isInitialized = false;
+    let isTransitioning = false;
+
+    function renderItems() {
+      const container = document.getElementById('itemsScroll');
+      container.innerHTML = '';
+      
+      const inner = document.createElement('div');
+      inner.className = 'items-scroll-inner';
+      inner.id = 'itemsScrollInner';
+      
+      const start = itemScrollIndex;
+      const end = Math.min(start + visibleItems, currentItems.length);
+      
+      for (let i = start; i < end; i++) {
+        const item = currentItems[i];
+        const thumb = document.createElement('img');
+        thumb.className = 'item-thumb';
+        thumb.src = item.thumb;
+        thumb.alt = 'Item';
+        thumb.dataset.index = i;
+        thumb.draggable = false;
+        thumb.onclick = function(e) {
+          e.stopPropagation();
+          const idx = parseInt(this.dataset.index);
+          selectItem(idx);
+        };
+        thumb.ontouchstart = function(e) {
+          e.preventDefault();
+          const idx = parseInt(this.dataset.index);
+          selectItem(idx);
+        };
+        inner.appendChild(thumb);
+      }
+      
+      container.appendChild(inner);
+      container._inner = inner;
+      
+      document.getElementById('scrollUp').classList.toggle('disabled', itemScrollIndex <= 0);
+      document.getElementById('scrollDown').classList.toggle('disabled', itemScrollIndex + visibleItems >= currentItems.length);
+    }
+
+    function selectItem(index) {
+      const item = currentItems[index];
+      if (!item) return;
+      
+      window.parent.postMessage({
+        action: 'itemSelected',
+        menuType: currentMenuType,
+        item: item,
+        index: index
+      }, '*');
+      
+      document.querySelectorAll('.item-thumb').forEach(el => el.classList.remove('active'));
+      const thumbs = document.querySelectorAll('.item-thumb');
+      if (thumbs[index - itemScrollIndex]) {
+        thumbs[index - itemScrollIndex].classList.add('active');
+      }
+    }
+
+    function scrollItems(direction) {
+      console.log('Scroll:', direction, 'Current index:', itemScrollIndex, 'Total:', currentItems.length);
+      
+      if (direction === 'up' && itemScrollIndex > 0) {
+        itemScrollIndex--;
+        renderItems();
+        window.parent.postMessage({ action: 'playClickSound' }, '*');
+      } else if (direction === 'down' && itemScrollIndex + visibleItems < currentItems.length) {
+        itemScrollIndex++;
+        renderItems();
+        window.parent.postMessage({ action: 'playClickSound' }, '*');
+      }
+    }
+
+    function setupDrag() {
+      const container = document.getElementById('itemsScroll');
+      if (!container) return;
+      
+      let dragStartY = 0, dragCurrentY = 0, isDragging = false;
+      
+      container.addEventListener('touchstart', function(e) {
+        const touch = e.touches[0];
+        dragStartY = touch.clientY;
+        dragCurrentY = dragStartY;
+        isDragging = false;
+        this._inner = document.getElementById('itemsScrollInner');
+      }, { passive: true });
+      
+      container.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        dragCurrentY = touch.clientY;
+        const delta = dragCurrentY - dragStartY;
+        
+        if (Math.abs(delta) > 10) {
+          isDragging = true;
+          if (this._inner) {
+            const maxOffset = 60;
+            const limitedOffset = Math.max(-maxOffset, Math.min(maxOffset, delta));
+            this._inner.style.transition = 'none';
+            this._inner.style.transform = `translateY(${limitedOffset}px)`;
+          }
+        }
+      }, { passive: false });
+      
+      container.addEventListener('touchend', function(e) {
+        if (!isDragging) return;
+        const delta = dragCurrentY - dragStartY;
+        const threshold = 40;
+        
+        if (this._inner) {
+          this._inner.style.transition = 'transform 0.3s ease';
+          this._inner.style.transform = 'translateY(0px)';
+        }
+        
+        if (delta < -threshold) scrollItems('down');
+        else if (delta > threshold) scrollItems('up');
+        
+        isDragging = false;
+      }, { passive: true });
+      
+      container.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        if (e.deltaY > 0) scrollItems('down');
+        else if (e.deltaY < 0) scrollItems('up');
+      }, { passive: false });
+    }
+
+    function updateItems(menuType, characterType, animate) {
+      // If already transitioning, queue the update
+      if (isTransitioning) {
+        setTimeout(() => {
+          updateItems(menuType, characterType, animate);
+        }, 600);
+        return;
+      }
+
+      const panel = document.getElementById('itemsPanel');
+      
+      // If panel is already open and we're clicking the same menu type, 
+      // still animate it (slide out and back in)
+      if (panel.classList.contains('open')) {
+        isTransitioning = true;
+        
+        // Slide out to the right
+        panel.classList.add('slide-out');
+        panel.classList.remove('open');
+        
+        // After slide out animation completes, update items and slide back in
+        setTimeout(() => {
+          // Update items
+          currentMenuType = menuType;
+          currentCharacter = characterType;
+          
+          const charData = itemData[characterType] || {};
+          currentItems = charData[menuType] || [];
+          itemScrollIndex = 0;
+          
+          renderItems();
+          
+          // Remove slide-out class and add open (slide in from right)
+          panel.classList.remove('slide-out');
+          panel.classList.add('open');
+          
+          setTimeout(() => {
+            isTransitioning = false;
+          }, 800);
+        }, 500); // Wait for slide out animation (matches .slide-out transition)
+        
+      } else {
+        // First time opening - just slide in
+        currentMenuType = menuType;
+        currentCharacter = characterType;
+        
+        const charData = itemData[characterType] || {};
+        currentItems = charData[menuType] || [];
+        itemScrollIndex = 0;
+        
+        renderItems();
+        
+        panel.classList.remove('slide-out');
+        panel.classList.add('open');
+      }
+    }
+
+    function updateMenu(menuClass, menuButtons, characterType) {
+      const menuBg = document.getElementById('menuBg');
+      menuBg.className = 'menu-bg ' + menuClass;
+      menuBg.innerHTML = '';
+      
+      const btnSuffixMap = {
+        mermaid: '_mer',
+        fairy: '_fairy',
+        boy: '_boy'
+      };
+      const suffix = btnSuffixMap[characterType] || '_mer';
+      
+      menuButtons.forEach(btnName => {
+        const btn = document.createElement('button');
+        btn.className = 'menu-btn ' + btnName;
+        btn.dataset.menu = btnName;
+        btn.style.backgroundImage = `url('images/btn_${btnName}${suffix}.png')`;
+        btn.onclick = function(e) {
+          e.stopPropagation();
+          const menu = this.dataset.menu;
+          // Close items panel first with slide out, then reopen with new items
+          const panel = document.getElementById('itemsPanel');
+          if (panel.classList.contains('open')) {
+            // Slide out, then update
+            panel.classList.add('slide-out');
+            panel.classList.remove('open');
+            
+            setTimeout(() => {
+              window.parent.postMessage({
+                action: 'menuClicked',
+                menuType: menu,
+                character: characterType
+              }, '*');
+            }, 500);
+          } else {
+            window.parent.postMessage({
+              action: 'menuClicked',
+              menuType: menu,
+              character: characterType
+            }, '*');
+          }
+        };
+        btn.ontouchstart = function(e) {
+          e.preventDefault();
+          const menu = this.dataset.menu;
+          const panel = document.getElementById('itemsPanel');
+          if (panel.classList.contains('open')) {
+            panel.classList.add('slide-out');
+            panel.classList.remove('open');
+            
+            setTimeout(() => {
+              window.parent.postMessage({
+                action: 'menuClicked',
+                menuType: menu,
+                character: characterType
+              }, '*');
+            }, 500);
+          } else {
+            window.parent.postMessage({
+              action: 'menuClicked',
+              menuType: menu,
+              character: characterType
+            }, '*');
+          }
+        };
+        menuBg.appendChild(btn);
+      });
+    }
+
+    // ========== NEW: ANIMATE MENU PANEL ON CHARACTER CHANGE ==========
+    function animateMenuPanel(characterType, menuClass, menuButtons, defaultMenu) {
+      const panel = document.getElementById('menuPanel');
+      
+      // First, slide out to the right
+      panel.classList.remove('show');
+      
+      // Wait for slide out animation, then update content and slide back in
+      setTimeout(() => {
+        // Update menu content
+        updateMenu(menuClass, menuButtons, characterType);
+        
+        // Update items content
+        const charData = itemData[characterType] || {};
+        currentItems = charData[defaultMenu] || [];
+        itemScrollIndex = 0;
+        renderItems();
+        
+        // Slide back in from the right
+        panel.classList.add('show');
+        
+        // Also update items panel if it was open
+        const itemsPanel = document.getElementById('itemsPanel');
+        if (itemsPanel.classList.contains('open')) {
+          // Close items panel
+          itemsPanel.classList.add('slide-out');
+          itemsPanel.classList.remove('open');
+          
+          setTimeout(() => {
+            itemsPanel.classList.remove('slide-out');
+            // Don't auto-open items panel on character change
+          }, 500);
+        }
+        
+      }, 400); // Match the slide-out transition time
+    }
+
+    window.addEventListener('message', function(event) {
+      const data = event.data;
+      
+      if (data.action === 'initMenu') {
+        itemData = data.itemData || {};
+        currentCharacter = data.character || 'mermaid';
+        
+        // Animate the menu panel coming in from the right
+        const panel = document.getElementById('menuPanel');
+        updateMenu(data.menuClass, data.menuButtons, currentCharacter);
+        updateItems(data.defaultMenu || 'tails', currentCharacter, false);
+        
+        // Show menu panel with animation
+        setTimeout(() => {
+          panel.classList.add('show');
+        }, 100);
+        
+        isInitialized = true;
+        setTimeout(setupDrag, 100);
+      }
+      
+      if (data.action === 'updateItems') {
+        updateItems(data.menuType, data.character, true);
+      }
+      
+      if (data.action === 'updateMenuButtons') {
+        updateMenu(data.menuClass, data.menuButtons, data.character);
+      }
+      
+      // ========== NEW: Handle character change with animation ==========
+      if (data.action === 'changeCharacter') {
+        const character = data.character;
+        const menuClass = data.menuClass;
+        const menuButtons = data.menuButtons;
+        const defaultMenu = data.defaultMenu || 'tails';
+        
+        currentCharacter = character;
+        
+        // Animate the menu panel sliding out and back in
+        animateMenuPanel(character, menuClass, menuButtons, defaultMenu);
+      }
+      
+      if (data.action === 'closeItems') {
+        const panel = document.getElementById('itemsPanel');
+        panel.classList.add('closing');
+        panel.classList.remove('open');
+        panel.classList.remove('slide-out');
+      }
+      
+      if (data.action === 'selectItem') {
+        selectItem(data.index);
+      }
+      
+      // Play click sound
+      if (data.action === 'playClickSound') {
+        // Sound is played in parent
+      }
+    });
+
+    // Set up scroll button listeners
+    document.getElementById('scrollUp').addEventListener('click', function(e) {
+      e.stopPropagation();
+      scrollItems('up');
+    });
+    
+    document.getElementById('scrollDown').addEventListener('click', function(e) {
+      e.stopPropagation();
+      scrollItems('down');
+    });
+
+    // Touch support for scroll buttons
+    document.getElementById('scrollUp').addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      scrollItems('up');
+    }, { passive: false });
+    
+    document.getElementById('scrollDown').addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      scrollItems('down');
+    }, { passive: false });
+
+    window.parent.postMessage({ action: 'menuPanelReady' }, '*');
+  </script>
+</body>
+</html>
