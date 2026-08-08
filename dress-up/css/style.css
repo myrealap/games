@@ -447,10 +447,10 @@ body {
 /* Music Box iframe */
 #musicBox {
   position: absolute;
-  top: 55%;
-  right: 60%;
-  width: 800px;
-  height: 500px;
+  top: 30%;
+  right: 30%;
+  width: 100%;
+  height: 100%;
   border: none;
   z-index: 10;
   pointer-events: auto;
@@ -695,11 +695,25 @@ body {
     }
 
 @media (max-width: 375px) { 
-#menuPanel { bottom: -40% !important; left: -12% !important; width: 150% !important; height: 200% !important; top: unset !important; transform: scale(0.45) !important; }
-.game-bg { top: -30%; left: -225%; width: 500%;height: 150%; transform: scale(0.5); }
-#musicBox { transform: scale(0.25) !important; bottom: -31% !important;left: -22% !important; width: 200% !important;}
-#bgSelector { bottom: 0% !important;left: -50% !important;width: 150% !important;transform: scale(0.35) !important; }
-.bottom-btns { bottom: -20px;right: -60%; transform: scale(0.5); }
+#menuPanel {
+        bottom: -40% !important;
+        left: -12% !important;
+        width: 150% !important;
+        height: 200% !important;
+        top: unset !important;
+        transform: scale(0.5) !important;}
 }
+.game-bg {
+        top: -30%;
+        left: -225%;
+        width: 500%;
+        height: 150%;
+        transform: scale(0.5);}
+
+    #musicBox {transform: scale(0.25) !important; bottom: -31% !important;left: -22% !important; width: 200% !important;}
+
+#bgSelector {bottom: 0% !important;left: -50% !important;width: 150% !important;transform: scale(0.35) !important; }
+.bottom-btns {bottom: -20px;right: -60%; transform: scale(0.5); }
+
 @media (max-width: 360px) {}
 }
