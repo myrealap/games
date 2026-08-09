@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Music box · myrealap</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       background: transparent;
       min-height: 100vh;
@@ -35,17 +39,16 @@
     /* ===== MUSIC TITLE ===== */
     .music-title {
       position: absolute;
-      top: 12%;
+      top: 6%;
       left: 50%;
       transform: translateX(-50%);
-      width: 300px;
-      height: 60px;
+      width: 100%;
+      height: 13%;
       z-index: 15;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-
     .music-title img {
       position: absolute;
       top: 0;
@@ -56,68 +59,69 @@
       opacity: 0;
       transition: opacity 0.6s ease;
     }
+    .music-title img.active { opacity: 1; }
+    .music-title img.fade-out { opacity: 0; }
 
-    .music-title img.active {
-      opacity: 1;
-    }
-
-    .music-title img.fade-out {
-      opacity: 0;
-    }
-
-    /* ===== EXPLOSION NOTES FROM CENTER ===== */
-    .explosion-container {
+    /* ===== FLOATING NOTES – like sparkle but with note.png ===== */
+    .notes-ring {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100%;
-      height: 100%;
+      top: 30%;
+      left: 20%;
+      width: 60%;
+      height: 40%;
       pointer-events: none;
       z-index: 1;
       overflow: visible;
     }
 
-    .explosion-note {
+    .float-note {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       background-image: url('images/note.png');
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
       opacity: 0;
       pointer-events: none;
-      filter: drop-shadow(0 0 25px rgba(255, 215, 200, 0.9));
-      animation: explosionBurst 2s ease-out forwards;
+      filter: drop-shadow(0 0 12px rgba(255, 215, 200, 0.7));
+      animation: noteFloat 3.2s ease-in-out infinite alternate;
     }
 
-    @keyframes explosionBurst {
+    /* Each note placed in a ring around the melody */
+    .float-note:nth-child(1) { top: 8%; left: 50%; animation-delay: 0.0s; width: 38px; height: 38px; }
+    .float-note:nth-child(2) { top: 50%; left: 88%; animation-delay: 0.5s; width: 30px; height: 30px; }
+    .float-note:nth-child(3) { top: 85%; left: 50%; animation-delay: 1.0s; width: 44px; height: 44px; }
+    .float-note:nth-child(4) { top: 50%; left: 12%; animation-delay: 1.5s; width: 28px; height: 28px; }
+    .float-note:nth-child(5) { top: 20%; left: 22%; animation-delay: 0.8s; width: 36px; height: 36px; }
+    .float-note:nth-child(6) { top: 20%; left: 78%; animation-delay: 1.3s; width: 32px; height: 32px; }
+    .float-note:nth-child(7) { top: 78%; left: 22%; animation-delay: 0.3s; width: 40px; height: 40px; }
+    .float-note:nth-child(8) { top: 78%; left: 78%; animation-delay: 1.8s; width: 26px; height: 26px; }
+    .float-note:nth-child(9) { top: 12%; left: 12%; animation-delay: 0.6s; width: 34px; height: 34px; }
+    .float-note:nth-child(10) { top: 12%; left: 88%; animation-delay: 1.1s; width: 30px; height: 30px; }
+    .float-note:nth-child(11) { top: 88%; left: 12%; animation-delay: 0.9s; width: 42px; height: 42px; }
+    .float-note:nth-child(12) { top: 88%; left: 88%; animation-delay: 1.9s; width: 28px; height: 28px; }
+
+    @keyframes noteFloat {
       0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.1) rotate(0deg);
-      }
-      8% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(2) rotate(30deg);
+        opacity: 0.15;
+        transform: translateY(-18px) scale(0.7) rotate(-8deg);
       }
       25% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.4) rotate(70deg);
+        opacity: 0.9;
+        transform: translateY(6px) scale(1.2) rotate(6deg);
       }
       50% {
-        opacity: 0.9;
-        transform: translate(-50%, -50%) scale(0.9) rotate(120deg);
+        opacity: 1;
+        transform: translateY(-10px) scale(1) rotate(-3deg);
       }
-      80% {
-        opacity: 0.5;
-        transform: translate(-50%, -50%) scale(0.5) rotate(180deg);
+      75% {
+        opacity: 0.8;
+        transform: translateY(14px) scale(0.9) rotate(4deg);
       }
       100% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.1) rotate(240deg);
+        opacity: 0.2;
+        transform: translateY(-22px) scale(0.7) rotate(-6deg);
       }
     }
 
@@ -183,7 +187,7 @@
       transform: scale(1.06);
     }
 
-    /* ----- SPARKLE DOTS (background magic) ----- */
+    /* ===== SPARKLE DOTS (extra magic) ===== */
     .sparkle-dot {
       position: absolute;
       border-radius: 50%;
@@ -209,9 +213,81 @@
       100% { opacity: 0.7; transform: scale(1.3); }
     }
 
-    @media (max-width: 768px) {}
+    /* ===== EXPLOSION BURST NOTES (when music plays) ===== */
+    .explosion-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      overflow: visible;
     }
-    @media (max-width: 480px) {}
+    .explosion-note {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 30px;
+      height: 30px;
+      background-image: url('images/note.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 0 25px rgba(255, 215, 200, 0.9));
+      animation: explosionBurst 2s ease-out forwards;
+    }
+    @keyframes explosionBurst {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.1) rotate(0deg);
+      }
+      8% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(2) rotate(30deg);
+      }
+      25% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.4) rotate(70deg);
+      }
+      50% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(0.9) rotate(120deg);
+      }
+      80% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(0.5) rotate(180deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.1) rotate(240deg);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .music-box { width: 95vw; height: 70vw; }
+      .melody-btn { width: 40vw; height: 40vw; background-size: 80vw 40vw; }
+      .music-btn { width: 30vw; height: 30vw; background-size: 24vw 12vw; }
+      .music-btn.prev { left: 5%; }
+      .music-btn.next { right: 5%; }
+      .float-note { width: 4vw !important; height: 4vw !important; }
+      .float-note:nth-child(1) { width: 5vw !important; height: 5vw !important; }
+      .float-note:nth-child(3) { width: 6vw !important; height: 6vw !important; }
+      .float-note:nth-child(5) { width: 4.5vw !important; height: 4.5vw !important; }
+      .float-note:nth-child(7) { width: 5.5vw !important; height: 5.5vw !important; }
+      .float-note:nth-child(9) { width: 4.8vw !important; height: 4.8vw !important; }
+      .float-note:nth-child(11) { width: 5.8vw !important; height: 5.8vw !important; }
+      .explosion-note { width: 4vw; height: 4vw; }
+    }
+    @media (max-width: 480px) {
+      .music-box { width: 98vw; height: 80vw; }
+      .melody-btn { width: 45vw; height: 45vw; background-size: 90vw 45vw; }
+      .music-btn { width: 28vw; height: 28vw; background-size: 22vw 11vw; }
+      .music-btn.prev { left: 2%; }
+      .music-btn.next { right: 2%; }
     }
   </style>
 </head>
@@ -219,29 +295,32 @@
   <div class="music-box mermaid" id="musicBox">
     <!-- Music Title -->
     <div class="music-title" id="musicTitle">
-      <img id="titleMermaid" class="active" src="images/music_title_mermaid.png" alt="Mermaid Music">
-      <img id="titleFairy" src="images/music_title_fairy.png" alt="Fairy Music">
-      <img id="titleBoy" src="images/music_title_boy.png" alt="Boy Music">
+      <img id="titleMermaid" class="active" src="images/music_title_mermaid.png" alt="Mermaid Music" />
+      <img id="titleFairy" src="images/music_title_fairy.png" alt="Fairy Music" />
+      <img id="titleBoy" src="images/music_title_boy.png" alt="Boy Music" />
     </div>
 
-    <!-- Explosion Container (notes burst from center) -->
-    <div class="explosion-container" id="explosionContainer"></div>
-
-    <!-- Sparkle Dots -->
-    <div class="sparkle-dot"></div>
-    <div class="sparkle-dot"></div>
-    <div class="sparkle-dot"></div>
-    <div class="sparkle-dot"></div>
-    <div class="sparkle-dot"></div>
-    <div class="sparkle-dot"></div>
-    <div class="sparkle-dot"></div>
-    <div class="sparkle-dot"></div>
+    <!-- ===== FLOATING NOTES RING (always visible, like sparkle) ===== -->
+    <div class="notes-ring" id="notesRing">
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+      <div class="float-note"></div>
+    </div>
 
     <!-- Prev / Next -->
-    <button class="music-btn prev" id="musicPrev" aria-label="musicPrev"></button>
-    <button class="music-btn next" id="musicNext" aria-label="musicNext"></button>
+    <button class="music-btn prev" id="musicPrev" aria-label="Previous"></button>
+    <button class="music-btn next" id="musicNext" aria-label="Next"></button>
 
-    <!-- Melody Button -->
+    <!-- Melody Button (center) -->
     <button class="melody-btn melody" id="melodyBtn" aria-label="Toggle mute"></button>
   </div>
 
@@ -256,8 +335,6 @@
     const titleFairy = document.getElementById('titleFairy');
     const titleBoy = document.getElementById('titleBoy');
     const allTitles = [titleMermaid, titleFairy, titleBoy];
-
-    // Character to title mapping
     const titleMap = {
       'mermaid': 'titleMermaid',
       'fairy': 'titleFairy',
@@ -277,42 +354,28 @@
         return;
       }
 
-      // Find target and current active title
       let targetTitle = null;
       let currentActive = null;
 
       allTitles.forEach(img => {
-        if (img.id === titleId) {
-          targetTitle = img;
-        }
-        if (img.classList.contains('active')) {
-          currentActive = img;
-        }
+        if (img.id === titleId) targetTitle = img;
+        if (img.classList.contains('active')) currentActive = img;
       });
 
-      // If already showing this title
       if (currentActive === targetTitle) {
         isTitleTransitioning = false;
         if (callback) callback();
         return;
       }
 
-      // Fade out current
       if (currentActive) {
         currentActive.classList.remove('active');
         currentActive.classList.add('fade-out');
       }
 
-      // After fade out, show new title
       setTimeout(() => {
-        if (currentActive) {
-          currentActive.classList.remove('fade-out');
-        }
-        
-        if (targetTitle) {
-          targetTitle.classList.add('active');
-        }
-
+        if (currentActive) currentActive.classList.remove('fade-out');
+        if (targetTitle) targetTitle.classList.add('active');
         setTimeout(() => {
           isTitleTransitioning = false;
           if (callback) callback();
@@ -320,46 +383,32 @@
       }, 600);
     }
 
-    // ========== SET INITIAL TITLE ==========
-    setTimeout(() => {
-      setMusicTitle('mermaid');
-    }, 100);
+    // ========== INITIAL TITLE ==========
+    setTimeout(() => setMusicTitle('mermaid'), 100);
 
     // ========== EXPLOSION BURST ==========
     function spawnExplosion() {
       const container = document.getElementById('explosionContainer');
-      
       const angles = [];
-      for (let i = 0; i < 24; i++) {
-        angles.push(i * 15);
-      }
-      
+      for (let i = 0; i < 24; i++) angles.push(i * 15);
       const distances = [100, 130, 160, 190, 220, 250, 280, 310, 340, 370];
-      
+
       angles.forEach((angle) => {
         const note = document.createElement('div');
         note.className = 'explosion-note';
-        
         const distance = distances[Math.floor(Math.random() * distances.length)];
         const radian = (angle * Math.PI) / 180;
         const x = Math.cos(radian) * distance;
         const y = Math.sin(radian) * distance;
-        
         note.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
-        
         const size = 22 + Math.random() * 30;
         note.style.width = size + 'px';
         note.style.height = size + 'px';
-        
         const delay = Math.random() * 0.2;
         note.style.animationDelay = delay + 's';
         note.style.animationDuration = (1.8 + Math.random() * 0.6) + 's';
-        
         container.appendChild(note);
-        
-        setTimeout(() => {
-          note.remove();
-        }, 3000 + delay * 1000);
+        setTimeout(() => note.remove(), 3000 + delay * 1000);
       });
     }
 
@@ -383,16 +432,9 @@
     function updateMusicBoxBackground(characterType) {
       const box = document.getElementById('musicBox');
       box.classList.remove('mermaid', 'fairy', 'boy');
-      
-      if (characterType === 'fairy') {
-        box.classList.add('fairy');
-      } else if (characterType === 'boy' || characterType === 'human') {
-        box.classList.add('boy');
-      } else {
-        box.classList.add('mermaid');
-      }
-      
-      // Update title
+      if (characterType === 'fairy') box.classList.add('fairy');
+      else if (characterType === 'boy' || characterType === 'human') box.classList.add('boy');
+      else box.classList.add('mermaid');
       currentCharacter = characterType;
       setMusicTitle(characterType);
     }
@@ -400,46 +442,35 @@
     // ========== LISTEN FOR PARENT MESSAGES ==========
     window.addEventListener('message', function(event) {
       const data = event.data;
-      
-      if (data.action === 'musicPlay') {
-        startExplosion();
-      }
-      
-      if (data.action === 'musicStop') {
-        stopExplosion();
-      }
-      
+      if (data.action === 'musicPlay') startExplosion();
+      if (data.action === 'musicStop') stopExplosion();
       if (data.action === 'musicMute') {
         document.getElementById('melodyBtn').classList.add('muted');
         stopExplosion();
       }
-      
       if (data.action === 'musicUnmute') {
         document.getElementById('melodyBtn').classList.remove('muted');
         if (isMusicPlaying) startExplosion();
       }
-      
       if (data.action === 'updateMusicBox') {
         updateMusicBoxBackground(data.character);
       }
     });
 
-    // ========== FORWARD BUTTON CLICKS TO PARENT ==========
+    // ========== FORWARD BUTTON CLICKS ==========
     document.getElementById('musicPrev').addEventListener('click', function() {
       window.parent.postMessage({ action: 'musicPrev' }, '*');
     });
-
     document.getElementById('musicNext').addEventListener('click', function() {
       window.parent.postMessage({ action: 'musicNext' }, '*');
     });
-
     document.getElementById('melodyBtn').addEventListener('click', function() {
       window.parent.postMessage({ action: 'musicToggle' }, '*');
     });
 
-    // ========== TELL PARENT WE'RE READY ==========
+    // ========== TELL PARENT READY ==========
     window.parent.postMessage({ action: 'musicBoxReady' }, '*');
-    console.log('Music box ready with EXPLOSION effect!');
+    console.log('🎵 Music box with floating notes (like sparkle) ready!');
   </script>
 </body>
 </html>
