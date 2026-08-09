@@ -685,13 +685,21 @@ body {
       .select-options { gap: 0px; flex-direction: row; }
       .select-option img { width: 60px; height: 60px; }
       .select-option p {font-size: 180%; letter-spacing: 1px;}
-      #menuPanel { bottom: -0% !important; left: -20% !important; width: 150% !important; height: 150% !important; top: unset !important; transform: scale(0.6) !important; }
+      #menuPanel { bottom: -5% !important; left: -20% !important; width: 150% !important; height: 150% !important; top: unset !important; transform: scale(0.6) !important; }
       #bgSelector { bottom: -1% !important; left: -30% !important; width: 100% !important; height: 40% !important; top: unset !important; transform: scale(0.5) !important; }
       #musicBox { bottom: -30% !important; left: 2% !important; width: 150% !important; height: 100% !important; top: unset !important; transform: scale(0.399) !important; }
       #modelViewer { bottom: 4% !important; left: -20% !important; width: 150% !important; height: 100% !important; transform: scale(0.8) !important; top: unset !important; }
-      #wingsViewer { bottom: 1% !important; left: -45% !important; width: 150% !important; height: 100% !important; transform: scale(0.8) !important; top: unset !important; }
+      #wingsViewer { bottom: 5% !important; left: -45% !important; width: 150% !important; height: 100% !important; transform: scale(0.65) !important; top: unset !important; }
       #shirtViewer { bottom: 4% !important; left: -20% !important; width: 150% !important; height: 100% !important; transform: scale(0.8) !important; top: unset !important;}
       .footer { font-size: 7px; bottom: 2px; }
+    }
+
+@media (max-width: 430px) { 
+#menuPanel {bottom: -40% !important;left: -12% !important;width: 150% !important;height: 200% !important;top: unset !important;transform: scale(0.5) !important;}
+.game-bg {top: -30%;left: -225%;width: 500%; height: 150%;transform: scale(0.5);}
+#musicBox {transform: scale(0.25) !important; bottom: -31% !important;left: -22% !important; width: 200% !important;}
+#bgSelector {bottom: 0% !important;left: -50% !important;width: 150% !important;transform: scale(0.35) !important; }
+.bottom-btns {bottom: -20px;right: -60%; transform: scale(0.5); }
     }
 
 @media (max-width: 400px) { 
@@ -710,5 +718,7 @@ body {
 .bottom-btns {bottom: -20px;right: -60%; transform: scale(0.5); }
     }
 
-@media (max-width: 360px) {}
+@media (max-width: 360px) {
+#menuPanel {bottom: -40% !important;left: -12% !important;width: 150% !important;height: 200% !important;top: unset !important;transform: scale(0.5) !important;}
+}
 }
