@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Me - Combined Animations</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    width:100%;
+    height:100%;
+    background:transparent;
+}
+#stage {
+    position:relative;
+    width:1000px;
+    height:720px;
+    margin:0 auto;
+    transform-origin:center center;
+}
+#defaultPose {
+    position:absolute;
+    top:0;
+    left:0;
+    width:1000px;
+    height:720px;
+    z-index:1;
+    opacity:0;
+    transition: opacity 0.3s ease;
+}
+#defaultPose.show { opacity:1; }
+#animationContainer {
+    position:absolute;
+    top:0;
+    left:0;
+    width:1000px;
+    height:720px;
+    z-index:2;
+    opacity:0;
+    transition: opacity 0.15s ease;
+}
+#animationContainer.show { opacity:1; }
+#animationContainer canvas {
+    width:1000px;
+    height:720px;
+}
+.loading-text {
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    color:white;
+    font-family:Arial, sans-serif;
+    font-size:16px;
+    z-index:10;
+    opacity:0.6;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    pointer-events:none;
+}
+.loading-text.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+    <img id="defaultPose" src="me_default.png">
+    <div id="animationContainer"></div>
+    <div class="loading-text" id="loadingText">Loading animations...</div>
+</div>
+
+<script src="createjs.min.js"></script>
+<script>
+// ============================================================
+// COMBINED NOTE ANIMATIONS - LOAD ONLY WHAT EXISTS
+// ============================================================
+
+const defaultPose = document.getElementById("defaultPose");
+const animContainer = document.getElementById("animationContainer");
+const loadingText = document.getElementById("loadingText");
+
+let currentNote = null;
+let stages = {};
+let readyNotes = {};
+let totalNotesFound = 0;
+let loadedNotes = 0;
+let isReady = false;
+let pendingNote = null;
+
+// List of notes to check for existence
+// You can expand this list as you create more notes
+const NOTE_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8];
+
+// ============================================================
+// CHECK IF A NOTE EXISTS (by checking if its first atlas exists)
+// ============================================================
+function checkNoteExists(noteNum, callback) {
+    const img = new Image();
+    const prefix = 'note' + noteNum + '_atlas_1';
+    img.src = 'images/' + prefix + '.png';
+    img.onload = function() {
+        callback(true);
+    };
+    img.onerror = function() {
+        callback(false);
+    };
+    // Timeout for slow loading
+    setTimeout(function() {
+        if (!img.complete) {
+            callback(false);
+        }
+    }, 3000);
+}
+
+// ============================================================
+// BUILD A NOTE ANIMATION
+// ============================================================
+function buildNoteAnimation(noteNum, callback) {
+    const compId = 'NOTE_' + noteNum;
+    
+    // Check if already loaded
+    if (stages[compId]) {
+        if (callback) callback(stages[compId]);
+        return;
+    }
+    
+    const atlasPrefix = 'note' + noteNum + '_atlas_';
+    const lib = {};
+    const ss = {};
+    const img = {};
+    const manifest = [];
+    const ssMetadata = [];
+    
+    // Each note has 12 atlas images (same structure as note1.js)
+    for (let i = 1; i <= 12; i++) {
+        const imgId = atlasPrefix + i;
+        manifest.push({ src: 'images/' + imgId + '.png', id: imgId });
+        ssMetadata.push({
+            name: imgId,
+            frames: [[0, 0, 1024, 1536]]
+        });
+    }
+    
+    // Also need flute image
+    manifest.push({ src: 'images/flute.png', id: 'flute' });
+    
+    // Build the animation
+    const queue = new createjs.LoadQueue(false);
+    let loadedCount = 0;
+    const totalToLoad = manifest.length;
+    
+    queue.addEventListener("fileload", function(evt) {
+        if (evt && evt.item.type === "image") {
+            img[evt.item.id] = evt.result;
+        }
+        loadedCount++;
+        updateLoadingProgress();
+    });
+    
+    queue.addEventListener("error", function(evt) {
+        loadedCount++;
+        updateLoadingProgress();
+    });
+    
+    queue.addEventListener("complete", function() {
+        // Build sprite sheets
+        for (let i = 0; i < ssMetadata.length; i++) {
+            const meta = ssMetadata[i];
+            if (img[meta.name]) {
+                ss[meta.name] = new createjs.SpriteSheet({
+                    images: [img[meta.name]],
+                    frames: meta.frames
+                });
+            }
+        }
+        
+        // Create the animation
+        const animation = createNoteAnimation(noteNum, ss, img);
+        
+        // Create stage
+        const canvas = document.createElement('canvas');
+        canvas.width = 1000;
+        canvas.height = 720;
+        const stage = new createjs.Stage(canvas);
+        stage.addChild(animation);
+        createjs.Ticker.framerate = 30;
+        createjs.Ticker.addEventListener("tick", stage);
+        
+        stages[compId] = {
+            stage: stage,
+            canvas: canvas,
+            animation: animation,
+            noteNum: noteNum,
+            loaded: true
+        };
+        
+        readyNotes[noteNum] = true;
+        loadedNotes++;
+        updateLoadingProgress();
+        
+        if (callback) callback(stages[compId]);
+        
+        // Check if all found notes are loaded
+        if (loadedNotes >= totalNotesFound) {
+            isReady = true;
+            loadingText.classList.add('hidden');
+            showDefaultPose();
+            if (pendingNote !== null && readyNotes[pendingNote]) {
+                showNoteAnimation(pendingNote);
+                pendingNote = null;
+            }
+        }
+    });
+    
+    queue.loadManifest(manifest);
+}
+
+// ============================================================
+// CREATE NOTE ANIMATION
+// ============================================================
+function createNoteAnimation(noteNum, ss, img) {
+    const prefix = 'note' + noteNum + '_atlas_';
+    
+    // Create container for all parts
+    const container = new createjs.Container();
+    
+    // Helper to safely create sprite
+    function safeSprite(index) {
+        const key = prefix + index;
+        if (ss[key]) {
+            return new createjs.Sprite(ss[key]);
+        }
+        return null;
+    }
+    
+    // Body
+    const bodySprite = safeSprite(1);
+    if (bodySprite) {
+        bodySprite.setTransform(490, 360, 0.4688, 0.4688);
+        container.addChild(bodySprite);
+    }
+    
+    // Head
+    const headSprite = safeSprite(2);
+    if (headSprite) {
+        headSprite.setTransform(490, 360, 0.4688, 0.4688);
+        container.addChild(headSprite);
+    }
+    
+    // Left arm feet
+    const leftArmFeet = safeSprite(3);
+    if (leftArmFeet) {
+        leftArmFeet.setTransform(490, 360, 0.4688, 0.4688);
+        container.addChild(leftArmFeet);
+    }
+    
+    // Left arm hand
+    const leftArmHand = safeSprite(4);
+    if (leftArmHand) {
+        leftArmHand.setTransform(490, 360, 0.4688, 0.4688);
+        container.addChild(leftArmHand);
+    }
+    
+    // Left hand png copy
+    const leftHandCopy = safeSprite(5);
+    if (leftHandCopy) {
+        leftHandCopy.setTransform(240, -369, 0.4688, 0.4688, 0, 0, 180);
+        container.addChild(leftHandCopy);
+    }
+    
+    // Left leg feet
+    const leftLegFeet = safeSprite(6);
+    if (leftLegFeet) {
+        leftLegFeet.setTransform(490, 360, 0.4688, 0.4688);
+        container.addChild(leftLegFeet);
+    }
+    
+    // Left leg hand
+    const leftLegHand = safeSprite(7);
+    if (leftLegHand) {
+        leftLegHand.setTransform(490, 360, 0.4688, 0.4688);
+        container.addChild(leftLegHand);
+    }
+    
+    // Right arm feet
+    const rightArmFeet = safeSprite(8);
+    if (rightArmFeet) {
+        rightArmFeet.setTransform(489.95, 359.95, 1, 1, -5.9997);
+        container.addChild(rightArmFeet);
+    }
+    
+    // Right arm hand
+    const rightArmHand = safeSprite(9);
+    if (rightArmHand) {
+        rightArmHand.setTransform(490, 360, 0.4688, 0.4688);
+        container.addChild(rightArmHand);
+    }
+    
+    // Right hand
+    const rightHand = safeSprite(10);
+    if (rightHand) {
+        rightHand.setTransform(515.05, 334.75, 0.9651, 0.9652);
+        container.addChild(rightHand);
+    }
+    
+    // Right leg feet
+    const rightLegFeet = safeSprite(11);
+    if (rightLegFeet) {
+        rightLegFeet.setTransform(490, 360, 0.4688, 0.4688);
+        container.addChild(rightLegFeet);
+    }
+    
+    // Right leg hand
+    const rightLegHand = safeSprite(12);
+    if (rightLegHand) {
+        rightLegHand.setTransform(490, 360, 0.4688, 0.4688);
+        container.addChild(rightLegHand);
+    }
+    
+    // Flute
+    if (img.flute) {
+        const fluteSprite = new createjs.Bitmap(img.flute);
+        fluteSprite.setTransform(366.95, 365.9, 0.0939, 0.0939, 21.9898);
+        container.addChild(fluteSprite);
+    }
+    
+    // Store parts for future animation
+    container.parts = {
+        body: bodySprite,
+        head: headSprite,
+        leftArmFeet: leftArmFeet,
+        leftArmHand: leftArmHand,
+        leftHandCopy: leftHandCopy,
+        leftLegFeet: leftLegFeet,
+        leftLegHand: leftLegHand,
+        rightArmFeet: rightArmFeet,
+        rightArmHand: rightArmHand,
+        rightHand: rightHand,
+        rightLegFeet: rightLegFeet,
+        rightLegHand: rightLegHand
+    };
+    
+    return container;
+}
+
+// ============================================================
+// UPDATE LOADING PROGRESS
+// ============================================================
+function updateLoadingProgress() {
+    if (totalNotesFound === 0) return;
+    const percent = Math.round((loadedNotes / totalNotesFound) * 100);
+    loadingText.textContent = 'Loading animations... ' + percent + '%';
+}
+
+// ============================================================
+// SHOW FUNCTIONS
+// ============================================================
+function showDefaultPose() {
+    animContainer.classList.remove('show');
+    animContainer.style.opacity = '0';
+    defaultPose.classList.add('show');
+    currentNote = null;
+}
+
+function showNoteAnimation(note) {
+    const compId = 'NOTE_' + note;
+    
+    // If note doesn't exist, show default
+    if (!readyNotes[note]) {
+        showDefaultPose();
+        return;
+    }
+    
+    if (!stages[compId] || !stages[compId].loaded) {
+        // Not loaded yet, store for later
+        pendingNote = note;
+        loadingText.classList.remove('hidden');
+        loadingText.textContent = 'Loading note ' + note + '...';
+        return;
+    }
+    
+    // Hide default pose
+    defaultPose.classList.remove('show');
+    
+    // Get the stage data
+    const data = stages[compId];
+    
+    // Clear container
+    while (animContainer.firstChild) {
+        animContainer.removeChild(animContainer.firstChild);
+    }
+    
+    // Add canvas to container
+    animContainer.appendChild(data.canvas);
+    
+    // Show with fade
+    animContainer.style.opacity = '0';
+    animContainer.classList.add('show');
+    
+    // Force a frame
+    data.stage.update();
+    
+    // Fade in
+    requestAnimationFrame(function() {
+        animContainer.style.opacity = '1';
+    });
+    
+    currentNote = note;
+    console.log("Playing note animation:", note);
+}
+
+// ============================================================
+// DISCOVER AVAILABLE NOTES
+// ============================================================
+function discoverAndLoadNotes() {
+    let checked = 0;
+    const totalToCheck = NOTE_NUMBERS.length;
+    
+    NOTE_NUMBERS.forEach(function(noteNum) {
+        // First check if the note's first atlas exists
+        const img = new Image();
+        const prefix = 'note' + noteNum + '_atlas_1';
+        img.src = 'images/' + prefix + '.png';
+        
+        let resolved = false;
+        
+        img.onload = function() {
+            if (!resolved) {
+                resolved = true;
+                totalNotesFound++;
+                // Build this note
+                buildNoteAnimation(noteNum);
+                checked++;
+                if (checked >= totalToCheck) {
+                    // All checks done
+                    if (totalNotesFound === 0) {
+                        loadingText.textContent = 'No note animations found.';
+                        setTimeout(function() {
+                            loadingText.classList.add('hidden');
+                        }, 2000);
+                    }
+                }
+            }
+        };
+        
+        img.onerror = function() {
+            if (!resolved) {
+                resolved = true;
+                checked++;
+                if (checked >= totalToCheck) {
+                    if (totalNotesFound === 0) {
+                        loadingText.textContent = 'No note animations found.';
+                        setTimeout(function() {
+                            loadingText.classList.add('hidden');
+                        }, 2000);
+                    }
+                }
+            }
+        };
+        
+        // Timeout for slow loading
+        setTimeout(function() {
+            if (!resolved) {
+                resolved = true;
+                checked++;
+                if (checked >= totalToCheck) {
+                    if (totalNotesFound === 0) {
+                        loadingText.textContent = 'No note animations found.';
+                        setTimeout(function() {
+                            loadingText.classList.add('hidden');
+                        }, 2000);
+                    }
+                }
+            }
+        }, 3000);
+    });
+}
+
+// ============================================================
+// MESSAGE HANDLING
+// ============================================================
+window.addEventListener("message", function(event) {
+    console.log("Me received:", event.data);
+    
+    if (event.data.action === "notePlayed") {
+        let note = event.data.note;
+        // Only show if different from current or if not ready
+        if (note !== currentNote) {
+            showNoteAnimation(note);
+        }
+    }
+    
+    if (event.data.action === "resetMe") {
+        showDefaultPose();
+    }
+});
+
+// ============================================================
+// KEYBOARD SHORTCUT FOR TESTING
+// ============================================================
+document.addEventListener('keydown', function(e) {
+    if (e.key >= '1' && e.key <= '8') {
+        showNoteAnimation(parseInt(e.key));
+    }
+    if (e.key === 'r' || e.key === 'R') {
+        showDefaultPose();
+    }
+});
+
+// ============================================================
+// INITIALIZE
+// ============================================================
+showDefaultPose();
+
+// Discover and load available notes
+discoverAndLoadNotes();
+
+console.log("Combined Me Viewer loaded - discovering available notes...");
+
+// ============================================================
+// RESPONSIVE SCALING
+// ============================================================
+function resizeStage() {
+    const stage = document.getElementById('stage');
+    const maxWidth = window.innerWidth;
+    const maxHeight = window.innerHeight;
+    const ratio = Math.min(maxWidth / 1000, maxHeight / 720);
+    stage.style.transform = 'scale(' + ratio + ')';
+    stage.style.transformOrigin = 'center center';
+}
+
+window.addEventListener('resize', resizeStage);
+resizeStage();
+
+</script>
+</body>
+</html>

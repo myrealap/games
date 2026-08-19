@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Me Animation</title>
+
+<style>
+html, body {
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    width:100%;
+    height:100%;
+    background:transparent;
+}
+
+#stage {
+    position:relative;
+    width:1000px;
+    height:720px;
+}
+
+#defaultPose,
+#animationFrame {
+    position:absolute;
+    top:0;
+    left:0;
+    width:1000px;
+    height:720px;
+}
+
+#defaultPose {
+    z-index:1;
+    opacity:0;
+    transition: opacity 0.3s ease;
+}
+
+#defaultPose.show {
+    opacity:1;
+}
+
+#animationFrame {
+    z-index:2;
+    border:0;
+    display:none;
+}
+
+#animationFrame.show {
+    display:block;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="stage">
+
+<!-- Default pose - hidden by default -->
+<img id="defaultPose" src="me_default.png">
+
+<!-- Animation iframe - shows current note animation -->
+<iframe id="animationFrame"></iframe>
+
+</div>
+
+
+<script>
+
+const defaultPose = document.getElementById("defaultPose");
+const animationFrame = document.getElementById("animationFrame");
+let currentNote = null;
+let pendingNote = null;
+let isLoading = false;
+
+// Show default pose (hide animation)
+function showDefaultPose() {
+    animationFrame.classList.remove('show');
+    animationFrame.style.display = 'none';
+    defaultPose.classList.add('show');
+    currentNote = null;
+    pendingNote = null;
+}
+
+// Show note animation (hide default)
+function showNoteAnimation(note) {
+    // If same note is already showing, restart it
+    if (note === currentNote && animationFrame.style.display === 'block') {
+        // Try to restart the animation
+        try {
+            if (animationFrame.contentWindow && animationFrame.contentWindow.exportRoot) {
+                animationFrame.contentWindow.exportRoot.gotoAndPlay(0);
+                console.log("Restarted note animation:", note);
+                return;
+            }
+        } catch(e) {}
+    }
+    
+    // If currently loading, store for later
+    if (isLoading) {
+        pendingNote = note;
+        return;
+    }
+    
+    // Hide default pose
+    defaultPose.classList.remove('show');
+    
+    // Show animation frame
+    animationFrame.style.display = 'block';
+    animationFrame.classList.add('show');
+    
+    // Load the animation
+    isLoading = true;
+    animationFrame.src = "animations/note" + note + ".html";
+    currentNote = note;
+    
+    console.log("Playing note animation:", note);
+}
+
+// Receive messages from parent
+window.addEventListener("message", function(event){
+    console.log("Me received:", event.data);
+    
+    // Handle both 'notePlayed' and 'playNote' actions
+    if(event.data.action === "notePlayed" || event.data.action === "playNote"){
+        let note = event.data.note;
+        // Show the note animation
+        showNoteAnimation(note);
+    }
+    
+    // Reset command
+    if(event.data.action === "resetMe"){
+        showDefaultPose();
+    }
+});
+
+// When animation finishes loading
+animationFrame.addEventListener('load', function() {
+    isLoading = false;
+    console.log("Animation loaded:", currentNote);
+    
+    // If there's a pending note, show it now
+    if (pendingNote !== null && pendingNote !== currentNote) {
+        const noteToShow = pendingNote;
+        pendingNote = null;
+        showNoteAnimation(noteToShow);
+    }
+});
+
+// Show default pose initially
+showDefaultPose();
+
+// ===== KEYBOARD SHORTCUT FOR TESTING =====
+// Press 'R' to reset to default pose
+document.addEventListener('keydown', function(e) {
+    if(e.key === 'r' || e.key === 'R') {
+        showDefaultPose();
+    }
+    // Press number keys 1-8 to test notes
+    if(e.key >= '1' && e.key <= '8') {
+        showNoteAnimation(parseInt(e.key));
+    }
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animals</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: transparent;
+      overflow: hidden;
+      width: 100%;
+      height: 100vh;
+      position: relative;
+    }
+    
+    .game-bg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image: url('../images/bg_game.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      z-index: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+    .game-bg.free {
+      background-image: url('../images/bg_game_free.jpg');
+    }
+
+    /* ===== HIDE ANIMALS IN FREE MODE ===== */
+    .animals-wrapper {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+      pointer-events: auto;
+    }
+    .animals-wrapper.hidden {
+
+    display:none;
+    }
+
+   /* ===== ANIMAL SPLIT SPRITE BUTTONS ===== */
+
+.animal-container {
+  position: absolute;
+  cursor: pointer;
+  z-index: 1;
+
+  /*
+    Each animal PNG:
+    left half = normal
+    right half = hover
+  */
+  background-size: 200% 100%;
+  background-position: left center;
+  background-repeat: no-repeat;
+
+  pointer-events: auto;
+
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+
+  opacity: 1;
+}
+
+
+/* mouse hover */
+.animal-container:hover,
+.animal-container.selected {
+  background-position: right center;
+}
+
+
+/* click feeling */
+.animal-container:active {}
+
+
+/* awake animals stop behaving like buttons */
+.animal-container.woke {
+  background-position:center;
+  pointer-events:auto;
+  cursor:default;
+  transform:none !important;
+}
+
+    /* ===== ANIMAL POSITIONS ===== */
+    #owlContainer {
+      top: 45.6%;
+      left: 42.1%;
+      width: 187px;
+      height: 187px;
+      background-image: url('../images/animals/owl.png');
+    }
+    #owlContainer.woke {
+      background-image: url('../images/animals/owl_wakeup.png');
+    background-size: 100% 100%;
+    }
+
+    #sequelContainer {
+      top: 62.5%;
+      left: 26.2%;
+      width: 320px;
+      height: 320px;
+      background-image: url('../images/animals/sequel.png');
+    }
+    #sequelContainer.woke {
+      background-image: url('../images/animals/sequel_wakeup.png');
+    background-size: 100% 100%;
+    }
+
+    #deerContainer {
+      top: 54.4%;
+      left: 44.8%;
+      width: 450px;
+      height: 450px;
+      background-image: url('../images/animals/deer.png');
+    }
+    #deerContainer.woke {
+      background-image: url('../images/animals/deer_wakeup.png');
+    background-size: 100% 100%;
+    }
+
+    #baaverContainer {
+      top: 49.7%;
+      left: 69.7%;
+      width: 330px;
+      height: 330px;
+      background-image: url('../images/animals/baaver.png');
+    }
+    #baaverContainer.woke {
+      background-image: url('../images/animals/baaver_wakeup.png');
+    background-size: 100% 100%;
+    }
+
+    /* ===== ANIMAL TRANSFORMATION MAGIC ===== */
+
+.transition-overlay {
+
+    background-color:transparent !important;
+
+  position:absolute;
+
+  top:0;
+  left:0;
+
+  width:100%;
+  height:100%;
+
+
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
+
+
+  opacity:0;
+
+  pointer-events:none;
+
+  z-index:5;
+
+
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+
+}
+
+
+/* magical circle behind transition */
+
+.transition-overlay::before {
+
+  content:"";
+
+  position:absolute;
+
+  top:8%;
+  left:8%;
+
+  width:84%;
+  height:84%;
+
+
+  border-radius:50%;
+
+
+  background:
+  radial-gradient(
+     circle,
+     rgba(255,255,200,0.55),
+     rgba(255,215,0,0.15),
+     transparent 0%
+  );
+
+
+  opacity:0;
+
+  transform:scale(.6);
+
+  transition:
+  opacity .8s ease,
+  transform .8s ease;
+
+
+  z-index:-1;
+
+}
+
+
+
+.transition-overlay.active {
+
+ opacity:1;
+
+}
+
+
+.transition-overlay.active::before {
+
+ opacity:1;
+
+ transform:scale(1);
+
+/* ===== OWL TRANSITION ===== */
+
+#owlTransition {
+
+    width:220px;
+    height:220px;
+
+    top:-15px;
+    left:-15px;
+
+}
+
+
+
+/* ===== SEQUEL TRANSITION ===== */
+
+#sequelTransition {
+
+    width:360px;
+    height:360px;
+
+    top:-20px;
+    left:-20px;
+
+}
+
+
+
+/* ===== DEER TRANSITION ===== */
+
+#deerTransition {
+
+    width:500px;
+    height:500px;
+
+    top:-25px;
+    left:-25px;
+
+}
+
+
+
+/* ===== BAAVER TRANSITION ===== */
+
+#baaverTransition {
+
+    width:380px;
+    height:380px;
+
+    top:-25px;
+    left:-25px;
+
+}
+
+ animation:
+ magicCircle 2s ease-in-out infinite;
+
+}
+
+
+
+@keyframes magicCircle {
+
+0%,100%{
+ transform:scale(.95);
+ opacity:.6;
+}
+
+50%{
+ transform:scale(1.08);
+ opacity:1;
+}
+
+}
+
+    /* ===== SPARKLE BORDER - NO UGLY BOX! ===== */
+    .sparkle-border {
+      position: absolute;
+      top: -10px; left: -10px;
+      width: calc(100% + 20px);
+      height: calc(100% + 20px);
+      pointer-events: none;
+      border-radius: 50%;
+      z-index: 4;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      /* NO BOX-SHADOW BORDER! Just pure glow */
+    }
+    .sparkle-border.active {
+      opacity: 1;
+      animation: borderGlow 1.5s ease-in-out infinite;
+    }
+    @keyframes borderGlow {
+      0%, 100% { 
+        filter: drop-shadow(0 0 15px rgba(255,215,0,0.3)) drop-shadow(0 0 30px rgba(255,215,0,0.1));
+      }
+      50% { 
+        filter: drop-shadow(0 0 30px rgba(255,215,0,0.8)) drop-shadow(0 0 60px rgba(255,215,0,0.3));
+      }
+    }
+
+    /* ===== STATUS MESSAGE ===== */
+    .status-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .status-text {
+      color: #fff;
+      font-family: 'ALGER', serif;
+      font-size: 48px;
+      text-shadow: 0 0 30px rgba(255,215,0,0.8), 0 0 60px rgba(255,215,0,0.4);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      text-align: center;
+    }
+    .status-text.show { opacity: 1; }
+    .status-text.listen { color: #ffd700; font-size: 56px; }
+    .status-text.turn { color: #00ff88; font-size: 48px; animation: turnPulse 0.8s ease-in-out 2; }
+    .status-text.wrong { color: #ff4444; font-size: 40px; }
+    .status-text.correct { color: #00ff88; font-size: 40px; }
+    .status-text.complete { color: #ffd700; font-size: 56px; animation: completePulse 0.6s ease-in-out 3; }
+
+    @keyframes turnPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    @keyframes completePulse {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* ===== SPARKLE CONTAINER (0% → 25% → 50% → 75% → 100%) ===== */
+    .sparkle-container {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    .game-bg-sparkle {
+      position: absolute;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0;
+      animation: gameSparkleFloat 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes gameSparkleFloat {
+      0% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+      20% { opacity: 0.6; transform: scale(1) rotate(90deg); }
+      50% { opacity: 0.3; transform: scale(0.7) rotate(180deg); }
+      80% { opacity: 0.6; transform: scale(1) rotate(270deg); }
+      100% { opacity: 0; transform: scale(0.3) rotate(360deg); }
+    }
+
+    /* ===== BIG SPARKLE BURST ===== */
+    .big-sparkle-container {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 20;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .big-sparkle-container.active {
+      opacity: 1;
+    }
+    .big-sparkle {
+      position: absolute;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0;
+      pointer-events: none;
+      animation: bigSparkleBurst 1.2s ease-out forwards;
+    }
+    @keyframes bigSparkleBurst {
+
+0% {
+ opacity:0;
+ transform:scale(.1) rotate(0deg);
+}
+
+
+25% {
+ opacity:1;
+ transform:scale(1.5) rotate(180deg);
+}
+
+
+60% {
+ opacity:1;
+ transform:scale(4) rotate(360deg);
+}
+
+
+100% {
+ opacity:0;
+ transform:scale(.2) rotate(540deg);
+}
+
+}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- GAME BG -->
+  <div class="game-bg" id="gameBg"></div>
+
+  <!-- SPARKLE CONTAINER (opacity grows with each woke animal) -->
+  <div class="sparkle-container" id="sparkleContainer"></div>
+
+  <!-- BIG SPARKLE BURST (for completion) -->
+  <div class="big-sparkle-container" id="bigSparkleContainer"></div>
+
+  <!-- ANIMALS WRAPPER (hidden in free mode) -->
+  <div class="animals-wrapper" id="animalsWrapper">
+    
+    <div class="animal-container" id="owlContainer" data-animal="owl">
+      <div class="transition-overlay" id="owlTransition" style="background-image: url('../images/animals/owl_transition.png');"></div>
+      <div class="sparkle-border" id="owlSparkle"></div>
+    </div>
+
+    <div class="animal-container" id="sequelContainer" data-animal="sequel">
+      <div class="transition-overlay" id="sequelTransition" style="background-image: url('../images/animals/sequel_transition.png');"></div>
+      <div class="sparkle-border" id="sequelSparkle"></div>
+    </div>
+
+    <div class="animal-container" id="deerContainer" data-animal="deer">
+      <div class="transition-overlay" id="deerTransition" style="background-image: url('../images/animals/deer_transition.png');"></div>
+      <div class="sparkle-border" id="deerSparkle"></div>
+    </div>
+
+    <div class="animal-container" id="baaverContainer" data-animal="baaver">
+      <div class="transition-overlay" id="baaverTransition" style="background-image: url('../images/animals/baaver_transition.png');"></div>
+      <div class="sparkle-border" id="baaverSparkle"></div>
+    </div>
+
+  </div>
+
+  <!-- STATUS OVERLAY -->
+  <div class="status-overlay" id="statusOverlay">
+    <div class="status-text" id="statusText"></div>
+  </div>
+
+  <script>
+    const animalSounds = {
+      owl: '../sounds/owl.wav',
+      sequel: '../sounds/sequel.mp3',
+      deer: '../sounds/deer.mp3',
+      baaver: '../sounds/baaver.mp3'
+    };
+
+    // FIXED NOTE SETS
+    const noteSets = {
+      1: [8, 5, 2],
+      2: [2, 6, 3, 5, 4],
+      3: [1, 7, 2, 5, 4, 3],
+      4: [1, 3, 2, 5, 4, 7, 6, 8]
+    };
+
+    // RANDOMIZED LEVELS for animals
+    function getRandomizedLevels() {
+      const animals = ['owl', 'sequel', 'deer', 'baaver'];
+      const shuffled = [...animals];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      const levels = {};
+      shuffled.forEach((animal, index) => {
+        levels[animal] = index + 1;
+      });
+      return levels;
+    }
+
+    let levelMap = getRandomizedLevels();
+    let currentAnimal = null;
+    let gameMode = 'free';
+    let isAnimating = false;
+    let patternNotes = [];
+    let currentStep = 0;
+    let isPlayingPattern = false;
+    let isWaitingForInput = false;
+    let noteTimeout = null;
+    let wakeCount = 0;
+    let isGameComplete = false;
+    let selectedAnimal = null;
+
+// ===== PRELOAD WAKEUP IMAGES AFTER 1 SECOND =====
+
+setTimeout(()=>{
+
+ const animals=[
+   "owl",
+   "sequel",
+   "deer",
+   "baaver"
+ ];
+
+ animals.forEach(animal=>{
+
+   const img=new Image();
+
+   img.src=
+   `../images/animals/${animal}_wakeup.png`;
+
+ });
+
+},1000);
+
+    function getNoteCount(animal) {
+      const level = levelMap[animal] || 1;
+      return noteSets[level] ? noteSets[level].length : 3;
+    }
+
+    function getAnimalLevel(animal) {
+      return levelMap[animal] || 1;
+    }
+
+    function playAnimalSound(animal) {
+      const sound = new Audio(animalSounds[animal]);
+      sound.volume = 0.7;
+      sound.play().catch(() => {});
+    }
+
+    function showStatus(text, className, duration = 1500) {
+      const el = document.getElementById('statusText');
+      el.textContent = text;
+      el.className = 'status-text show ' + (className || '');
+      clearTimeout(noteTimeout);
+      noteTimeout = setTimeout(() => {
+        el.classList.remove('show');
+      }, duration);
+    }
+
+    function hideStatus() {
+      document.getElementById('statusText').classList.remove('show');
+      clearTimeout(noteTimeout);
+    }
+
+    function triggerTransform(animal) {
+
+ if(isAnimating) return;
+
+ isAnimating=true;
+
+
+ const container =
+ document.getElementById(animal+"Container");
+
+ const transitionEl =
+ document.getElementById(animal+"Transition");
+
+ const sparkleEl =
+ document.getElementById(animal+"Sparkle");
+
+
+ // remove selected button state
+ container.classList.remove("selected");
+
+
+ // show transition image
+ transitionEl.classList.add("active");
+
+
+ // sparkle magic
+ triggerBigSparkleBurst();
+
+
+ showStatus(
+   "✨ Correct! ✨",
+   "correct",
+   1000
+ );
+
+
+ // sound after magic starts
+ setTimeout(()=>{
+    playAnimalSound(animal);
+ },300);
+
+
+
+ // after 3 seconds wake up
+ setTimeout(()=>{
+
+
+    transitionEl.classList.remove("active");
+
+
+    container.classList.add("woke");
+
+
+    wakeCount++;
+
+    updateSparkleOpacity();
+
+
+    window.parent.postMessage({
+
+       action:"animalSelected",
+
+       animal:animal,
+
+       mode:gameMode,
+
+       noteCount:getNoteCount(animal)
+
+    },"*");
+
+
+
+    isAnimating=false;
+
+
+
+    if(wakeCount>=4){
+
+       completeGame();
+
+    }
+
+
+ },3000);
+
+}
+
+    function updateSparkleOpacity() {
+      const container = document.getElementById('sparkleContainer');
+      const opacities = { 1: 0.25, 2: 0.50, 3: 0.75, 4: 1.0 };
+      container.style.opacity = opacities[wakeCount] || 0;
+    }
+
+    // ===== BIG SPARKLE BURST =====
+    function triggerBigSparkleBurst(animal, callback) {
+      const container = document.getElementById('bigSparkleContainer');
+      container.classList.add('active');
+      
+      const sparkleImgs = ['../images/sparkle_a.png', '../images/sparkle_b.png'];
+      const totalSparkles = 60;
+      let created = 0;
+      
+      for (let i = 0; i < totalSparkles; i++) {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'big-sparkle';
+          const img = sparkleImgs[Math.floor(Math.random() * sparkleImgs.length)];
+          el.style.backgroundImage = `url('${img}')`;
+          const rect =
+document.getElementById(animal+"Container")
+.getBoundingClientRect();
+
+
+el.style.left =
+(rect.left + rect.width/2 +
+(Math.random()*150-75)) + "px";
+
+
+el.style.top =
+(rect.top + rect.height/2 +
+(Math.random()*150-75)) + "px";
+          const size = Math.random() * 150 + 30;
+          el.style.width = size + 'px';
+          el.style.height = size + 'px';
+          el.style.animationDelay = Math.random() * 0.3 + 's';
+          container.appendChild(el);
+          created++;
+          setTimeout(() => el.remove(), 1500);
+        }, i * 20);
+      }
+      
+      setTimeout(() => {
+        container.classList.remove('active');
+        if (callback) callback();
+      }, 2000);
+    }
+
+    function completeGame() {
+      isGameComplete = true;
+      
+      // Show completion message
+      if(gameMode !== 'free'){
+
+ showStatus(
+ '🎉 All Animals Awake! 🎉',
+ 'complete',
+ 3000
+ );
+
+}
+      
+      // Trigger big sparkle burst
+      triggerBigSparkleBurst();
+
+
+setTimeout(()=>{
+
+ const bg =
+ document.getElementById('gameBg');
+
+ bg.classList.add('free');
+
+
+},1000);
+
+}
+
+    function resetAnimals() {
+      // Reset all animals
+      document.querySelectorAll('.animal-container').forEach(el => {
+        el.classList.remove('woke', 'hiding');
+      });
+      document.querySelectorAll('.transition-overlay').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.sparkle-border').forEach(el => el.classList.remove('active'));
+      
+      isAnimating = false;
+      hideStatus();
+      currentAnimal = null;
+      patternNotes = [];
+      currentStep = 0;
+      isPlayingPattern = false;
+      isWaitingForInput = false;
+      wakeCount = 0;
+      isGameComplete = false;
+      selectedAnimal = null;
+      
+      document.getElementById('sparkleContainer').style.opacity = 0;
+      document.getElementById('bigSparkleContainer').innerHTML = '';
+      document.getElementById('bigSparkleContainer').classList.remove('active');
+      
+      const bg = document.getElementById('gameBg');
+      bg.classList.remove('free');
+      
+      // Re-randomize levels
+      levelMap = getRandomizedLevels();
+    }
+
+    function generatePattern(animal) {
+      const level = getAnimalLevel(animal);
+      return noteSets[level] || [8, 5, 2];
+    }
+
+    function playPattern(animal, callback) {
+      if (isPlayingPattern) return;
+      isPlayingPattern = true;
+      isWaitingForInput = false;
+      
+      const notes = patternNotes;
+      let index = 0;
+      
+      function playNextNote() {
+        if (index >= notes.length) {
+          isPlayingPattern = false;
+          showStatus('Your Turn!', 'turn', 1200);
+          setTimeout(() => {
+            hideStatus();
+            isWaitingForInput = true;
+            if (callback) callback();
+          }, 1500);
+          return;
+        }
+        
+        const note = notes[index];
+        window.parent.postMessage({
+          action: 'playNote',
+          note: note,
+          isPattern: true  // Tell flute it's pattern playback
+        }, '*');
+        
+        index++;
+        setTimeout(playNextNote, 1200);
+      }
+      
+      playNextNote();
+    }
+
+    function checkNote(note) {
+      // Don't allow notes during pattern playback
+      if (isPlayingPattern) return false;
+      if (!isWaitingForInput || !currentAnimal || isGameComplete) return false;
+      
+      const expected = patternNotes[currentStep];
+      if (note === expected) {
+        currentStep++;
+        if (currentStep >= patternNotes.length) {
+          isWaitingForInput = false;
+          triggerTransform(currentAnimal);
+          return true;
+        }
+        return true;
+      } else {
+        isWaitingForInput = false;
+        const wrongSound = new Audio('../sounds/wrong_note.mp3');
+        wrongSound.volume = 0.6;
+        wrongSound.play().catch(() => {});
+        
+        showStatus('Listen Again...', 'wrong', 1500);
+        setTimeout(() => {
+          currentStep = 0;
+          isWaitingForInput = false;
+          setTimeout(() => {
+            playPattern(currentAnimal, () => {});
+          }, 500);
+        }, 1500);
+        return false;
+      }
+    }
+
+    // ===== ANIMAL EVENTS =====
+    document.querySelectorAll('.animal-container').forEach(el => {
+      // Click to select and keep hover state
+      el.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (isAnimating || this.classList.contains('woke') || isGameComplete) return;
+        if (gameMode === 'free') return;
+        
+        const animal = this.dataset.animal;
+        
+        // Deselect previous
+        if (selectedAnimal && selectedAnimal !== animal) {
+          const prev = document.getElementById(selectedAnimal + 'Container');
+          if (prev) {prev.classList.remove("selected");
+          }
+        }
+        
+        // Select this animal (keep it in hover state)
+        selectedAnimal = animal;this.classList.add("selected");
+        
+        currentAnimal = animal;
+        
+        patternNotes = generatePattern(animal);
+        currentStep = 0;
+        
+        showStatus('🎵 Listen... 🎵', 'listen', 1000);
+        
+        setTimeout(() => {
+          playPattern(animal, () => {});
+        }, 500);
+      });
+      
+      // Reset hover state when clicking elsewhere (handled by document click)
+    });
+
+    // Click anywhere to deselect animal (but only if not in game)
+    document.addEventListener('click', function(e) {
+      if (isAnimating || isGameComplete || gameMode === 'free') return;
+      if (!e.target.closest('.animal-container')) {
+        if (selectedAnimal) {
+          const prev = document.getElementById(selectedAnimal + 'Container');
+          if (prev) {prev.classList.remove("selected");
+          }
+          selectedAnimal = null;
+        }
+      }
+    });
+
+    // Hover on woke animals plays sound
+    document.querySelectorAll('.animal-container.woke').forEach(el => {
+      el.addEventListener('mouseenter', function(e) {
+        if (this.classList.contains('woke') && !this.classList.contains('hiding')) {
+          const animal = this.dataset.animal;
+          playAnimalSound(animal);
+        }
+      });
+    });
+
+    document.querySelectorAll('.animal-container')
+.forEach(el=>{
+
+
+el.addEventListener('mouseenter',function(){
+
+ const animal=this.dataset.animal;
+
+ if(!this.classList.contains('hiding')){
+
+    playAnimalSound(animal);
+
+ }
+
+});
+
+
+});
+
+    // ===== LISTEN FOR NOTES FROM FLUTE (via parent) =====
+    window.addEventListener('message', function(event) {
+      const data = event.data;
+      if (data.action === 'notePlayed') {
+        checkNote(data.note);
+      }
+    });
+
+    // ===== LISTEN FOR PARENT MESSAGES =====
+    window.addEventListener('message', function(event) {
+      const data = event.data;
+      if (data.action === 'setMode') {
+        gameMode = data.mode;
+        const bg = document.getElementById('gameBg');
+        bg.className = 'game-bg';
+        if (data.bgType === 'free') {
+          bg.classList.add('free');
+        }
+        // Hide/show animals based on mode
+        const wrapper = document.getElementById('animalsWrapper');
+        if(gameMode === 'free'){
+
+    wrapper.style.display="none";
+
+}
+else{
+
+    wrapper.style.display="block";
+
+}
+        console.log('Game mode set to:', gameMode);
+      }
+      if (data.action === 'resetAnimals') {
+        resetAnimals();
+      }
+    });
+
+    // ===== SPARKLE GENERATOR =====
+    const sparkleImgs = ['../images/sparkle_a.png', '../images/sparkle_b.png'];
+    function getRandomSparkleImg() {
+      return sparkleImgs[Math.floor(Math.random() * sparkleImgs.length)];
+    }
+
+    function createGameSparkle() {
+      const container = document.getElementById('sparkleContainer');
+      const el = document.createElement('div');
+      el.className = 'game-bg-sparkle';
+      el.style.backgroundImage = `url('${getRandomSparkleImg()}')`;
+      el.style.left = Math.random() * 100 + '%';
+      el.style.top = Math.random() * 100 + '%';
+      el.style.animationDelay = Math.random() * 3 + 's';
+      const size = Math.random() * 30 + 40;
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+
+    for (let i = 0; i < 60; i++) setTimeout(createGameSparkle, i * 50);
+    setInterval(createGameSparkle, 100);
+
+// ===== KEYBOARD NOTE CONTROL =====
+
+document.addEventListener("keydown",function(e){
+
+ if(e.key >= "1" && e.key <= "8"){
+
+   const note = Number(e.key);
+
+
+   // send to flute
+   window.parent.postMessage({
+
+      action:"playNote",
+      note:note
+
+   },"*");
+
+
+   // ALSO count it as a game input
+   if(gameMode === "game"){
+      checkNote(note);
+   }
+
+ }
+
+});
+
+    window.parent.postMessage({ action: 'animalsReady' }, '*');
+  </script>
+</body>
+</html>
