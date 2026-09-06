@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Zoom'n Groom - Myrealap</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- SPARKLE CONTAINERS -->
+  <div class="global-sparkle-container" id="globalSparkleContainer"></div>
+  <div class="white-fade" id="whiteFade"></div>
+
+  <!-- LOADING SCREEN -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-bg" id="loadingBg"></div>
+    <div class="quote-container">
+      <div class="quote-bg"></div>
+      <div class="quote-text" id="quoteText">" groom & zoom "</div>
+      <div class="quote-author" id="quoteAuthor">— myrealap</div>
+    </div>
+  </div>
+
+  <div class="loading-action-area" id="loadingActionArea">
+    <div class="loading-percentage" id="loadingPercent">0%</div>
+    <button class="go-button" id="goButton"></button>
+  </div>
+
+  <!-- SCENE VIEWPORT: bg.png / bg_selector.png / bg_game.png ride together
+       as one continuous background, with the three panels (landing /
+       selector / game) layered on top. Which panel shows is controlled
+       by data-scene on #sceneTrack, set from script.js. -->
+  <div class="scene-viewport" id="sceneViewport">
+    <div class="scene-track" id="sceneTrack" data-scene="landing">
+
+      <!-- Shared wide background: bg.png / bg_selector.png / bg_game.png,
+           stitched together so they scroll in lockstep with the
+           animation iframes below. -->
+      <div class="scene-wide-bg">
+        <div class="scene-bg-half scene-bg-half--landing"></div>
+        <div class="scene-bg-half scene-bg-half--selector"></div>
+        <div class="scene-bg-half scene-bg-half--game"></div>
+      </div>
+
+      <!-- PANEL 1: LANDING -->
+      <div class="scene-panel scene-panel--landing" id="landingPage">
+        <iframe id="landingAnimation" src="animations/landing_animation.html" allow="autoplay"></iframe>
+
+        <!-- PLAY BUTTON -->
+        <div class="play-btn-container" id="playBtnContainer">
+          <button class="play-button" id="playButton"></button>
+        </div>
+      </div>
+
+      <!-- PANEL 2: HELP + SELECTOR (combined) -->
+      <div class="scene-panel scene-panel--selector" id="selectorHelpScreen">
+        <iframe id="selectorAnimation" src="animations/selector_animation.html" allow="autoplay"></iframe>
+
+        <div class="selector-help-content">
+          <div class="help-info" id="helpInfo">
+            <h2 class="help-title">How to play</h2>
+            <p class="help-text">Pick your favorite pet below.</p>
+            <p class="help-text">Groom, brush, and dress them up to make them shine!</p>
+          </div>
+
+          <div class="animal-cards" id="animalCards">
+            <button class="animal-card" data-animal="horse">
+              <iframe class="animal-card-preview" id="animPreview_horse" src="animations/anim_horse.html" allow="autoplay" tabindex="-1"></iframe>
+            </button>
+            <button class="animal-card" data-animal="cat">
+              <iframe class="animal-card-preview" id="animPreview_cat" src="animations/anim_cat.html" allow="autoplay" tabindex="-1"></iframe>
+            </button>
+            <button class="animal-card" data-animal="dog">
+              <iframe class="animal-card-preview" id="animPreview_dog" src="animations/anim_dog.html" allow="autoplay" tabindex="-1"></iframe>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 3: GAME SCREEN — content (which animal, accessory,
+           colors) is set dynamically from script.js based on which
+           animal card was picked. -->
+      <div class="scene-panel scene-panel--game" id="gameScreen">
+        <!-- (animal)_game_anim.html — src is set at selection time -->
+        <iframe id="gameAnimation" src="" allow="autoplay"></iframe>
+
+        <div class="game-character" id="gameCharacter">
+          <img class="game-character-img" id="gameMainImage" src="" alt="">
+        </div>
+
+        <!-- Collar (cat/dog) or saddle (horse) — position tuned per
+             animal in ANIMAL_CONFIG (script.js). Hidden unless toggled. -->
+        <img class="game-accessory" id="gameAccessory" src="" alt="">
+
+        <!-- Anchor point for the sparkle burst — position tuned per
+             animal in ANIMAL_CONFIG (script.js). -->
+        <div class="game-sparkle-spot" id="gameSparkleSpot"></div>
+
+        <div class="game-toolbar" id="gameToolbar">
+          <button class="game-tool-btn" id="accessoryButton" title="Collar / Saddle"></button>
+          <button class="game-tool-btn" id="sparkleButton" title="Sparkle"></button>
+          <button class="game-tool-btn game-color-btn" data-color-index="0" title="Hair color 1"></button>
+          <button class="game-tool-btn game-color-btn" data-color-index="1" title="Hair color 2"></button>
+          <button class="game-tool-btn game-color-btn" data-color-index="2" title="Hair color 3"></button>
+          <button class="game-tool-btn" id="brushButton" title="Brush"></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">© 2026 Myrealap. All Rights Reserved.</div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

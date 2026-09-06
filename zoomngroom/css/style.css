@@ -1,0 +1,578 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  cursor: none !important;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+body {
+  background: #ab0450;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'ChaletRegular', Arial, sans-serif;
+}
+
+@font-face {
+  font-family: 'ALGER';
+  src: url('../fonts/ALGER.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* LOADING SCREEN */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ab0450;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transition: opacity 1s ease;
+}
+
+.loading-screen.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background-image: url('../images/loading-bg.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.8s ease;
+}
+
+.loading-bg.show {
+  opacity: 0.4;
+}
+
+.quote-container {
+  position: relative;
+  text-align: center;
+  padding: 40px;
+  max-width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.quote-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 920px;
+  height: 220px;
+  background-image: url('../images/quote-bg.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.quote-text {
+  position: relative;
+  color: white;
+  font-size: 20px;
+  letter-spacing: 2px;
+  font-family: 'ChaletRegular', Arial, sans-serif;
+  line-height: 1.6;
+  font-style: italic;
+  z-index: 1;
+}
+
+.quote-author {
+  position: relative;
+  color: #888;
+  font-size: 12px;
+  margin-top: 20px;
+  letter-spacing: 1px;
+  z-index: 1;
+}
+
+.loading-action-area {
+  position: fixed;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-percentage {
+  color: #ffffff;
+  font-size: 28px;
+  font-family: 'ALGER', serif;
+  letter-spacing: 3px;
+  animation: loadingPulse 1.5s ease-in-out infinite;
+  transition: opacity 0.6s ease;
+  position: absolute;
+}
+
+.loading-percentage.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.go-button {
+  width: 110.5px;
+  height: 66px;
+  background-image: url('../images/Go.png');
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 221px 66px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  position: absolute;
+}
+
+.go-button.show {
+  opacity: 1;
+  pointer-events: auto;
+  animation: goPulse 1.5s ease-in-out infinite;
+}
+
+.go-button:hover {
+  background-position: -110.5px 0;
+}
+
+.go-button:focus {
+  outline: none;
+}
+
+.go-button.clicked {
+  animation: goFadeOut 0.5s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes goPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes goFadeOut {
+  to { opacity: 0; transform: scale(0.5); }
+}
+
+/* SCENE VIEWPORT / TRACK — landing / selector / game panels riding on a
+   shared wide background, panned with a single transform. Which panel
+   is showing is driven by data-scene="landing|selector|game" on
+   #sceneTrack (set from JS). */
+.scene-viewport {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9998;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+
+.scene-viewport.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scene-track {
+  position: relative;
+  width: 300%;
+  height: 100%;
+  display: flex;
+  transform: translateX(0%);
+  transition: transform 3.4s ease;
+}
+
+.scene-track[data-scene="selector"] {
+  transform: translateX(-33.3333%);
+}
+
+.scene-track[data-scene="game"] {
+  transform: translateX(-66.6667%);
+}
+
+.scene-wide-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* bg.png / bg_selector.png / bg_game.png — stitched into one continuous
+   strip that pans in lockstep with everything else on the scene-track.
+   bg_game.png is optional for now; nothing breaks if it's not there yet. */
+.scene-bg-half {
+  position: absolute;
+  top: 0;
+  width: 33.3333%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.scene-bg-half--landing {
+  left: 0;
+  background-image: url(../images/bg.png);
+}
+
+.scene-bg-half--selector {
+  left: 33.3333%;
+  background-image: url(../images/bg_selector.png);
+}
+
+.scene-bg-half--game {
+  left: 66.6667%;
+  background-image: url(../images/bg_game.png);
+}
+
+.scene-panel {
+  position: relative;
+  width: 33.3333%;
+  height: 100%;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.scene-panel iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  z-index: 0;
+}
+
+.play-btn-container {
+  position: absolute;
+  bottom: 66%;
+  left: 58%;
+  transform: scale(1.5);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+.play-btn-container.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.play-button {
+  width: 250px;
+  height: 125px;
+  background-image: url('../images/play_landing.png');
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 500px 125px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  transition: transform 0.3s ease;
+}
+
+.play-button:hover {
+  background-position: -250px 0;
+  transform: scale(1.05);
+}
+
+.play-button:focus {
+  outline: none;
+}
+
+.play-button:active {
+  transform: scale(0.95);
+}
+
+/* WHITE FADE */
+.white-fade {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  z-index: 100001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.white-fade.active {
+  opacity: 1;
+}
+
+/* SPARKLE CONTAINER */
+.global-sparkle-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100000;
+  overflow: hidden;
+}
+
+.global-sparkle {
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0;
+  animation: globalSparkleFade 1.2s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes globalSparkleFade {
+  0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+  20% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+  80% { opacity: 0.6; transform: scale(0.8) rotate(360deg); }
+  100% { opacity: 0; transform: scale(0.1) rotate(540deg); }
+}
+
+/* FOOTER */
+.footer {
+  position: fixed;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #000000;
+  font-size: 10px;
+  z-index: 100002;
+  font-family: 'ChaletRegular', Arial, sans-serif;
+  letter-spacing: 1px;
+  pointer-events: none;
+}
+
+/* SELECTOR + HELP SCREEN */
+.selector-help-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6%;
+  color: #fff;
+  font-family: 'ChaletRegular', Arial, sans-serif;
+  text-align: center;
+}
+
+.help-info {
+  max-width: 60%;
+  margin-left: -53%;
+}
+
+.help-title {
+  font-size: 2.2vw;
+  margin-bottom: 0.5em;
+  letter-spacing: 1px;
+}
+
+.help-text {
+  font-size: 1.5vw;
+  opacity: 0.9;
+}
+
+.animal-cards {
+  display: flex;
+  gap: 3%;
+}
+
+/* Each card is a 500x500 (responsive) two-state sprite button — normal
+   state | active state side by side in ONE image (e.g. 1000x500 total),
+   same convention as .go-button / .play-button above. No extra CSS
+   decoration on top — the sprite art itself carries the whole look.
+   An animation preview iframe (animations/anim_<animal>.html) sits on
+   top and fades in on hover/click/touch. */
+.animal-card {
+  position: relative;
+  width: min(500px, 26vw);
+  height: min(500px, 26vw);
+  border: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  background-position: 0% 0%;
+  cursor: pointer;
+  overflow: hidden;
+    transform: scale(0.7);
+}
+
+.animal-card:hover,
+.animal-card.active {
+  background-position: 100% 0%;
+}
+
+.animal-card[data-animal="horse"] { background-image: url('../images/select_horse.png'); 
+    top: -49%;
+    left: 36%;}
+.animal-card[data-animal="cat"]   { background-image: url('../images/select_cat.png'); 
+    top: 35%;
+    left: 19%;}
+.animal-card[data-animal="dog"]   { background-image: url('../images/select_dog.png'); 
+    top: -62%;
+    left: -6%;}
+
+.animal-card-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: none; /* hover/click always goes to the card itself */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.animal-card-preview.show {
+  opacity: 1;
+}
+
+/* GAME SCREEN */
+.game-character {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40%;
+  height: 70%;
+  z-index: 1;
+}
+
+/* Main character art + hair-color variants crossfade via this opacity
+   transition instead of a hard cut — important since for cat/dog a
+   color change swaps the WHOLE image, not just a tint. */
+.game-character-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.game-character-img.fading {
+  opacity: 0;
+}
+
+/* Collar (cat/dog) or saddle (horse) — position/size set per-animal
+   from ANIMAL_CONFIG in script.js (see "adjusting it exactly on
+   animal" note there). Toggled on/off by the accessory button. */
+.game-accessory {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.game-accessory.show {
+  opacity: 1;
+}
+
+/* Invisible anchor point for the sparkle effect — position set
+   per-animal from ANIMAL_CONFIG in script.js. */
+.game-sparkle-spot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.game-toolbar {
+  position: absolute;
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2%;
+  z-index: 2;
+}
+
+.game-tool-btn {
+  width: 90px;
+  height: 90px;
+  border: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  cursor: pointer;
+}
+
+/* Placeholder icons — swap these paths for your real button art. The
+   accessory button's icon is swapped between collar/saddle per-animal
+   from script.js (see ANIMAL_CONFIG). */
+#accessoryButton { background-image: url('../images/tool_collar.png'); }
+#sparkleButton   { background-image: url('../images/tool_sparkle.png'); }
+#brushButton     { background-image: url('../images/tool_brush.png'); }
+
+.game-color-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+/* Placeholder swatch colors — replace with real per-animal hair colors,
+   or swap this to a background-image thumbnail if you'd rather show a
+   preview of the actual fur art. */
+.game-color-btn[data-color-index="0"] { background-color: #a8763e; }
+.game-color-btn[data-color-index="1"] { background-color: #2b2b2b; }
+.game-color-btn[data-color-index="2"] { background-color: #f2f2f2; }
