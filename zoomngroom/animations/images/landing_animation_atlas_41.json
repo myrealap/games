@@ -1,0 +1,19 @@
+﻿{"frames": {
+
+"left_hand_foot":
+{
+	"frame": {"x":0,"y":0,"w":1024,"h":1536},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1024,"h":1536},
+	"sourceSize": {"w":1024,"h":1536}
+}},
+"meta": {
+	"app": "Adobe Animate",
+	"version": "24.0.14.24",
+	"image": "landing_animation_atlas_41.png",
+	"format": "undefined",
+	"size": {"w":1024,"h":2048},
+	"scale": "1"
+}
+}

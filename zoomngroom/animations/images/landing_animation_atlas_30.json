@@ -1,0 +1,19 @@
+﻿{"frames": {
+
+"ChatGPTImageAug31202603_22_49PM2":
+{
+	"frame": {"x":0,"y":0,"w":1536,"h":1024},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1536,"h":1024},
+	"sourceSize": {"w":1536,"h":1024}
+}},
+"meta": {
+	"app": "Adobe Animate",
+	"version": "24.0.14.24",
+	"image": "landing_animation_atlas_30.png",
+	"format": "undefined",
+	"size": {"w":2048,"h":1024},
+	"scale": "1"
+}
+}

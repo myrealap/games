@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="authoring-tool" content="Adobe_Animate_CC">
+<title>landing_animation</title>
+<script src="createjs.min.js"></script>
+<script src="landing_animation.js"></script>
+<script src="laanding_animation_anim.js"></script>
+<script>
+var canvas, stage, anim_container, dom_overlay_container;
+var mainRoot, loopRoot;
+var mainReady = false, loopReady = false;
+var pendingStart = false, started = false;
+
+var MAIN_ID = '2F4221117BB53040BD227F6CEFB6329A';
+var LOOP_ID = '2F4221117BB53040BD227F6CEFB6329A_LOOP';
+// How many frames early the loop clip should start, relative to the
+// main clip's own last frame. Bump this number up/down to taste.
+var LOOP_LEAD_FRAMES = 39;
+
+function init() {
+	canvas = document.getElementById("canvas");
+	anim_container = document.getElementById("animation_container");
+	dom_overlay_container = document.getElementById("dom_overlay_container");
+
+	loadComposition(MAIN_ID, handleMainComplete);
+	loadComposition(LOOP_ID, handleLoopComplete);
+}
+
+function loadComposition(id, onComplete) {
+	var comp = AdobeAn.getComposition(id);
+	var lib = comp.getLibrary();
+	var loader = new createjs.LoadQueue(false);
+	loader.addEventListener("fileload", function(evt){ handleFileLoad(evt, comp); });
+	loader.addEventListener("complete", function(evt){ onComplete(evt, comp); });
+	loader.loadManifest(lib.properties.manifest);
+}
+
+function handleFileLoad(evt, comp) {
+	var images = comp.getImages();
+	if (evt && evt.item.type === "image") { images[evt.item.id] = evt.result; }
+}
+
+function buildSpriteSheets(lib, ss, queue) {
+	var ssMetadata = lib.ssMetadata;
+	for (var i = 0; i < ssMetadata.length; i++) {
+		ss[ssMetadata[i].name] = new createjs.SpriteSheet({
+			images: [queue.getResult(ssMetadata[i].name)],
+			frames: ssMetadata[i].frames
+		});
+	}
+}
+
+function handleMainComplete(evt, comp) {
+	var lib = comp.getLibrary();
+	buildSpriteSheets(lib, comp.getSpriteSheet(), evt.target);
+	mainRoot = new lib.landing_animation();
+	if (!stage) {
+		stage = new lib.Stage(canvas);
+		AdobeAn.makeResponsive(false, 'both', false, 1, [canvas, anim_container, dom_overlay_container]);
+	}
+	AdobeAn.compositionLoaded(MAIN_ID);
+	mainReady = true;
+	tryFinishSetup();
+}
+
+function handleLoopComplete(evt, comp) {
+	var lib = comp.getLibrary();
+	buildSpriteSheets(lib, comp.getSpriteSheet(), evt.target);
+	loopRoot = new lib.landing_animationCopy();
+	AdobeAn.compositionLoaded(LOOP_ID);
+	loopReady = true;
+	tryFinishSetup();
+}
+
+function tryFinishSetup() {
+	if (mainReady && loopReady && pendingStart) {
+		beginPlayback();
+	}
+}
+
+// Plays the main (one-shot) animation, then swaps to the looping one the
+// instant the main timeline completes — and keeps it looping until told
+// to stop.
+function beginPlayback() {
+	if (!mainReady || !loopReady) { pendingStart = true; return; }
+	if (started) return;
+	started = true;
+
+	stage.addChild(mainRoot);
+	createjs.Ticker.framerate = 30;
+	createjs.Ticker.addEventListener("tick", stage);
+
+	var loopStarted = false;
+
+	// Fires on every frame advance of the main clip's timeline — start
+	// the loop clip a couple frames early instead of waiting for the
+	// hard "complete" event, so the handoff feels snappier.
+	mainRoot.timeline.addEventListener("change", function () {
+		if (!loopStarted && mainRoot.timeline.position >= mainRoot.timeline.duration - LOOP_LEAD_FRAMES) {
+			loopStarted = true;
+			stage.addChild(loopRoot);
+			loopRoot.gotoAndPlay(0);
+			// loopRoot's own timeline loops by default — nothing else to set.
+		}
+	});
+
+	mainRoot.timeline.addEventListener("complete", function () {
+		// Freeze the main clip on its last frame instead of removing it —
+		// it stays on screen underneath the (already-started) loop clip.
+		mainRoot.stop();
+	});
+}
+
+// Stops the ticker and clears the stage. Called when the parent page is
+// moving on (e.g. Play button clicked) so this stops costing CPU.
+function stopPlayback() {
+	createjs.Ticker.removeEventListener("tick", stage);
+	if (stage) {
+		stage.removeAllChildren();
+		stage.update();
+	}
+	started = false;
+}
+
+window.addEventListener("message", function (evt) {
+	if (!evt.data) return;
+	if (evt.data.type === "startLandingAnimation") {
+		beginPlayback();
+	} else if (evt.data.type === "stopLandingAnimation") {
+		stopPlayback();
+	}
+});
+</script>
+</head>
+<body onload="init();" style="margin:0px;">
+	<div id="animation_container" style="background-color:rgba(53, 64, 77, 0.00); width:1920px; height:1080px">
+		<canvas id="canvas" width="1920" height="1080" style="position: absolute; display: block; background-color:rgba(53, 64, 77, 0.00);"></canvas>
+		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:1920px; height:1080px; position: absolute; left: 0px; top: 0px; display: block;">
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+﻿{"frames": {
+
+"ChatGPTImageAug31202603_24_50PM":
+{
+	"frame": {"x":0,"y":0,"w":1346,"h":1168},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1346,"h":1168},
+	"sourceSize": {"w":1346,"h":1168}
+},
+"farm":
+{
+	"frame": {"x":0,"y":1170,"w":1456,"h":734},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1456,"h":734},
+	"sourceSize": {"w":1456,"h":734}
+},
+"me1":
+{
+	"frame": {"x":1348,"y":0,"w":621,"h":910},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":621,"h":910},
+	"sourceSize": {"w":621,"h":910}
+}},
+"meta": {
+	"app": "Adobe Animate",
+	"version": "24.0.14.24",
+	"image": "landing_animation_atlas_51.png",
+	"format": "undefined",
+	"size": {"w":2048,"h":2048},
+	"scale": "1"
+}
+}

@@ -1,0 +1,27 @@
+﻿{"frames": {
+
+"ChatGPTImageAug31202612_36_20AM":
+{
+	"frame": {"x":0,"y":973,"w":1620,"h":971},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1620,"h":971},
+	"sourceSize": {"w":1620,"h":971}
+},
+"car_npngcopy":
+{
+	"frame": {"x":0,"y":0,"w":1620,"h":971},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1620,"h":971},
+	"sourceSize": {"w":1620,"h":971}
+}},
+"meta": {
+	"app": "Adobe Animate",
+	"version": "24.0.14.24",
+	"image": "landing_animation_atlas_29.png",
+	"format": "undefined",
+	"size": {"w":2048,"h":2048},
+	"scale": "1"
+}
+}

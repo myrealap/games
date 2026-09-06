@@ -1,0 +1,59 @@
+﻿{"frames": {
+
+"Bitmap1":
+{
+	"frame": {"x":0,"y":1824,"w":1103,"h":123},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1103,"h":123},
+	"sourceSize": {"w":1103,"h":123}
+},
+"logo_home":
+{
+	"frame": {"x":623,"y":912,"w":700,"h":700},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":700,"h":700},
+	"sourceSize": {"w":700,"h":700}
+},
+"me2":
+{
+	"frame": {"x":0,"y":0,"w":621,"h":910},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":621,"h":910},
+	"sourceSize": {"w":621,"h":910}
+},
+"me3":
+{
+	"frame": {"x":0,"y":912,"w":621,"h":910},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":621,"h":910},
+	"sourceSize": {"w":621,"h":910}
+},
+"me4":
+{
+	"frame": {"x":623,"y":0,"w":621,"h":910},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":621,"h":910},
+	"sourceSize": {"w":621,"h":910}
+},
+"wheelpngcopy":
+{
+	"frame": {"x":1105,"y":1614,"w":303,"h":304},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":303,"h":304},
+	"sourceSize": {"w":303,"h":304}
+}},
+"meta": {
+	"app": "Adobe Animate",
+	"version": "24.0.14.24",
+	"image": "landing_animation_atlas_52.png",
+	"format": "undefined",
+	"size": {"w":2048,"h":2048},
+	"scale": "1"
+}
+}
